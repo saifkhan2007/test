@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Ludo Superpowers: Balance Update</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Roboto:wght@400;700&family=Cinzel:wght@700&display=swap');
+
+        html, body {
+            height: 100dvh; width: 100vw; position: fixed; inset: 0;
+            overflow: hidden; font-family: 'Roboto', sans-serif;
+            background-color: #0d0d0d; color: #e0e0e0;
+            user-select: none; touch-action: none;
+        }
+
+        .pixel-font { font-family: 'Press Start 2P', cursive; }
+        .lore-font { font-family: 'Cinzel', serif; }
+
+        .ladder-wrapper { height: 100%; overflow-y: auto; background: #1a1a1a; border: 4px solid #333; border-radius: 8px; position: relative; scroll-behavior: smooth; }
+        .ladder-track { display: flex; flex-direction: column-reverse; padding: 40vh 20px 40vh 20px; }
+        
+        .step {
+            width: 100%; height: 60px; background: #2c2c2c; border: 2px solid #444; margin-bottom: -2px; 
+            display: flex; align-items: center; justify-content: space-between; padding: 0 10px; color: #666; font-weight: bold; position: relative; flex-shrink: 0;
+        }
+        .step:first-child { border-radius: 0 0 10px 10px; }
+        .step:last-child { border-radius: 10px 10px 0 0; }
+        .step.active { background: #2e4c2e !important; border-color: #4caf50 !important; color: #fff; z-index: 20; box-shadow: 0 0 20px rgba(76, 175, 80, 0.8); transform: scale(1.05); }
+
+        /* COLORS */
+        .step.item-gaja { border-left: 8px solid #ffd700; background: #2a2a20; }
+        .step.item-magic { border-left: 8px solid #a855f7; background: #2a202a; }
+        .step.item-chili { border-left: 8px solid #ef4444; background: #2a1a1a; }
+        .step.item-potion { border-left: 8px solid #3b82f6; background: #1a202c; }
+        .step.item-wire { border-left: 8px solid #fbbf24; background: #451a03; } 
+        .step.item-mojo { border-left: 8px solid #ef4444; background: #450a0a; } 
+        .step.item-roafja { border-left: 8px solid #ec4899; background: #500724; }
+        
+        .step.trap-shit { border-left: 8px solid #78350f; background: #291d15; }
+        .step.trap-egg { border-left: 8px solid #84cc16; background: #1f2915; }
+        .step.trap-hole { border-left: 8px solid #555; background: #000; border-style: dashed; }
+        .step.trap-banana { border-left: 8px solid #eab308; background: #2e2a10; }
+        .step.trap-bandit { border-left: 8px solid #4b5563; background: #1f2937; }
+        .step.trap-mud { border-left: 8px solid #5d4037; background: #3e2723; }
+        .step.trap-idol { border-left: 8px solid #9c27b0; background: #4a148c; }
+        .step.trap-moss { border-left: 8px solid #33691e; background: #1b5e20; }
+        
+        .step.boss-step { border: 4px dashed #ff0000; background: #3d0000; }
+        .step.boss-diddy { border: 4px dashed #ff00ff; background: #3d003d; }
+        .step.boss-logan { border: 4px dashed #a3e635; background: #1a2e05; }
+        .step.boss-elon { border: 4px dashed #60a5fa; background: #0c4a6e; }
+        .step.boss-zuck { border: 4px dashed #14b8a6; background: #042f2e; }
+        .step.boss-trump { border: 4px dashed #f97316; background: #431407; }
+        .step.boss-guardian { border: 4px dashed #fbbf24; background: #422006; box-shadow: inset 0 0 20px #fbbf24; }
+
+        .player-token { font-size: 2rem; animation: bounce 0.8s infinite alternate; filter: drop-shadow(0 4px 2px rgba(0,0,0,0.8)); }
+        @keyframes bounce { from { transform: translateY(0); } to { transform: translateY(-8px); } }
+        @keyframes shake { 0% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
+        .shake-anim { animation: shake 0.3s ease-in-out; }
+
+        .log-box { font-family: 'Courier New', monospace; font-size: 0.75rem; height: 100%; overflow-y: auto; background: #000; border: 1px solid #333; color: #00ff9d; padding: 8px; }
+        .narrator-text { color: #fbbf24; font-style: italic; border-left: 2px solid #fbbf24; padding-left: 8px; margin: 4px 0; }
+        .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 50; display: flex; align-items: center; justify-content: center; }
+
+        .inv-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 10px; border-radius: 8px; background: #1f2937; border: 2px solid #374151; transition: all 0.2s; }
+        .inv-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+        .inv-btn:active { transform: scale(0.95); }
+        .count-badge { background: red; color: white; border-radius: 999px; padding: 2px 6px; font-size: 10px; margin-top: 4px; }
+        
+        .atk-btn { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; border-radius: 6px; font-weight: bold; color: white; border-bottom-width: 4px; transition: transform 0.1s; }
+        .atk-btn:active { transform: translateY(2px); border-bottom-width: 0; margin-top: 4px; }
+        .atk-btn:disabled { opacity: 0.5; border-bottom-width: 0; transform: translateY(2px); }
+    </style>
+</head>
+<body class="flex flex-col md:flex-row p-2 gap-2">
+
+    <!-- LEFT PANEL -->
+    <div class="w-full md:w-1/3 flex flex-col gap-2 z-20 flex-none h-[40%] md:h-auto">
+        <div class="bg-gray-900 p-3 rounded border border-gray-700 shadow-xl flex flex-col gap-2">
+            <div class="flex justify-between items-center">
+                <h1 class="text-lg text-yellow-400 pixel-font leading-relaxed">LUDO<br>SAGA</h1>
+                <div class="text-right">
+                    <div class="text-[10px] text-gray-400 uppercase">Health</div>
+                    <div id="hpVal" class="text-sm font-bold">100/100</div>
+                </div>
+            </div>
+            <div class="w-full h-3 bg-gray-800 rounded overflow-hidden border border-gray-600">
+                <div id="hpBar" class="h-full bg-gradient-to-r from-red-600 to-red-400 transition-all duration-300" style="width: 100%;"></div>
+            </div>
+            <div class="bg-black p-2 rounded border border-gray-800 text-center flex justify-between items-center px-4 relative">
+                <span class="text-gray-500 text-xs uppercase">Step</span>
+                <span id="stepVal" class="text-2xl font-bold text-blue-400">0</span>
+                <div id="curseIcon" class="absolute right-2 top-2 text-purple-500 animate-pulse hidden" title="Cursed! Max Roll 3">🗿</div>
+                <div id="buffIcon" class="absolute right-8 top-2 bg-yellow-600 text-white text-xs px-2 py-1 rounded font-bold animate-pulse hidden">2x</div>
+            </div>
+            <div class="grid grid-cols-2 gap-2">
+                <button id="btnRoll" onclick="game.rollDice()" class="col-span-2 bg-blue-700 active:bg-blue-600 text-white font-bold py-3 rounded border-b-4 border-blue-900 active:border-b-0 active:translate-y-1 transition-all text-sm">🎲 ROLL (R)</button>
+                <button onclick="game.openInventory()" class="bg-purple-700 active:bg-purple-600 text-white font-bold py-2 rounded border-b-4 border-purple-900 active:border-b-0 active:translate-y-1 transition-all text-xs">🎒 BAG</button>
+                <button onclick="game.toggleInfo()" class="bg-gray-700 active:bg-gray-600 text-gray-200 text-xs py-2 rounded border-b-4 border-gray-800 active:border-b-0 active:translate-y-1">📜 GUIDE</button>
+                <button onclick="game.toggleVoice()" id="btnVoice" class="col-span-2 bg-pink-700 active:bg-pink-600 text-white font-bold py-2 rounded border-b-4 border-pink-900 active:border-b-0 active:translate-y-1 text-xs">🔊 AI VOICE: OFF</button>
+                <button onclick="game.openTestMenu()" type="button" class="col-span-2 bg-gray-800 text-gray-400 text-[10px] py-1 rounded border border-gray-700 hover:bg-gray-700 cursor-pointer">🛠️ DEV MENU</button>
+            </div>
+        </div>
+        <div class="flex-grow flex flex-col bg-gray-900 rounded border border-gray-700 p-2 min-h-0">
+            <span class="text-[10px] text-gray-500 mb-1 uppercase">Log</span>
+            <div id="gameLog" class="log-box rounded"></div>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="w-full md:w-2/3 relative flex flex-col bg-black rounded border border-gray-800 flex-grow min-h-0">
+        <div class="ladder-wrapper" id="scrollContainer">
+            <div id="ladderTrack" class="ladder-track"></div>
+        </div>
+        <div class="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-black to-transparent pointer-events-none z-10"></div>
+        <div class="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-black to-transparent pointer-events-none z-10"></div>
+    </div>
+
+    <!-- ITEM PICKUP MODAL -->
+    <div id="pickupModal" class="modal-overlay hidden">
+        <div class="bg-gray-800 border-2 border-green-500 p-6 rounded-lg max-w-sm w-full text-center shadow-[0_0_30px_rgba(34,197,94,0.4)] mx-4">
+            <div id="pickupIcon" class="text-6xl mb-2">🎁</div>
+            <h2 id="pickupTitle" class="text-2xl text-green-400 pixel-font mb-2">ITEM NAME</h2>
+            <p id="pickupDesc" class="text-gray-300 text-sm mb-4 leading-relaxed"></p>
+            <button onclick="game.closePickup()" class="bg-green-700 text-white font-bold py-3 px-8 rounded hover:bg-green-600 border-b-4 border-green-900 active:border-b-0">KEEP IT</button>
+        </div>
+    </div>
+
+    <!-- PASSWORD MODAL -->
+    <div id="passwordModal" class="modal-overlay hidden z-[60]">
+        <div class="bg-gray-800 border border-gray-600 p-6 rounded-lg shadow-2xl max-w-xs w-full">
+            <h3 class="text-white mb-2 font-bold pixel-font text-xs">SECURITY CHECK</h3>
+            <p class="text-[10px] text-gray-400 mb-2">Enter Developer Password:</p>
+            <input type="password" id="devPasswordInput" class="w-full bg-black text-white border border-gray-600 p-2 rounded mb-4 text-sm font-mono tracking-widest placeholder-gray-700" placeholder="••••">
+            <div class="flex justify-end gap-2">
+                <button onclick="game.closePasswordModal()" class="bg-gray-700 text-gray-300 px-3 py-2 rounded text-[10px] hover:bg-gray-600 font-bold">CANCEL</button>
+                <button onclick="game.checkPassword()" class="bg-blue-600 text-white px-3 py-2 rounded text-[10px] hover:bg-blue-500 font-bold border-b-2 border-blue-800 active:border-b-0 active:translate-y-[2px]">UNLOCK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TEST MENU MODAL -->
+    <div id="testModal" class="modal-overlay hidden">
+        <div class="bg-gray-900 border-2 border-gray-500 p-6 rounded-lg max-w-sm w-full relative mx-4">
+            <button onclick="game.closeTestMenu()" class="absolute top-2 right-2 text-gray-400 hover:text-white">✕</button>
+            <h2 class="text-xl text-gray-300 pixel-font mb-4 text-center">DEV TOOLS</h2>
+            
+            <div class="mb-4 border-b border-gray-700 pb-4">
+                <label class="block text-xs text-gray-500 mb-1">JUMP TO STEP</label>
+                <div class="flex gap-2">
+                    <input id="cheatStepInput" type="number" min="0" max="100" class="bg-black text-white border border-gray-600 rounded p-2 w-full text-sm" placeholder="0-100">
+                    <button onclick="game.cheatJump()" class="bg-blue-700 text-white px-4 rounded font-bold text-xs">GO</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <label class="col-span-2 text-xs text-gray-500">ADD ITEMS</label>
+                <button onclick="game.cheatItem('gaja')" class="bg-gray-800 text-yellow-400 p-2 rounded text-xs border border-gray-700 hover:bg-gray-700">🌿 Gaja</button>
+                <button onclick="game.cheatItem('magic')" class="bg-gray-800 text-purple-400 p-2 rounded text-xs border border-gray-700 hover:bg-gray-700">🎲 Magic</button>
+                <button onclick="game.cheatItem('chili')" class="bg-gray-800 text-red-400 p-2 rounded text-xs border border-gray-700 hover:bg-gray-700">🌶️ Chili</button>
+                <button onclick="game.cheatItem('potion')" class="bg-gray-800 text-blue-400 p-2 rounded text-xs border border-gray-700 hover:bg-gray-700">🧪 Potion</button>
+                <button onclick="game.cheatItem('wire')" class="bg-gray-800 text-yellow-600 p-2 rounded text-xs border border-gray-700 hover:bg-gray-700">⚡ Tar</button>
+                <button onclick="game.cheatItem('mojo')" class="bg-gray-800 text-red-600 p-2 rounded text-xs border border-gray-700 hover:bg-gray-700">🥤 Mojo</button>
+                <button onclick="game.cheatItem('roafja')" class="bg-gray-800 text-pink-600 p-2 rounded text-xs border border-gray-700 hover:bg-gray-700">🍷 Roafja</button>
+                <button onclick="game.cheatHeal()" class="bg-green-900 text-green-400 p-2 rounded text-xs border border-gray-700 hover:bg-green-800">❤️ Heal</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- BOSS MODAL -->
+    <div id="bossModal" class="modal-overlay hidden">
+        <div class="bg-red-900 border-4 border-red-600 p-4 rounded-lg max-w-sm w-full text-center shadow-2xl mx-4">
+            <div id="bossIcon" class="text-5xl mb-2">👹</div>
+            <h2 id="bossName" class="text-xl text-yellow-300 pixel-font mb-2">BOSS</h2>
+            
+            <div id="bossTurnIndicator" class="text-sm font-bold text-white bg-black/50 py-1 mb-2 rounded animate-pulse">YOUR TURN</div>
+            
+            <div class="flex justify-center gap-2 mb-2 text-[10px]">
+                <span id="bossStunStatus" class="bg-yellow-500 text-black px-2 py-1 rounded font-bold hidden">⚡ STUNNED</span>
+                <span id="bossDodgeStatus" class="bg-pink-500 text-white px-2 py-1 rounded font-bold hidden">👁️ NO DODGE</span>
+            </div>
+
+            <div id="bossBarsContainer">
+                <div class="flex justify-between text-[10px] text-white font-bold mb-1 px-1">
+                    <span>YOU: <span id="modalPlayerHp">100</span></span>
+                    <span>BOSS: <span id="modalBossHp">100</span></span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 mb-4">
+                    <div class="h-3 bg-gray-800 rounded border border-green-500 overflow-hidden"><div id="modalPlayerBar" class="h-full bg-green-500 w-full transition-all duration-300"></div></div>
+                    <div class="h-3 bg-gray-800 rounded border border-red-500 overflow-hidden"><div id="modalBossBar" class="h-full bg-red-500 w-full transition-all duration-300"></div></div>
+                </div>
+            </div>
+            
+            <div id="bossLogArea" class="h-20 bg-black/50 text-red-200 text-xs p-2 mb-4 overflow-y-auto border border-red-800 text-left font-mono"></div>
+
+            <div id="bossPhase1" class="grid grid-cols-2 gap-3">
+                <button onclick="game.startCombat()" class="bg-red-600 active:bg-red-500 text-white font-bold py-3 rounded border-b-4 border-red-800 active:border-b-0">⚔️ FIGHT</button>
+                <button id="btnBossAction2" onclick="game.bossRun()" class="bg-gray-600 active:bg-gray-500 text-white font-bold py-3 rounded border-b-4 border-gray-800 active:border-b-0">🏃 RUN</button>
+            </div>
+
+            <div id="bossPhase2" class="hidden">
+                <div class="grid grid-cols-3 gap-1 mb-2">
+                    <button onclick="game.playerAttack('juta')" class="combat-btn bg-yellow-600 border-yellow-800 text-[10px] py-2 rounded font-bold text-white">👟 Juta</button>
+                    <button onclick="game.playerAttack('danda')" class="combat-btn bg-orange-600 border-orange-800 text-[10px] py-2 rounded font-bold text-white">🪵 Danda</button>
+                    <button onclick="game.playerAttack('lathi')" class="combat-btn bg-red-600 border-red-800 text-[10px] py-2 rounded font-bold text-white">🦵 Lathi</button>
+                </div>
+                <div class="grid grid-cols-3 gap-1 border-t border-red-800 pt-2">
+                    <button onclick="game.useCombatItem('wire')" id="btnCombatWire" class="combat-item-btn bg-yellow-800 border-yellow-950 text-[9px] py-1 rounded text-white">⚡ Tar (Stun 5) <span id="cntWire">0</span></button>
+                    <button onclick="game.useCombatItem('mojo')" id="btnCombatMojo" class="combat-item-btn bg-red-800 border-red-950 text-[9px] py-1 rounded text-white">🥤 Mojo (+20HP) <span id="cntMojo">0</span></button>
+                    <button onclick="game.useCombatItem('roafja')" id="btnCombatRoafja" class="combat-item-btn bg-pink-800 border-pink-950 text-[9px] py-1 rounded text-white">🍷 Roafja (Hit 2) <span id="cntRoafja">0</span></button>
+                </div>
+            </div>
+
+            <div id="bossRewardContainer" class="hidden">
+                <h3 class="text-yellow-400 pixel-font mb-4 text-sm">CHOOSE REWARD</h3>
+                <div class="grid grid-cols-1 gap-2">
+                    <button onclick="game.claimReward('heal')" class="bg-green-700 text-white py-3 rounded font-bold border-b-4 border-green-900">❤️ +50 HP</button>
+                    <button onclick="game.claimReward('buff')" class="bg-blue-700 text-white py-3 rounded font-bold border-b-4 border-blue-900">🎲 2x Roll</button>
+                    <button onclick="game.claimReward('jump')" class="bg-purple-700 text-white py-3 rounded font-bold border-b-4 border-purple-900">🚀 +15 Steps</button>
+                </div>
+            </div>
+            
+            <div id="bossLoreContainer" class="hidden">
+                <p id="bossLoreText" class="text-sm text-yellow-100 italic mb-4 leading-relaxed"></p>
+                <button onclick="game.closeBoss()" class="bg-yellow-600 text-black font-bold py-2 px-6 rounded hover:bg-yellow-500">PROCEED</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- INVENTORY -->
+    <div id="invModal" class="modal-overlay hidden">
+        <div class="bg-gray-800 border-2 border-purple-500 p-6 rounded-lg max-w-md w-full relative mx-4">
+            <button onclick="game.closeInventory()" class="absolute top-2 right-2 text-gray-400 hover:text-white font-bold">✕</button>
+            <h2 class="text-xl text-purple-400 pixel-font mb-4 text-center">INVENTORY</h2>
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <button id="btnInvGaja" onclick="game.useGaja()" class="inv-btn group"><span class="text-2xl">🌿</span> <span class="text-xs font-bold text-gray-300">Gaja</span> <span id="badgeGaja" class="count-badge">0</span></button>
+                <button id="btnInvMagic" onclick="game.openMagicPicker()" class="inv-btn group"><span class="text-2xl">🎲</span> <span class="text-xs font-bold text-gray-300">Magic</span> <span id="badgeMagic" class="count-badge">0</span></button>
+                <button id="btnInvChili" onclick="game.useChili()" class="inv-btn group"><span class="text-2xl">🌶️</span> <span class="text-xs font-bold text-gray-300">Morich</span> <span id="badgeChili" class="count-badge">0</span></button>
+                <button id="btnInvPotion" onclick="game.usePotion()" class="inv-btn group"><span class="text-2xl">🧪</span> <span class="text-xs font-bold text-gray-300">Potion</span> <span id="badgePotion" class="count-badge">0</span></button>
+            </div>
+            <div class="text-center text-xs text-gray-500 border-t border-gray-700 pt-2">Combat Items (Use in Boss Fight):</div>
+            <div class="flex justify-center gap-4 mt-2 text-xs text-gray-300">
+                <div>⚡ Tar: <span id="invWireVal">0</span></div>
+                <div>🥤 Mojo: <span id="invMojoVal">0</span></div>
+                <div>🍷 Roafja: <span id="invRoafjaVal">0</span></div>
+            </div>
+            <div id="magicPicker" class="absolute inset-0 bg-gray-900/95 flex flex-col items-center justify-center hidden rounded-lg z-50">
+                <h3 class="text-yellow-400 mb-4">Pick Steps:</h3>
+                <div class="grid grid-cols-3 gap-3">
+                    <script>document.write([1,2,3,4,5,6].map(n => `<button onclick="game.useMagicDice(${n})" class="w-12 h-12 bg-purple-600 rounded font-bold text-white hover:bg-purple-500">${n}</button>`).join(''))</script>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- LORE MODAL -->
+    <div id="loreModal" class="modal-overlay hidden">
+        <div class="bg-slate-900 border-2 border-blue-400 p-6 rounded-lg max-w-md w-full mx-4 shadow-[0_0_30px_rgba(59,130,246,0.5)]">
+            <h2 id="loreTitle" class="text-2xl text-blue-300 lore-font mb-4 text-center border-b border-blue-800 pb-2">MEMORY</h2>
+            <div id="loreText" class="text-gray-300 text-sm leading-relaxed italic text-center mb-6"></div>
+            <button onclick="game.closeLore()" class="w-full bg-blue-900 hover:bg-blue-800 text-blue-200 border border-blue-500 py-2 rounded uppercase text-xs tracking-widest">Continue</button>
+        </div>
+    </div>
+
+    <!-- END SCREENS -->
+    <div id="winModal" class="modal-overlay hidden">
+        <div class="text-center"><h1 class="text-5xl text-yellow-400 pixel-font mb-6 animate-bounce">HEAVEN!</h1><p class="text-xl text-gray-300 mb-2">The Test is Over.</p><button onclick="game.resetGame()" class="bg-yellow-500 text-black font-bold py-3 px-8 rounded border-b-4 border-yellow-700">REINCARNATE</button></div>
+    </div>
+    <div id="gameOverModal" class="modal-overlay hidden">
+        <div class="text-center max-w-lg w-full p-6 bg-gray-900 border-4 border-red-600 rounded-lg relative shadow-2xl mx-4">
+            <h1 class="text-3xl md:text-5xl text-red-600 pixel-font mb-4 animate-pulse">ABYSS</h1>
+            <p id="deathReason" class="text-sm text-gray-300 mb-4">You fell.</p>
+            <div class="text-left bg-black border border-gray-700 p-3 rounded h-32 overflow-y-auto mb-6 font-mono text-[10px] text-green-400 shadow-inner">
+                <div id="logTitle" class="text-gray-500 border-b border-gray-800 mb-2 pb-1 uppercase tracking-widest">Final Moments:</div>
+                <div id="gameOverLogContent"></div>
+            </div>
+            <button onclick="game.resetGame()" class="w-full bg-white text-black font-bold py-3 rounded hover:bg-gray-200">Try Again</button>
+        </div>
+    </div>
+
+    <!-- INFO MODAL -->
+    <div id="infoModal" class="modal-overlay hidden">
+        <div class="bg-gray-800 border border-gray-600 p-6 rounded max-w-lg w-full relative max-h-[90vh] overflow-y-auto mx-4">
+            <button onclick="game.toggleInfo()" class="absolute top-2 right-2 text-gray-400 hover:text-white">✕</button>
+            <h3 class="text-yellow-400 pixel-font mb-4 text-center">Guide</h3>
+            <div class="space-y-4 text-xs">
+                <div class="bg-gray-900 p-2 rounded"><h4 class="text-blue-400 font-bold mb-1 border-b border-gray-700">Items</h4><div class="grid grid-cols-1 gap-1"><div class="flex">🌿 <strong>Gaja:</strong> +/- 7 Steps (50/50)</div><div class="flex">🎲 <strong>Magic:</strong> Pick # to move</div><div class="flex">🌶️ <strong>Morich:</strong> +15 Steps / -20 HP</div><div class="flex">🧪 <strong>Potion:</strong> Random Effect</div></div></div>
+                <div class="bg-gray-900 p-2 rounded"><h4 class="text-red-400 font-bold mb-1 border-b border-gray-700">Hazards</h4><div>🦹 <strong>Bandit:</strong> Steals 1-10 HP/Turn</div><div>👹 <strong>Hasina:</strong> Funny Attacks (Low Dmg)</div><div>🧢 <strong>Diddy:</strong> Oil Slip (8 Dmg)</div><div>👁️ <strong>Guardian:</strong> The Final Test (Step 100)</div></div>
+                <div class="bg-gray-900 p-2 rounded"><h4 class="text-green-400 font-bold mb-1 border-b border-gray-700">Combat Items</h4><div>⚡ <strong>Tar:</strong> Stuns Boss (5 Turns)</div><div>🥤 <strong>Mojo:</strong> +20 HP (Instant)</div><div>🍷 <strong>Roafja:</strong> Boss Can't Dodge (2 Turns)</div></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const sfx = {
+            playTone(freq, type, duration, vol=0.1) {
+                if(audioCtx.state==='suspended') audioCtx.resume();
+                const o=audioCtx.createOscillator(), g=audioCtx.createGain();
+                o.type=type; o.frequency.setValueAtTime(freq,audioCtx.currentTime);
+                g.gain.setValueAtTime(vol,audioCtx.currentTime);
+                g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+duration);
+                o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+duration);
+            },
+            chill: () => { if(audioCtx.state==='suspended') audioCtx.resume(); const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sawtooth'; o.frequency.setValueAtTime(50,audioCtx.currentTime); g.gain.setValueAtTime(0.2,audioCtx.currentTime); g.gain.exponentialRampToValueAtTime(0.001,audioCtx.currentTime+3); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+3); },
+            roll: () => { for(let i=0;i<10;i++) setTimeout(()=>sfx.playTone(200+Math.random()*500,'square',0.05,0.05),i*50); },
+            move: () => { sfx.playTone(300,'sine',0.1); setTimeout(()=>sfx.playTone(450,'sine',0.1),50); },
+            fall: () => { const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.frequency.setValueAtTime(800,audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(100,audioCtx.currentTime+1); g.gain.linearRampToValueAtTime(0,audioCtx.currentTime+1); o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+1); },
+            itemGood: () => { sfx.playTone(600,'sine',0.1); setTimeout(()=>sfx.playTone(900,'sine',0.2),100); },
+            itemBad: () => sfx.playTone(150,'sawtooth',0.4),
+            hitLow: () => sfx.playTone(200,'square',0.1),
+            hitMed: () => sfx.playTone(150,'sawtooth',0.15),
+            hitHigh: () => { sfx.playTone(100,'sawtooth',0.2); setTimeout(()=>sfx.playTone(50,'sawtooth',0.3),100); },
+            damageTaken: () => { sfx.playTone(100,'square',0.3); setTimeout(()=>sfx.playTone(8,'square',0.3),150); },
+            dodge: () => { const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.frequency.setValueAtTime(600,audioCtx.currentTime); o.frequency.linearRampToValueAtTime(200,audioCtx.currentTime+0.2); g.gain.value=0.1; o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+0.2); },
+            crit: () => { for(let i=0;i<3;i++) setTimeout(()=>sfx.playTone(1000,'square',0.1,0.2),i*100); },
+            tickle: () => { for(let i=0;i<5;i++) setTimeout(()=>sfx.playTone(800+Math.random()*200,'sine',0.1),i*80); },
+            win: () => { [261,329,392,523].forEach((f,i)=>setTimeout(()=>sfx.playTone(f,'triangle',0.5,0.3),i*150)); },
+            lore: () => { sfx.playTone(400,'sine',1.5,0.05); }
+        };
+
+        const LORE = {
+            intro: "Darkness... then a blinding light. You hear a flatline. You aren't in the hospital anymore. You are at the foot of an infinite ladder. A voice echoes: 'This is the Test.'",
+            20: "MEMORY RECOVERED (Step 20): A flash of headlights. The screech of tires. You were driving home to see your mother. You never made it.",
+            40: "MEMORY RECOVERED (Step 40): You remember your job. High stress, low pay. You always wanted to travel. You promised yourself 'next year'. There are no next years here.",
+            60: "MEMORY RECOVERED (Step 60): 'This is the climb of Penance.' You weren't perfect, but you weren't evil. To reach the light, you must rise above the filth.",
+            80: "MEMORY RECOVERED (Step 80): The pain of the crash is fading. You remember the faces of those you loved. They are crying, but you feel... peace? You are close now.",
+            hasina: "THE IRON LADY'S FATE: She ruled with an iron fist, silencing thousands to keep her throne. The blood of the students turned into the very chains that bind her here. She acts as a gatekeeper, forever denied ascension because she refuses to repent.",
+            diddy: "THE PARTY KING'S FATE: He thought fame granted immunity. Now he is the prisoner, slipping on his own oil, forever trapped diddling in eternal hell.",
+            bandit: "THE ONE WHO WAS THE PROMISED TO HAVE THE WORLD: Once a climber like you, he succumbed to greed. He preys on others, Thinking money will allow him into heaven. He doesn't realize money has no value up here.",
+            logan: "THE INFLUENCER'S PURGATORY: He sold a dream that didn't exist. Now he wanders this step, boxing shadows and chugging radioactive energy drinks, begging for one last like. His camera is broken, but he still vlogs to the void.",
+            elon: "THE TECH BARON'S EXILE: He wanted to go to Mars, but his ego weighed him down. He rules this step with a jagged X, firing anyone who makes eye contact. He bought this step, but he can't buy a way out.",
+            zuck: "THE REPTILE'S DEN: A hollow shell seeking human connection but finding only data points. He knows your secrets, your fears, and your browser history. He blocked you from heaven.",
+            trump: "THE ORANGE TYCOON: He claims he won the ladder. He says the steps are rigged. He built a golden tower on step 90 and demands a tariff to pass. He has the best words, but uses them to deport you.",
+            guardian: "THE SINNED GUARDIAN: An angel who flew too close to the sun of pride. Cast down to the threshold, he guards the gate to ensure only those stronger than him can enter. He envies your mortality."
+        };
+
+        const TAUNTS = {
+            intro: ["Welcome to hell. Enjoy the climb.", "Good luck. You'll need it.", "Oh, another one? How boring."],
+            roll_low: ["One? Pathetic.", "Try harder.", "My grandma rolls better.", "Why do you even try?", "Embarrassing."],
+            roll_high: ["Pure luck, no skill.", "Don't get used to it.", "Wow, you actually moved."],
+            fall: ["Going down?", "Back to the start, loser.", "Gravity is a harsh mistress.", "See you at the bottom.", "Bye bye!"],
+            damage: ["That looked painful.", "Stop bleeding on the floor.", "You're dying. Good.", "Ouch. Do it again."],
+            trap_shit: ["Eww, stepped in it.", "You smell like failure.", "Fitting place for you."],
+            trap_mud: ["Stuck? Good.", "Wallow in the filth.", "Enjoy the mud bath."],
+            trap_egg: ["Rotten egg for a rotten player.", "Stinks, doesn't it?"],
+            boss_start: ["You are not prepared.", "He looks angry.", "This is the end for you.", "Prepare to die."],
+            boss_hit_player: ["You got slapped.", "Embarrassing performance.", "Dodge next time?", "Stop face-tanking."],
+            boss_hit_boss: ["You poked him.", "Is that all you got?", "He barely felt that."],
+            player_miss: ["You missed? Are you blind?", "Swing and a miss.", "Air has feelings too.", "Pathetic aim."],
+            win: ["You actually won? Glitch.", "Must be a bug.", "Hacker.", "Whatever."],
+            item: ["Greedy little pig.", "It won't save you.", "Ooh shiny object.", "Don't choke on it."],
+            
+            // Specific Pickup Taunts
+            pickup_gaja: ["Gaja? Really? Trying to fly high?", "Don't forget to pass it.", "Great, now you'll be hungry and slow."],
+            pickup_magic: ["Oh, you want to control fate? Cute.", "Cheater's favorite toy.", "Rigging the game, are we?"],
+            pickup_chili: ["Spice it up. Prepare your stomach.", "That's gonna burn twice.", "Hot stuff coming through."],
+            pickup_potion: ["Drink it. I dare you.", "Mystery juice. Probably poison.", "Science experiment time."],
+            pickup_wire: ["Shocking discovery.", "Don't electrocute yourself.", "Power to the player... literally."],
+            pickup_mojo: ["Sugary death in a bottle.", "Enjoy the diabetes.", "Refreshing, but deadly."],
+            pickup_roafja: ["Sweet red syrup. Sticky.", "Saving it for Iftar?", "Thirsty much?"],
+
+            // Context Aware Boss Taunts
+            boss_hasina: ["She's looking for a visa. Don't give it to her.", "Hide the helicopters!", "She screams 'Resign' but hears nothing.", "The Queen of Iron is here."],
+            boss_diddy: ["Hide the baby oil.", "No parties allowed here.", "He wants to show you a 'good time'. Run.", "Freak off initiated."],
+            boss_bandit: ["Hide your wallet.", "He smells your loose change.", "Interest rates just went up.", "He wants his pound of flesh."],
+            boss_logan: ["Don't subscribe to his channel.", "Is that a dead body in the forest?", "He's filming an apology video right now.", "Prime energy tastes like battery acid."],
+            boss_elon: ["He's going to fire you.", "Concerning.", "Look into it.", "He's strictly hardcore.", "Your account has been suspended."],
+            boss_zuck: ["He's blinking sideways.", "Sweet Baby Rays.", "He's harvesting your data.", "Welcome to the Metaverse.", "You cannot block him."],
+            boss_trump: ["I will build a great, great wall.", "You are fake news.", "China!", "I have the best brain.", "Make Ludo Great Again.", "Covfefe."],
+            boss_trump_hit: ["Wrong!", "Nasty woman.", "I know more about taking damage than anyone.", "Fake news attack.", "They are treating me very unfairly."],
+            boss_guardian: ["The gatekeeper is awake.", "You shall not pass!", "He thinks he's better than you. He is."],
+
+            use_gaja: ["Don't get too high now."],
+            use_mojo: ["You will get diabetes."],
+            use_roafja: ["Roja rakhos beta?"],
+            death_fall: ["Nice trip. See you next incarnation.", "Gravity checks out.", "Into the abyss with you.", "Did you forget how to walk?", "Splat. Clean up on aisle 1."],
+            death_damage: ["You died. How original.", "Health gone, brain gone.", "Bleeding out looks good on you.", "Try dodging next time.", "Wasted."],
+            death_boss: ["He mopped the floor with you.", "Embarrassing boss fight.", "You let HIM beat you? Wow.", "Fatality. You lose."]
+        };
+
+        const game = {
+            step: 0, hp: 100, doubleRollTurns: 0, curseDuration: 0, banditBribed: false,
+            bossState: { active: false, id: null, hp: 100, maxHp: 100, triggered: { hasina: false, diddy: false, bandit: false, logan: false, elon: false, zuck: false, trump: false, guardian: false, bandit2: false }, counterActive: false, stunned: 0, noDodge: 0 },
+            inv: { gaja: 0, magic: 0, chili: 0, potion: 0, wire: 0, mojo: 0, roafja: 0 },
+            memoriesTriggered: [],
+            voiceEnabled: false,
+            isMoving: false, // LOCK FOR ROLL SPAMMING
+            currentBossAudio: null,
+
+            els: {
+                track: document.getElementById('ladderTrack'), log: document.getElementById('gameLog'),
+                hpBar: document.getElementById('hpBar'), hpVal: document.getElementById('hpVal'), stepVal: document.getElementById('stepVal'),
+                bossModal: document.getElementById('bossModal'), bossHpBar: document.getElementById('modalBossBar'),
+                bossPlayerHpBar: document.getElementById('modalPlayerBar'), modalPlayerHp: document.getElementById('modalPlayerHp'),
+                modalBossHp: document.getElementById('modalBossHp'), bossLog: document.getElementById('bossLogArea'),
+                gameOver: document.getElementById('gameOverModal'), winModal: document.getElementById('winModal'),
+                infoModal: document.getElementById('infoModal'), invModal: document.getElementById('invModal'),
+                loreModal: document.getElementById('loreModal'), loreText: document.getElementById('loreText'), loreTitle: document.getElementById('loreTitle'),
+                bossLoreContainer: document.getElementById('bossLoreContainer'), bossBarsContainer: document.getElementById('bossBarsContainer'),
+                bossLoreText: document.getElementById('bossLoreText'), bossPhase2: document.getElementById('bossPhase2'), bossPhase1: document.getElementById('bossPhase1'),
+                bossTurnIndicator: document.getElementById('bossTurnIndicator'), bossRewardContainer: document.getElementById('bossRewardContainer'),
+                buffIcon: document.getElementById('buffIcon'), curseIcon: document.getElementById('curseIcon'),
+                pickupModal: document.getElementById('pickupModal'), pickupIcon: document.getElementById('pickupIcon'), pickupTitle: document.getElementById('pickupTitle'), pickupDesc: document.getElementById('pickupDesc'),
+                bossStunStatus: document.getElementById('bossStunStatus'), bossDodgeStatus: document.getElementById('bossDodgeStatus'),
+                btnVoice: document.getElementById('btnVoice'),
+                testModal: document.getElementById('testModal'),
+                passwordModal: document.getElementById('passwordModal'),
+                devPasswordInput: document.getElementById('devPasswordInput')
+            },
+
+            init() {
+                setTimeout(() => {
+                    this.showLore("INTRO", LORE.intro);
+                    this.taunt('intro');
+                }, 500);
+                const items = { gaja: [4, 7, 15, 33, 72], magic: [25, 50, 90], chili: [12, 40, 82], potion: [28, 65, 95],
+                                wire: [29, 39], mojo: [5,18,35,42,52,68,78,88,92,98], roafja: [14,26,48,62,84] };
+
+                for (let i = 1; i <= 100; i++) {
+                    const div = document.createElement('div'); div.className = 'step'; div.id = `step-${i}`;
+                    let icon='', subtext='';
+                    if (items.gaja.includes(i)) { div.classList.add('item-gaja'); icon='🌿'; subtext='+/-7'; }
+                    else if (items.magic.includes(i)) { div.classList.add('item-magic'); icon='🎲'; subtext='Pick #'; }
+                    else if (items.chili.includes(i)) { div.classList.add('item-chili'); icon='🌶️'; subtext='Risk'; }
+                    else if (items.potion.includes(i)) { div.classList.add('item-potion'); icon='🧪'; subtext='?'; }
+                    else if (items.wire.includes(i)) { div.classList.add('item-wire'); icon='⚡'; subtext='STUN'; }
+                    else if (items.mojo.includes(i)) { div.classList.add('item-mojo'); icon='🥤'; subtext='+20HP'; }
+                    else if (items.roafja.includes(i)) { div.classList.add('item-roafja'); icon='🍷'; subtext='HIT'; }
+                    else if (i===8) { div.classList.add('trap-shit'); icon='💩'; subtext='-5'; }
+                    else if (i===10) { div.classList.add('boss-step'); icon='👹'; subtext='BOSS'; }
+                    else if (i===15) { div.classList.add('trap-mud'); icon='💩'; subtext='MUD'; }
+                    else if (i===20) { div.classList.add('boss-diddy'); icon='🧢'; subtext='BOSS'; }
+                    else if (i===22) { div.classList.add('trap-egg'); icon='🥚'; subtext='-10HP'; }
+                    else if (i===30) { div.classList.add('trap-bandit'); icon='✡️'; subtext='THE JEW'; }
+                    else if (i===40) { div.classList.add('boss-logan'); icon='🤳'; subtext='BOSS'; }
+                    else if (i===45) { div.classList.add('trap-idol'); icon='🗿'; subtext='CURSE OF JIN'; }
+                    else if (i===55) { div.classList.add('trap-hole'); icon='⚫'; subtext='RESET'; }
+                    else if (i===60) { div.classList.add('boss-elon'); icon='🚀'; subtext='BOSS'; }
+                    else if (i===75) { div.classList.add('trap-moss'); icon='🍂'; subtext='SLIDE'; }
+                    else if (i===80) { div.classList.add('boss-zuck'); icon='🦎'; subtext='BOSS'; }
+                    else if (i===85) { div.classList.add('trap-banana'); icon='🍌'; subtext='-10'; }
+                    else if (i===90) { div.classList.add('boss-trump'); icon='👱'; subtext='BOSS'; }
+                    else if (i===100) { div.classList.add('boss-guardian'); icon='👁️'; subtext='THE LAST STEP TO PEACE'; }
+                    div.innerHTML = `<div class="flex flex-col items-center w-12"><span class="text-[9px] text-gray-500">${i}</span><span class="text-[8px] text-gray-400 font-bold leading-tight uppercase text-center w-full">${subtext}</span></div><div class="player-slot flex-grow flex justify-center"></div><span class="text-xl w-8 text-right">${icon}</span>`;
+                    this.els.track.appendChild(div);
+                }
+                this.updateUI(); this.scrollToPlayer();
+                this.updateVoiceUI();
+            },
+
+            toggleVoice() {
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+                this.voiceEnabled = !this.voiceEnabled;
+                window.speechSynthesis.cancel();
+                this.updateVoiceUI();
+                if(this.voiceEnabled) this.log("AI Narrator Enabled.", "good");
+            },
+
+            updateVoiceUI() {
+                this.els.btnVoice.innerText = this.voiceEnabled ? "🔊 AI VOICE: ON" : "🔇 AI VOICE: OFF";
+                this.els.btnVoice.className = this.voiceEnabled 
+                    ? "col-span-2 bg-green-700 active:bg-green-600 text-white font-bold py-2 rounded border-b-4 border-green-900 active:border-b-0 active:translate-y-1 text-xs"
+                    : "col-span-2 bg-pink-700 active:bg-pink-600 text-white font-bold py-2 rounded border-b-4 border-pink-900 active:border-b-0 active:translate-y-1 text-xs";
+            },
+
+            taunt(category, overrideText = null) {
+                if (!this.voiceEnabled) return;
+                
+                let text = "";
+                if (overrideText) {
+                    text = overrideText;
+                } else {
+                    const lines = TAUNTS[category] || ["..."];
+                    text = lines[Math.floor(Math.random() * lines.length)];
+                }
+                
+                // Indicate voice speaking
+                const log = this.els.log;
+                const d = document.createElement('div');
+                d.innerHTML = `🎙️ 🔊 <i>"${text}"</i>`;
+                d.className = "text-purple-400 text-[10px] italic mb-1";
+                log.appendChild(d);
+                log.scrollTop = log.scrollHeight;
+
+                window.speechSynthesis.cancel();
+                const u = new SpeechSynthesisUtterance(text);
+                
+                // Attempt to select a better voice
+                const voices = window.speechSynthesis.getVoices();
+                const preferredVoice = voices.find(v => 
+                    (v.name.includes("Google US English") || v.name.includes("Microsoft David") || v.name.includes("Samantha") || v.lang.startsWith("en-")) 
+                    && !v.name.includes("Zira")
+                );
+                if (preferredVoice) u.voice = preferredVoice;
+
+                u.rate = 0.9 + Math.random() * 0.2; // More natural rate variation
+                u.pitch = 0.95 + Math.random() * 0.1; // More natural pitch
+                u.volume = 1.0;
+                window.speechSynthesis.speak(u);
+            },
+
+            playBossMusic(bossId) {
+                this.stopBossMusic();
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                
+                let filename = bossId;
+                if (bossId === 'bandit2') filename = 'bandit';
+                
+                const path = filename.toLowerCase() + ".mp3"; // Force lowercase to avoid case issues
+                console.log(`[AUDIO] Attempting to play: ${path}`);
+                
+                const audio = new Audio(path);
+                audio.loop = true;
+                audio.volume = 0.2; // 20% volume
+                
+                // Debug listeners
+                audio.addEventListener('error', (e) => {
+                    console.error(`[AUDIO] Failed to load ${path}. Check file existence/path. Error:`, e);
+                });
+                audio.addEventListener('playing', () => {
+                    console.log(`[AUDIO] Now playing: ${path}`);
+                });
+
+                this.currentBossAudio = audio;
+                
+                // Load and play
+                audio.load();
+                const playPromise = audio.play();
+                
+                if (playPromise !== undefined) {
+                    playPromise.catch(error => {
+                        console.warn(`[AUDIO] Play promise rejected for ${path}. Interaction required?`, error);
+                    });
+                }
+            },
+
+            stopBossMusic() {
+                if (this.currentBossAudio) {
+                    this.currentBossAudio.pause();
+                    this.currentBossAudio.currentTime = 0; // Reset
+                    this.currentBossAudio = null;
+                }
+            },
+
+            resetGame() {
+                this.stopBossMusic();
+                this.step=0; this.hp=100; this.doubleRollTurns=0; this.curseDuration=0; this.banditBribed=false;
+                this.inv={gaja:0,magic:0,chili:0,potion:0,wire:0,mojo:0,roafja:0};
+                this.bossState={active:false,id:null,hp:100,maxHp:100,triggered:{hasina:false,diddy:false,bandit:false,logan:false,elon:false,zuck:false,trump:false,guardian:false,bandit2:false},counterActive:false,stunned:0,noDodge:0};
+                this.memoriesTriggered = [];
+                this.isMoving = false;
+                this.els.gameOver.classList.add('hidden'); this.els.winModal.classList.add('hidden');
+                this.els.bossModal.classList.add('hidden'); this.els.invModal.classList.add('hidden');
+                this.els.log.innerHTML=''; 
+                setTimeout(() => {
+                    this.showLore("INTRO", LORE.intro);
+                    this.taunt('intro');
+                }, 500);
+                this.updateUI(); this.scrollToPlayer();
+            },
+
+            log(msg, type) { const d=document.createElement('div'); d.innerText=`> ${msg}`; d.className="mb-1 border-b border-gray-800 pb-1 text-xs md:text-sm " + (type==='good'?'text-green-400':type==='bad'?'text-red-400':'text-green-400'); this.els.log.appendChild(d); this.els.log.scrollTop=this.els.log.scrollHeight; },
+            narrate(text) { const d=document.createElement('div'); d.innerHTML=`✨ ${text}`; d.className="narrator-text text-xs"; this.els.log.appendChild(d); this.els.log.scrollTop=this.els.log.scrollHeight; },
+
+            showLore(title, text) {
+                sfx.lore(); this.els.loreTitle.innerText = title; this.els.loreText.innerText = text;
+                this.els.loreModal.classList.remove('hidden');
+            },
+            closeLore() { this.els.loreModal.classList.add('hidden'); },
+            checkMemories() { [20, 40, 60, 80].forEach(c => { if (this.step >= c && !this.memoriesTriggered.includes(c)) { this.memoriesTriggered.push(c); setTimeout(() => this.showLore("MEMORY RECOVERED", LORE[c]), 800); } }); },
+
+            updateUI() {
+                this.els.hpVal.textContent=`${this.hp}/100`; this.els.hpBar.style.width=`${Math.max(0,this.hp)}%`;
+                this.els.hpBar.className=`h-full transition-all duration-300 ${this.hp>60?'bg-green-600':this.hp>30?'bg-yellow-500':'bg-red-600'}`;
+                this.els.stepVal.textContent=this.step;
+                ['gaja','magic','chili','potion'].forEach(k=>{
+                    const btn = document.getElementById(`btnInv${k.charAt(0).toUpperCase()+k.slice(1)}`);
+                    if(btn) btn.disabled=(this.inv[k]<=0);
+                    document.getElementById(`badge${k.charAt(0).toUpperCase()+k.slice(1)}`).innerText=this.inv[k];
+                });
+                // Combat Buttons
+                ['wire','mojo','roafja'].forEach(k=>{
+                    const el=document.getElementById(`btnCombat${k.charAt(0).toUpperCase()+k.slice(1)}`);
+                    const cnt=document.getElementById(`cnt${k.charAt(0).toUpperCase()+k.slice(1)}`);
+                    if(el){
+                        el.disabled=(this.inv[k]<=0);
+                        if(k==='wire' && game.bossState.id==='guardian') el.disabled=true;
+                        cnt.innerText=this.inv[k];
+                        if(this.inv[k]<=0) el.classList.add('opacity-50'); else el.classList.remove('opacity-50');
+                    }
+                    const invVal=document.getElementById(`inv${k.charAt(0).toUpperCase()+k.slice(1)}Val`);
+                    if(invVal) invVal.innerText=this.inv[k];
+                });
+
+                document.querySelectorAll('.step').forEach(el=>el.classList.remove('active'));
+                document.querySelectorAll('.player-slot').forEach(el=>el.innerHTML='');
+                if(this.step>0 && this.step<=100) {
+                    const el=document.getElementById(`step-${this.step}`);
+                    if(el){ el.classList.add('active'); el.querySelector('.player-slot').innerHTML='<div class="player-token">👻</div>'; }
+                }
+                if(this.bossState.active) {
+                    this.els.modalPlayerHp.innerText=Math.max(0,this.hp); this.els.bossPlayerHpBar.style.width=`${Math.max(0,this.hp)}%`;
+                    this.els.bossPlayerHpBar.className=`h-full transition-all duration-300 w-full ${this.hp>30?'bg-green-500':'bg-red-600'}`;
+                    this.els.bossStunStatus.style.display = this.bossState.stunned > 0 ? 'inline' : 'none';
+                    this.els.bossStunStatus.innerText = `⚡ STUN (${this.bossState.stunned})`;
+                    this.els.bossDodgeStatus.style.display = this.bossState.noDodge > 0 ? 'inline' : 'none';
+                    this.els.bossDodgeStatus.innerText = `👁️ NO DODGE (${this.bossState.noDodge})`;
+                }
+                if(this.doubleRollTurns > 0) { this.els.buffIcon.classList.remove('hidden'); this.els.buffIcon.innerText = `2x (${this.doubleRollTurns})`; } else this.els.buffIcon.classList.add('hidden');
+                if(this.curseDuration > 0) { this.els.curseIcon.classList.remove('hidden'); this.els.curseIcon.innerText = `🗿 ${this.curseDuration}`; } else this.els.curseIcon.classList.add('hidden');
+            },
+
+            showPickup(name, desc, icon) {
+                sfx.itemGood();
+                this.els.pickupTitle.innerText = name; this.els.pickupIcon.innerText = icon; this.els.pickupDesc.innerText = desc;
+                this.els.pickupModal.classList.remove('hidden');
+                
+                // Determine item type for specific taunt
+                let type = 'item'; // Default
+                if (name.includes('GAJA')) type = 'pickup_gaja';
+                else if (name.includes('MAGIC')) type = 'pickup_magic';
+                else if (name.includes('MORICH')) type = 'pickup_chili';
+                else if (name.includes('POTION')) type = 'pickup_potion';
+                else if (name.includes('TAR')) type = 'pickup_wire';
+                else if (name.includes('MOJO')) type = 'pickup_mojo';
+                else if (name.includes('ROAFJA')) type = 'pickup_roafja';
+
+                this.taunt(type);
+            },
+            closePickup() { this.els.pickupModal.classList.add('hidden'); },
+
+            scrollToPlayer() { if(this.step<=0)return; document.getElementById(`step-${this.step}`)?.scrollIntoView({behavior:'smooth',block:'center'}); },
+            shakeScreen() { document.body.classList.remove('shake-anim'); void document.body.offsetWidth; document.body.classList.add('shake-anim'); },
+            damagePlayer(amt) { 
+                this.hp-=amt; 
+                sfx.itemBad(); 
+                this.shakeScreen(); 
+                this.updateUI(); 
+                // Don't double taunt in combat loop or if dead (handled by checkGameOver)
+                if (!this.bossState.active && this.hp > 0) this.taunt('damage');
+            },
+            checkGameOver(reason="You fell into the abyss.") {
+                if(this.step<0) { 
+                    sfx.fall(); 
+                    this.endGame(reason); 
+                    this.taunt('death_fall');
+                    return true; 
+                }
+                if(this.hp<=0) { 
+                    this.shakeScreen(); 
+                    this.endGame("You died from damage."); 
+                    this.taunt('death_damage');
+                    return true; 
+                }
+                return false;
+            },
+            endGame(msg) {
+                this.stopBossMusic();
+                document.getElementById('deathReason').innerText=msg;
+                const overLog=document.getElementById('gameOverLogContent'); const logTitle=document.getElementById('logTitle');
+                if(this.bossState.active) { overLog.innerHTML=this.els.bossLog.innerHTML; logTitle.innerText="COMBAT LOG:"; }
+                else { overLog.innerHTML=this.els.log.innerHTML; logTitle.innerText="TRAVEL LOG:"; }
+                this.els.gameOver.classList.remove('hidden'); this.els.bossModal.classList.add('hidden');
+                this.isMoving = false;
+            },
+            winGame() { 
+                this.stopBossMusic();
+                sfx.win(); this.step=100; this.updateUI(); this.scrollToPlayer(); this.els.winModal.classList.remove('hidden'); 
+                this.taunt('win');
+                this.isMoving = false;
+            },
+
+            async rollDice() { 
+                if(this.bossState.active || this.isMoving) return; 
+                this.isMoving = true;
+                
+                sfx.roll(); 
+                if(audioCtx.state === 'suspended') audioCtx.resume();
+                let max = 6; if (this.curseDuration > 0) { max = 3; this.curseDuration--; this.log(`Cursed! Max roll 3.`); }
+                let d=Math.floor(Math.random()*max)+1; let msg = `Rolled ${d} 🎲`;
+                if(this.doubleRollTurns > 0) { d *= 2; this.doubleRollTurns--; msg += ` (x2 = ${d}) 🚀`; }
+                this.log(msg); 
+                
+                if (d === 1) this.taunt("roll_low");
+                else if (d >= 8) this.taunt("roll_high");
+
+                await new Promise(r=>setTimeout(r,600)); 
+                await this.move(d); 
+                
+                if (!this.bossState.active) {
+                    this.isMoving = false;
+                }
+            },
+            async move(amt) {
+                if(amt>0) sfx.move(); else sfx.itemBad();
+                this.step = Math.min(100, this.step + amt); // Cap at 100
+                
+                if(this.checkGameOver()) return; 
+                this.updateUI(); this.scrollToPlayer();
+                await this.processTile(); 
+                if(this.checkGameOver()) return;
+                this.checkMemories(); 
+                await this.checkBossTriggers();
+            },
+
+            async processTile() {
+                await new Promise(r=>setTimeout(r,300)); if(this.step>100 && !this.bossState.active) return; const i=this.step;
+                const items = { gaja: [4, 7, 15, 33, 72], magic: [25, 50, 90], chili: [12, 40, 82], potion: [28, 65, 95], wire: [29, 39], mojo: [5,18,35,42,52,68,78,88,92,98], roafja: [14,26,48,62,84] };
+
+                if(items.gaja.includes(i)){ this.inv.gaja++; this.showPickup("GAJA", "Use in inventory. 50% chance +7 Steps, 50% chance -7 Steps.", "🌿"); }
+                else if(items.magic.includes(i)){ this.inv.magic++; this.showPickup("MAGIC DICE", "Choose EXACTLY what number to roll (1-6).", "🎲"); }
+                else if(items.chili.includes(i)){ this.inv.chili++; this.showPickup("JHAL MORICH", "Rush +15 Steps, but take 20 HP burn damage.", "🌶️"); }
+                else if(items.potion.includes(i)){ this.inv.potion++; this.showPickup("POTION", "Randomly Heals, Speeds Up, or Poisons you.", "🧪"); }
+                else if(items.wire.includes(i)){ this.inv.wire++; this.showPickup("220V TAR", "Use in Boss Fight. Stuns Boss for 5 turns!", "⚡"); }
+                else if(items.mojo.includes(i)){ this.inv.mojo++; this.showPickup("MOJO", "Use in Boss Fight. Instantly restores +20 HP.", "🥤"); }
+                else if(items.roafja.includes(i)){ this.inv.roafja++; this.showPickup("ROAFJA", "Use in Boss Fight. Boss CANNOT DODGE for 2 turns.", "🍷"); }
+                else if(i===8){ sfx.itemBad(); this.log("Stepped on Shit 💩"); this.step-=5; this.taunt("trap_shit"); }
+                else if(i===15){ this.log("MUD PIT! Stuck & Damaged! 💩"); this.damagePlayer(5); this.step-=2; this.taunt("trap_mud"); }
+                else if(i===22){ this.log("Rotten Egg 🥚"); this.damagePlayer(10); this.taunt("trap_egg"); }
+                else if(i===45){ sfx.itemBad(); this.log("CURSED IDOL! 🗿 -15 HP & Weak Rolls"); this.damagePlayer(15); this.curseDuration=10; this.taunt("trap_shit"); }
+                else if(i===55){ sfx.fall(); this.log("BLACK HOLE ⚫"); this.step=1; this.taunt("fall"); }
+                else if(i===75){ sfx.fall(); this.log("SLIPPERY MOSS! 🌿 Falling back 15!"); this.step-=15; this.taunt("fall"); }
+                else if(i===85){ sfx.fall(); this.log("Banana Slip 🍌"); this.step-=10; this.taunt("fall"); }
+                this.updateUI(); this.scrollToPlayer();
+            },
+
+            async checkBossTriggers() {
+                if(this.step>=10 && !this.bossState.triggered.hasina) await this.startBoss('hasina');
+                else if(this.step>=20 && !this.bossState.triggered.diddy) await this.startBoss('diddy');
+                else if(this.step>=30 && !this.bossState.triggered.bandit) await this.startBoss('bandit');
+                else if(this.step>=40 && !this.bossState.triggered.logan) await this.startBoss('logan');
+                else if(this.step>=50 && this.banditBribed && !this.bossState.triggered.bandit2) await this.startBoss('bandit2');
+                else if(this.step>=60 && !this.bossState.triggered.elon) await this.startBoss('elon');
+                else if(this.step>=80 && !this.bossState.triggered.zuck) await this.startBoss('zuck');
+                else if(this.step>=90 && !this.bossState.triggered.trump) await this.startBoss('trump');
+                else if(this.step>=100 && !this.bossState.triggered.guardian) await this.startBoss('guardian');
+            },
+
+            async startBoss(id) {
+                this.bossState.active=true; this.bossState.id=id; 
+                let realId = id === 'bandit2' ? 'bandit' : id;
+                
+                // Set Boss HP
+                if (id==='diddy') this.bossState.hp = 150;
+                else if (realId==='bandit') this.bossState.hp = 80;
+                else if (id==='logan') this.bossState.hp = 120;
+                else if (id==='elon') this.bossState.hp = 180;
+                else if (id==='zuck') this.bossState.hp = 200;
+                else if (id==='trump') this.bossState.hp = 220;
+                else if (id==='guardian') this.bossState.hp = 250;
+                else this.bossState.hp = 100; // Hasina default
+
+                this.bossState.maxHp=this.bossState.hp;
+                this.bossState.triggered[id]=true; 
+                this.bossState.counterActive=false;
+                this.bossState.stunned=0; this.bossState.noDodge=0;
+                sfx.itemBad();
+                
+                this.playBossMusic(realId);
+                
+                this.els.bossModal.classList.remove('hidden'); this.els.bossPhase1.classList.remove('hidden'); this.els.bossPhase2.classList.add('hidden');
+                this.els.bossLoreContainer.classList.add('hidden'); this.els.bossBarsContainer.classList.remove('hidden'); this.els.bossLog.classList.remove('hidden');
+                this.els.bossRewardContainer.classList.add('hidden');
+                
+                this.els.bossTurnIndicator.innerText = "YOUR TURN"; this.els.bossTurnIndicator.className = "text-sm font-bold text-green-400 bg-black/50 py-1 mb-2 rounded";
+
+                const btns = document.querySelectorAll('.combat-btn'); btns.forEach(b => { b.disabled = false; b.style.opacity = '1'; });
+
+                const btn2 = document.getElementById('btnBossAction2');
+                btn2.style.display = 'block';
+                
+                if(realId==='bandit') {
+                    document.getElementById('bossName').innerText="THE GREDDY JEW"; document.getElementById('bossIcon').innerText="✡️";
+                    btn2.innerText = "💸 PAY 10 HP"; btn2.onclick = () => game.payBandit();
+                } else if (realId==='guardian') {
+                    document.getElementById('bossName').innerText="GUARDIAN"; document.getElementById('bossIcon').innerText="👁️";
+                    btn2.style.display = 'none'; 
+                } else if (realId==='logan') {
+                    document.getElementById('bossName').innerText="LOGAN"; document.getElementById('bossIcon').innerText="🤳";
+                    btn2.innerText = "🏃 RUN"; btn2.onclick = () => game.bossRun();
+                } else if (realId==='elon') {
+                    document.getElementById('bossName').innerText="ELON"; document.getElementById('bossIcon').innerText="🚀";
+                    btn2.innerText = "🏃 RUN"; btn2.onclick = () => game.bossRun();
+                } else if (realId==='zuck') {
+                    document.getElementById('bossName').innerText="ZUCK"; document.getElementById('bossIcon').innerText="🦎";
+                    btn2.innerText = "🏃 RUN"; btn2.onclick = () => game.bossRun();
+                } else if (realId==='trump') {
+                    document.getElementById('bossName').innerText="DONALD"; document.getElementById('bossIcon').innerText="👱";
+                    btn2.innerText = "🏃 RUN"; btn2.onclick = () => game.bossRun();
+                } else {
+                    document.getElementById('bossName').innerText=id==='hasina'?"SHEIK HASINA":"DIDDY";
+                    document.getElementById('bossIcon').innerText=id==='hasina'?"👹":"🧢";
+                    btn2.innerText = "🏃 RUN"; btn2.onclick = () => game.bossRun();
+                }
+                this.updateBossUI(); this.updateUI(); this.bossLog(`ENCOUNTERED ${realId.toUpperCase()}!`);
+                
+                // Specific Boss Taunt
+                if (realId === 'hasina') this.taunt('boss_hasina');
+                else if (realId === 'diddy') this.taunt('boss_diddy');
+                else if (realId === 'bandit') this.taunt('boss_bandit');
+                else if (realId === 'logan') this.taunt('boss_logan');
+                else if (realId === 'elon') this.taunt('boss_elon');
+                else if (realId === 'zuck') this.taunt('boss_zuck');
+                else if (realId === 'trump') this.taunt('boss_trump');
+                else if (realId === 'guardian') this.taunt('boss_guardian');
+                else this.taunt('boss_start');
+            },
+
+            payBandit() {
+                this.damagePlayer(10); this.banditBribed = true; this.bossLog("He smiles greedily. 'See you later...'");
+                setTimeout(() => { this.bossState.active=false; this.els.bossModal.classList.add('hidden'); this.log("Bribed Bandit (No Rewards).", 'good'); this.isMoving = false; this.stopBossMusic(); }, 1500);
+            },
+
+            bossLog(msg) { this.els.bossLog.innerHTML+=`<br>> ${msg}`; this.els.bossLog.scrollTop=this.els.bossLog.scrollHeight; },
+            updateBossUI() { 
+                const p=(this.bossState.hp/this.bossState.maxHp)*100; 
+                this.els.bossHpBar.style.width=`${Math.max(0,p)}%`; 
+                this.els.modalBossHp.innerText=Math.max(0,this.bossState.hp);
+                this.els.bossStunStatus.style.display = this.bossState.stunned > 0 ? 'inline' : 'none';
+                this.els.bossStunStatus.innerText = `⚡ STUN (${this.bossState.stunned})`;
+                this.els.bossDodgeStatus.style.display = this.bossState.noDodge > 0 ? 'inline' : 'none';
+                this.els.bossDodgeStatus.innerText = `👁️ NO DODGE (${this.bossState.noDodge})`;
+            },
+            startCombat() { this.els.bossPhase1.classList.add('hidden'); this.els.bossPhase2.classList.remove('hidden'); this.bossLog("Choose your attack!"); },
+
+            useCombatItem(type) {
+                if (this.inv[type] <= 0) return;
+                this.inv[type]--;
+                if (type === 'wire') {
+                    this.bossState.stunned += 5;
+                    this.bossLog("used 220V TAR! Boss STUNNED for 5 turns!");
+                    sfx.itemBad();
+                } else if (type === 'mojo') {
+                    this.hp = Math.min(100, this.hp + 20);
+                    this.bossLog("drank MOJO! Restored +20 HP!");
+                    sfx.itemGood();
+                    this.taunt('use_mojo');
+                } else if (type === 'roafja') {
+                    this.bossState.noDodge += 2;
+                    this.bossLog("drank ROAFJA! Boss Sticky (No Dodge) 2 turns!");
+                    sfx.itemGood();
+                    this.taunt('use_roafja');
+                }
+                this.updateUI(); this.updateBossUI();
+            },
+
+            async useGaja() { if(this.inv.gaja<=0) return; this.closeInventory(); this.inv.gaja--; this.log("Ate Gaja..."); this.taunt('use_gaja'); await new Promise(r=>setTimeout(r,500)); Math.random()>0.5 ? await this.move(7) : await this.move(-7); },
+            async useMagicDice(n) { if(this.inv.magic<=0) return; this.closeInventory(); this.inv.magic--; this.log(`Magic Dice: ${n}`); await this.move(n); },
+            async useChili() { if(this.inv.chili<=0) return; this.closeInventory(); this.inv.chili--; this.log("Ate Chili!"); this.damagePlayer(20); if(!this.checkGameOver()) await this.move(15); },
+            async usePotion() { if(this.inv.potion<=0) return; this.closeInventory(); this.inv.potion--; const r=Math.random(); if(r<0.33){sfx.itemGood();this.hp=100;this.updateUI();} else if(r<0.66) await this.move(10); else await this.move(-10); },
+
+            async playerAttack(type) {
+                const btns = document.querySelectorAll('.combat-btn');
+                btns.forEach(b => { b.disabled = true; b.style.opacity = '0.5'; });
+
+                let dmg=0, dodged=false, chance=0;
+                if(type==='juta'){sfx.hitLow();dmg=Math.floor(Math.random()*10)+10;chance=0.05;}
+                else if(type==='danda'){sfx.hitMed();dmg=Math.floor(Math.random()*15)+25;chance=0.20;}
+                else if(type==='lathi'){sfx.hitHigh();dmg=Math.floor(Math.random()*20)+50;chance=0.70;} 
+                
+                let realId = (this.bossState.id === 'bandit2') ? 'bandit' : this.bossState.id;
+
+                if(this.bossState.noDodge > 0) { chance = 0; this.bossState.noDodge--; }
+                if(Math.random()<chance) dodged=true;
+
+                try {
+                    if(dodged) { 
+                        sfx.dodge(); this.bossLog(`BOSS DODGED the ${type.toUpperCase()}! 💨`); this.bossState.counterActive=true; 
+                        this.taunt('player_miss');
+                    }
+                    else { 
+                        this.bossState.hp-=dmg; this.updateBossUI(); this.bossLog(`Hit with ${type}! -${dmg} HP`); 
+                        
+                        if (realId === 'trump') this.taunt('boss_trump_hit');
+                        else this.taunt('boss_hit_boss');
+                    }
+                    if(this.bossState.hp<=0) { await this.bossDefeated(); return; }
+                    
+                    await new Promise(r=>setTimeout(r,1000));
+                    
+                    // BOSS TURN
+                    if(this.bossState.stunned > 0) {
+                        this.bossState.stunned--;
+                        this.bossLog("Boss is STUNNED! Skips turn.");
+                    } else {
+                        this.els.bossTurnIndicator.innerText = "BOSS ATTACKING..."; this.els.bossTurnIndicator.className = "text-sm font-bold text-red-400 bg-black/50 py-1 mb-2 rounded animate-pulse";
+                        await new Promise(r=>setTimeout(r,1000));
+
+                        let bossDmg=0, atkName="Attack";
+                        
+                        // BOSS ATTACK LOGIC
+                        if(realId==='diddy') { bossDmg=8; atkName="Baby Oil Slip"; }
+                        else if(realId==='bandit') { bossDmg = Math.floor(Math.random()*10)+1; atkName = (bossDmg<=5) ? "Quick Pickpocket" : "Mugged!"; }
+                        else if(realId==='logan') { const a=[{n:"Crypto Rug Pull",d:15},{n:"Energy Drink Spit",d:10},{n:"Fake Apology",d:5}]; const r=a[Math.floor(Math.random()*a.length)]; bossDmg=r.d; atkName=r.n; }
+                        else if(realId==='elon') { const a=[{n:"Fired via Email",d:20},{n:"Exploding Rocket",d:25},{n:"Cringe Tweet",d:10}]; const r=a[Math.floor(Math.random()*a.length)]; bossDmg=r.d; atkName=r.n; }
+                        else if(realId==='zuck') { const a=[{n:"Privacy Violation",d:15},{n:"Data Harvest",d:20},{n:"Metaverse Kick",d:18}]; const r=a[Math.floor(Math.random()*a.length)]; bossDmg=r.d; atkName=r.n; }
+                        else if(realId==='trump') { 
+                            const a=[{n:"Hide Epstein Files",d:10},{n:"5 Trillion to Isntreal",d:29},{n:"Stinky Ass",d:31},{n:"Captured by ICE Agents",d:25}]; 
+                            const r=a[Math.floor(Math.random()*a.length)]; 
+                            bossDmg=r.d; atkName=r.n; 
+                        }
+                        else if(realId==='guardian') { bossDmg = 25; atkName = "Divine Smite"; }
+                        else { const a=[{n:"Helmet Throw",d:8},{n:"Crocodile Tears",d:5},{n:"Internet Shutdown",d:10},{n:"Ayna Ghor Threat",d:12}]; const r=a[Math.floor(Math.random()*a.length)]; bossDmg=r.d; atkName=r.n; }
+                        
+                        if(this.bossState.counterActive) { sfx.crit(); bossDmg*=2; this.bossLog("CRITICAL COUNTER! 💥"); this.bossState.counterActive=false; }
+                        else { sfx.damageTaken(); }
+                        
+                        this.bossLog(`${atkName}! -${bossDmg} HP`); 
+                        this.damagePlayer(bossDmg);
+                        
+                        // Narrate boss attack specifically
+                        this.taunt(null, `${atkName}! taking ${bossDmg} health.`);
+
+                        this.els.bossTurnIndicator.innerText = "YOUR TURN"; this.els.bossTurnIndicator.className = "text-sm font-bold text-green-400 bg-black/50 py-1 mb-2 rounded";
+                        
+                        if(this.hp<=0) { 
+                            if(realId==='guardian'){
+                                this.bossLog("GUARDIAN: 'YOU ARE NOT READY.'"); await new Promise(r=>setTimeout(r,1500));
+                                this.hp=50; this.step=50; this.bossState.active=false; this.els.bossModal.classList.add('hidden'); this.log("Thrown to Step 50!", 'bad'); this.updateUI(); this.scrollToPlayer();
+                                this.taunt("fall");
+                                this.isMoving = false;
+                                this.bossState.triggered.guardian = false; // Reset trigger so boss can be fought again
+                                this.stopBossMusic();
+                            } else if(realId==='trump') {
+                                this.bossLog("DONALD: 'YOU'RE DEPORTED!'"); await new Promise(r=>setTimeout(r,1500));
+                                this.hp=50; this.step=50; this.bossState.active=false; this.els.bossModal.classList.add('hidden'); 
+                                this.log("Deported to Step 50!", 'bad'); this.updateUI(); this.scrollToPlayer();
+                                this.taunt("fall");
+                                this.isMoving = false;
+                                this.stopBossMusic();
+                            } else { 
+                                this.taunt('death_boss');
+                                this.endGame("Killed by Boss."); 
+                            }
+                            return; 
+                        }
+                    }
+                } finally { 
+                    if(this.hp>0 && this.bossState.hp>0){ btns.forEach(b => { b.disabled = false; b.style.opacity = '1'; }); } 
+                }
+            },
+
+            async bossDefeated() {
+                this.stopBossMusic();
+                sfx.itemGood();
+                this.els.bossBarsContainer.classList.add('hidden'); this.els.bossLog.classList.add('hidden'); this.els.bossPhase2.classList.add('hidden'); this.els.bossTurnIndicator.classList.add('hidden');
+                if (this.bossState.id === 'guardian') { this.winGame(); } else { this.els.bossRewardContainer.classList.remove('hidden'); }
+            },
+            
+            claimReward(type) {
+                if(type==='heal') { this.hp = Math.min(100, this.hp+50); this.log("Healed +50 HP!"); }
+                if(type==='buff') { this.doubleRollTurns = 5; this.log("Double Roll Active (5 Turns)!"); }
+                if(type==='jump') { this.step = Math.min(100, this.step + 15); this.log("Jumped +15 Steps!"); this.updateUI(); this.scrollToPlayer(); }
+                this.showBossLore();
+            },
+
+            showBossLore() {
+                this.els.bossRewardContainer.classList.add('hidden'); this.els.bossLoreContainer.classList.remove('hidden');
+                let realId = (this.bossState.id === 'bandit2') ? 'bandit' : this.bossState.id;
+                this.els.bossLoreText.innerText = LORE[realId];
+            },
+            closeBoss() { 
+                this.els.bossModal.classList.add('hidden'); 
+                this.bossState.active=false; 
+                this.log(`Defeated Boss!`, 'good'); 
+                this.isMoving = false;
+            },
+            async bossRun() { 
+                this.stopBossMusic();
+                sfx.fall(); 
+                this.bossLog("Trying to run..."); 
+                await new Promise(r=>setTimeout(r,1000)); 
+                this.bossLog("CAUGHT! Sent to Step 0."); 
+                this.step=0; 
+                setTimeout(()=>{
+                    this.els.bossModal.classList.add('hidden');
+                    this.bossState.active=false;
+                    this.updateUI();
+                    this.scrollToPlayer();
+                    this.isMoving = false;
+                },1500); 
+                this.taunt("fall"); 
+            },
+            
+            openInventory() { if(!this.bossState.active) this.els.invModal.classList.remove('hidden'); },
+            closeInventory() { this.els.invModal.classList.add('hidden'); document.getElementById('magicPicker').classList.add('hidden'); },
+            openMagicPicker() { if(this.inv.magic>0) document.getElementById('magicPicker').classList.remove('hidden'); },
+            toggleInfo() { this.els.infoModal.classList.toggle('hidden'); },
+            
+            // DEV TOOLS
+            openTestMenu() { 
+                this.els.passwordModal.classList.remove('hidden');
+                this.els.devPasswordInput.value = "";
+                this.els.devPasswordInput.focus();
+            },
+            closePasswordModal() {
+                this.els.passwordModal.classList.add('hidden');
+            },
+            checkPassword() {
+                const pass = this.els.devPasswordInput.value;
+                if(pass === "1234") {
+                    this.closePasswordModal();
+                    this.els.testModal.classList.remove('hidden'); 
+                } else {
+                    alert("Access Denied.");
+                    this.els.devPasswordInput.value = "";
+                }
+            },
+            closeTestMenu() { this.els.testModal.classList.add('hidden'); },
+            cheatJump() {
+                const val = parseInt(document.getElementById('cheatStepInput').value);
+                if (!isNaN(val) && val >= 0 && val <= 100) {
+                    this.step = val;
+                    this.updateUI();
+                    this.scrollToPlayer();
+                    this.log(`[DEV] Jumped to step ${val}`, 'good');
+                    this.closeTestMenu();
+                    this.processTile();
+                    this.checkBossTriggers();
+                }
+            },
+            cheatItem(item) {
+                this.inv[item]++;
+                this.log(`[DEV] Added ${item}`, 'good');
+                this.updateUI();
+            },
+            cheatHeal() {
+                this.hp = 100;
+                this.updateUI();
+                this.log(`[DEV] Healed to 100`, 'good');
+            }
+        };
+
+        window.game = game;
+        document.addEventListener('keydown', (e) => { 
+            if(game.bossState.active)return; 
+            if(e.key.toLowerCase()==='r')game.rollDice(); 
+            if(e.key.toLowerCase()==='i')game.openInventory();
+            // Handle enter key on password modal
+            if(e.key === 'Enter' && !game.els.passwordModal.classList.contains('hidden')) {
+                game.checkPassword();
+            }
+        });
+        game.init();
+    </script>
+</body>
+</html>
