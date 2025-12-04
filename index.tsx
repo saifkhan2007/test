@@ -1,9 +1,10 @@
+
 const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
 const sfx = {
     playTone(freq, type, duration, vol=0.1) {
         if(audioCtx.state==='suspended') audioCtx.resume();
         const o=audioCtx.createOscillator(), g=audioCtx.createGain();
-        o.type=type as any; o.frequency.setValueAtTime(freq,audioCtx.currentTime);
+        o.type=type; o.frequency.setValueAtTime(freq,audioCtx.currentTime);
         g.gain.setValueAtTime(vol,audioCtx.currentTime);
         g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+duration);
         o.connect(g); g.connect(audioCtx.destination); o.start(); o.stop(audioCtx.currentTime+duration);
@@ -113,7 +114,7 @@ const game = {
         btnVoice: document.getElementById('btnVoice'),
         testModal: document.getElementById('testModal'),
         passwordModal: document.getElementById('passwordModal'),
-        devPasswordInput: document.getElementById('devPasswordInput') as HTMLInputElement,
+        devPasswordInput: document.getElementById('devPasswordInput'),
         bossMusicStatus: document.getElementById('bossMusicStatus'),
         btnRetryMusic: document.getElementById('btnRetryMusic')
     },
@@ -319,13 +320,13 @@ const game = {
         this.els.hpBar.className=`h-full transition-all duration-300 ${this.hp>60?'bg-green-600':this.hp>30?'bg-yellow-500':'bg-red-600'}`;
         this.els.stepVal.textContent=this.step + "";
         ['gaja','magic','chili','potion'].forEach(k=>{
-            const btn = document.getElementById(`btnInv${k.charAt(0).toUpperCase()+k.slice(1)}`) as HTMLButtonElement;
+            const btn = document.getElementById(`btnInv${k.charAt(0).toUpperCase()+k.slice(1)}`) as HTMLButtonElement | null;
             if(btn) btn.disabled=(this.inv[k]<=0);
             document.getElementById(`badge${k.charAt(0).toUpperCase()+k.slice(1)}`).innerText=this.inv[k];
         });
         // Combat Buttons
         ['wire','mojo','roafja'].forEach(k=>{
-            const el=document.getElementById(`btnCombat${k.charAt(0).toUpperCase()+k.slice(1)}`) as HTMLButtonElement;
+            const el=document.getElementById(`btnCombat${k.charAt(0).toUpperCase()+k.slice(1)}`) as HTMLButtonElement | null;
             const cnt=document.getElementById(`cnt${k.charAt(0).toUpperCase()+k.slice(1)}`);
             if(el){
                 el.disabled=(this.inv[k]<=0);
@@ -511,7 +512,7 @@ const game = {
 
         const btns = document.querySelectorAll('.combat-btn'); btns.forEach(b => { 
             (b as HTMLButtonElement).disabled = false; 
-            (b as HTMLElement).style.opacity = '1'; 
+            (b as HTMLButtonElement).style.opacity = '1'; 
         });
 
         const btn2 = document.getElementById('btnBossAction2');
@@ -601,7 +602,7 @@ const game = {
         const btns = document.querySelectorAll('.combat-btn');
         btns.forEach(b => { 
             (b as HTMLButtonElement).disabled = true; 
-            (b as HTMLElement).style.opacity = '0.5'; 
+            (b as HTMLButtonElement).style.opacity = '0.5'; 
         });
 
         let dmg=0, dodged=false, chance=0;
@@ -690,7 +691,7 @@ const game = {
             if(this.hp>0 && this.bossState.hp>0){ 
                 btns.forEach(b => { 
                     (b as HTMLButtonElement).disabled = false; 
-                    (b as HTMLElement).style.opacity = '1'; 
+                    (b as HTMLButtonElement).style.opacity = '1'; 
                 }); 
             } 
         }
