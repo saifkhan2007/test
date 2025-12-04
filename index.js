@@ -1,6 +1,5 @@
-export {};
 
-const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 const sfx = {
     playTone(freq, type, duration, vol=0.1) {
         if(audioCtx.state==='suspended') audioCtx.resume();
@@ -321,13 +320,13 @@ const game = {
         this.els.hpBar.className=`h-full transition-all duration-300 ${this.hp>60?'bg-green-600':this.hp>30?'bg-yellow-500':'bg-red-600'}`;
         this.els.stepVal.textContent=this.step + "";
         ['gaja','magic','chili','potion'].forEach(k=>{
-            const btn = document.getElementById(`btnInv${k.charAt(0).toUpperCase()+k.slice(1)}`) as HTMLButtonElement | null;
+            const btn = document.getElementById(`btnInv${k.charAt(0).toUpperCase()+k.slice(1)}`);
             if(btn) btn.disabled=(this.inv[k]<=0);
             document.getElementById(`badge${k.charAt(0).toUpperCase()+k.slice(1)}`).innerText=this.inv[k];
         });
         // Combat Buttons
         ['wire','mojo','roafja'].forEach(k=>{
-            const el=document.getElementById(`btnCombat${k.charAt(0).toUpperCase()+k.slice(1)}`) as HTMLButtonElement | null;
+            const el=document.getElementById(`btnCombat${k.charAt(0).toUpperCase()+k.slice(1)}`);
             const cnt=document.getElementById(`cnt${k.charAt(0).toUpperCase()+k.slice(1)}`);
             if(el){
                 el.disabled=(this.inv[k]<=0);
@@ -512,8 +511,8 @@ const game = {
         this.els.bossTurnIndicator.innerText = "YOUR TURN"; this.els.bossTurnIndicator.className = "text-sm font-bold text-green-400 bg-black/50 py-1 mb-2 rounded";
 
         const btns = document.querySelectorAll('.combat-btn'); btns.forEach(b => { 
-            (b as HTMLButtonElement).disabled = false; 
-            (b as HTMLButtonElement).style.opacity = '1'; 
+            b.disabled = false; 
+            b.style.opacity = '1'; 
         });
 
         const btn2 = document.getElementById('btnBossAction2');
@@ -602,8 +601,8 @@ const game = {
     async playerAttack(type) {
         const btns = document.querySelectorAll('.combat-btn');
         btns.forEach(b => { 
-            (b as HTMLButtonElement).disabled = true; 
-            (b as HTMLButtonElement).style.opacity = '0.5'; 
+            b.disabled = true; 
+            b.style.opacity = '0.5'; 
         });
 
         let dmg=0, dodged=false, chance=0;
@@ -691,8 +690,8 @@ const game = {
         } finally { 
             if(this.hp>0 && this.bossState.hp>0){ 
                 btns.forEach(b => { 
-                    (b as HTMLButtonElement).disabled = false; 
-                    (b as HTMLButtonElement).style.opacity = '1'; 
+                    b.disabled = false; 
+                    b.style.opacity = '1'; 
                 }); 
             } 
         }
@@ -766,7 +765,7 @@ const game = {
     },
     closeTestMenu() { this.els.testModal.classList.add('hidden'); },
     cheatJump() {
-        const val = parseInt((document.getElementById('cheatStepInput') as HTMLInputElement).value);
+        const val = parseInt(document.getElementById('cheatStepInput').value);
         if (!isNaN(val) && val >= 0 && val <= 100) {
             this.step = val;
             this.updateUI();
@@ -789,7 +788,7 @@ const game = {
     }
 };
 
-(window as any).game = game;
+window.game = game;
 document.addEventListener('keydown', (e) => { 
     if(game.bossState.active)return; 
     if(e.key.toLowerCase()==='r')game.rollDice(); 
