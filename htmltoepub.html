@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>HTML to EPUB</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{--y:#fcee0a;--amber:#ffb800;--cyan:#00f0ff;--red:#ff003c;--navy:#071237;--navy2:#0d2275;--ink:#ece9cf;--dim:#9aa3c7;--ok:#2dff87;--er:#ff5c7a;--bd:rgba(252,238,10,.3);--cut:18px;--f:'Chakra Petch','Arial Narrow',Arial,sans-serif;color-scheme:dark}
+*{box-sizing:border-box}[hidden]{display:none!important}
+body{margin:0;min-height:100vh;overflow-x:hidden;color:var(--ink);font:16px/1.5 var(--f);background:linear-gradient(125deg,#000 0%,var(--navy) 30%,var(--navy2) 52%,#1b1500 78%,#000 100%) 0 0/300% 300%;animation:drift 24s ease-in-out infinite alternate}
+@keyframes drift{to{background-position:100% 100%}}
+.floor{position:fixed;left:-60%;right:-60%;bottom:0;height:45vh;z-index:0;pointer-events:none;background:linear-gradient(rgba(252,238,10,.25) 1px,transparent 1px) 0 0/100% 56px,linear-gradient(90deg,rgba(252,238,10,.25) 1px,transparent 1px) 0 0/56px 100%;transform:perspective(420px) rotateX(64deg);transform-origin:bottom;-webkit-mask-image:linear-gradient(to top,#000,transparent 80%);mask-image:linear-gradient(to top,#000,transparent 80%);animation:floor 2.2s linear infinite}
+@keyframes floor{to{background-position:0 56px,0 0}}
+.scan{position:fixed;inset:0;z-index:40;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(0,0,0,.16) 0 1px,transparent 1px 3px)}
+.scan::after{content:"";position:absolute;left:0;right:0;height:14vh;top:-14vh;background:linear-gradient(transparent,rgba(252,238,10,.07),transparent);animation:bar 7s linear infinite}
+@keyframes bar{to{top:100vh}}
+main{position:relative;z-index:2;max-width:800px;margin:auto;padding:22px 16px 80px}
+.back{display:inline-flex;align-items:center;gap:8px;color:var(--y);font-weight:600;letter-spacing:.06em;text-decoration:none;padding:6px 0;transition:gap .2s}
+.back::before{content:"";width:9px;height:9px;border-left:3px solid currentColor;border-bottom:3px solid currentColor;transform:rotate(45deg)}
+.back:hover{gap:14px;text-shadow:0 0 12px var(--y)}
+h1.glitch{position:relative;display:block;margin:18px 0 6px;font:700 clamp(2.2rem,9vw,4rem)/1 var(--f);letter-spacing:.04em;text-transform:uppercase;color:var(--y);text-shadow:0 0 24px rgba(252,238,10,.4);animation:flicker 5s infinite 1s}
+.glitch::before,.glitch::after{content:attr(data-text);position:absolute;left:0;top:0;width:100%;mix-blend-mode:screen}
+.glitch::before{color:var(--cyan);animation:g1 3.4s infinite steps(1) 1s}
+.glitch::after{color:var(--red);animation:g2 3.4s infinite steps(1) 1s}
+@keyframes g1{0%,88%,100%{clip-path:inset(0 0 100% 0);transform:none}89%{clip-path:inset(8% 0 62% 0);transform:translate(-6px,0)}92%{clip-path:inset(58% 0 14% 0);transform:translate(5px,0)}96%{clip-path:inset(30% 0 44% 0);transform:translate(-4px,0)}}
+@keyframes g2{0%,88%,100%{clip-path:inset(0 0 100% 0);transform:none}90%{clip-path:inset(40% 0 38% 0);transform:translate(6px,0)}93%{clip-path:inset(12% 0 70% 0);transform:translate(-5px,0)}97%{clip-path:inset(66% 0 8% 0);transform:translate(4px,0)}}
+@keyframes flicker{0%,93%,100%{opacity:1}94%{opacity:.6}95%{opacity:1}96%{opacity:.75}}
+.s{color:var(--dim);margin:0 0 22px;max-width:60ch}
+.card{position:relative;padding:20px 20px 20px 26px;margin-bottom:18px;background:linear-gradient(135deg,rgba(13,34,117,.7),rgba(3,4,13,.92));border:1px solid var(--bd);clip-path:polygon(0 0,calc(100% - var(--cut)) 0,100% var(--cut),100% 100%,var(--cut) 100%,0 calc(100% - var(--cut)))}
+.card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--y);box-shadow:0 0 14px var(--y)}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin-top:12px}.w{grid-column:1/-1}
+label{display:block;font-size:13px;color:var(--amber);margin-bottom:4px;letter-spacing:.03em}
+input,select,textarea{width:100%;padding:9px 10px;border:1px solid rgba(252,238,10,.28);border-radius:0;background:rgba(3,4,13,.75);color:var(--ink);font:16px var(--f);transition:border-color .2s,box-shadow .2s}
+textarea{font:13px/1.4 ui-monospace,Consolas,monospace;resize:vertical}
+option{background:#07102e}
+input[type=checkbox]{width:auto;margin-right:8px;accent-color:var(--y)}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--y);box-shadow:0 0 0 1px var(--y),0 0 14px rgba(252,238,10,.35)}
+#drop{display:block;padding:26px 12px;text-align:center;color:var(--dim);font-size:16px;letter-spacing:0;cursor:pointer;border:2px dashed rgba(252,238,10,.45);margin:0;background:repeating-linear-gradient(135deg,rgba(252,238,10,.05) 0 12px,transparent 12px 24px);transition:color .2s,border-color .2s}
+#drop:hover,#drop.on,#drop:focus-within{color:var(--ink);border-color:var(--y);border-style:solid;animation:glow 1.2s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 22px rgba(252,238,10,.5)}}
+#drop input{display:none}
+button{padding:10px 20px;border:0;background:rgba(252,238,10,.12);color:var(--y);font:600 15px var(--f);letter-spacing:.06em;cursor:pointer;clip-path:polygon(0 0,100% 0,calc(100% - 10px) 100%,0 100%);transition:background .2s,color .2s,transform .15s}
+button:hover:not(:disabled){background:var(--y);color:#000;transform:translateY(-2px)}
+button:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}
+button.p{padding:10px 28px;color:#000;background:linear-gradient(100deg,var(--y) 40%,#fffbb0 50%,var(--y) 60%) 100% 0/250% 100%;animation:shine 3.5s linear infinite}
+button.p:hover:not(:disabled){background:#fff}
+@keyframes shine{to{background-position:0 0}}
+button:disabled{opacity:.35;cursor:default;animation:none}
+.r{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+summary{cursor:pointer;color:var(--amber);font-weight:600;margin:14px 0 0}
+#msg{margin-bottom:8px;min-height:1.5em}#msg::before{content:"> ";color:var(--amber)}
+.er{color:var(--er)}.ok{color:var(--ok)}
+small{color:var(--dim)}
+#tools small{display:block;margin:8px 0 10px}
+#list{position:relative;max-height:420px;overflow:auto;font-size:14px;border-top:1px solid var(--bd);padding-top:8px;scrollbar-width:thin;scrollbar-color:var(--y) #0a1233}
+.row{display:flex;align-items:center;gap:6px;padding:4px 6px 4px 0;border-top:2px solid transparent;border-bottom:1px solid rgba(252,238,10,.1)}
+.row:hover{background:rgba(252,238,10,.06)}
+.row .t{flex:1;min-width:0;word-break:break-word}
+.grip{cursor:grab;color:var(--amber);padding:6px 8px;letter-spacing:-.15em;user-select:none;touch-action:none}
+input.pos{width:58px;padding:5px 6px;text-align:center;font:600 14px var(--f);-moz-appearance:textfield}
+input.pos::-webkit-inner-spin-button,input.pos::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.row button{width:34px;height:34px;padding:0;font-size:12px;clip-path:none}
+.row button.x{color:var(--red);background:rgba(255,0,60,.14)}
+.row button.x:hover:not(:disabled){background:var(--red);color:#fff}
+.row.flash{animation:flash 1s ease-out}
+@keyframes flash{from{background:rgba(252,238,10,.5)}to{background:transparent}}
+.row.drag{opacity:.35}.row.over{border-top-color:var(--y)}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+</style></head><body><div class="floor"></div><div class="scan"></div><main><a class="back" href="index.html">Back to hub</a>
+<h1 class="glitch" data-text="HTML to EPUB">HTML to EPUB</h1>
+<p class="s">Turn a saved HTML file with many chapters, or a batch of one-chapter pages, into a clean EPUB. Everything happens in your browser.</p>
+
+<div class="card">
+<label id="drop" for="f">Drop HTML files here, or tap to choose them<input id="f" type="file" multiple accept=".html,.htm,.xhtml,text/html"></label>
+<div id="fn" class="s" style="margin:8px 0 0"></div>
+<div class="g">
+<div class="w"><label for="bt">Book title</label><input id="bt" placeholder="My Novel"></div>
+<div><label for="ba">Author</label><input id="ba" placeholder="Unknown"></div>
+<div><label for="bl">Language code</label><input id="bl" value="en" autocapitalize="off"></div>
+<div class="w"><label for="sp">Split into chapters</label><select id="sp"><option value="auto">Automatic (sections and headings)</option><option value="file">One chapter per file</option><option value="h1">At every h1 heading</option><option value="h2">At every h2 heading</option><option value="h3">At every h3 heading</option></select></div>
+</div>
+<details><summary>Filtering (advanced)</summary><div class="g">
+<div class="w"><label for="rmp">Remove paragraphs containing (one per line: text, * wildcard, or /regex/)</label><textarea id="rmp" rows="3" spellcheck="false" placeholder="Support us on Patreon&#10;/^Translator:/"></textarea></div>
+<div class="w"><label for="rms">Also remove elements matching these CSS selectors</label><input id="rms" placeholder=".share-box, #sidebar" autocapitalize="off"></div>
+<div><label for="sel">Content selector (blank = auto)</label><input id="sel" placeholder="#chapter-content" autocapitalize="off"></div>
+<div><label for="min">Drop chapters shorter than (characters)</label><input id="min" type="number" value="50" min="0"></div>
+<div class="w"><label><input id="srt" type="checkbox" checked>Sort files by name (numbers in order: 2 before 10)</label></div>
+</div></details>
+<div class="r"><button id="bScan" disabled>Preview chapters</button><button class="p" id="bGo" disabled>Build EPUB</button></div>
+</div>
+
+<div class="card"><div id="msg">Choose one or more HTML files to start.</div><div id="tools" hidden><div class="r" style="margin:0"><button id="bUn" disabled>Undo delete</button><button id="bRev">Reverse order</button></div><small>Drag the grip, use the arrows, or type a new position number.</small></div><div id="list"></div></div>
+<small>Scripts, ads, menus, forms, furigana readings and images are removed. Only text, paragraphs, line breaks, emphasis and headings are kept.</small>
+</main>
+<script>
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const un=s=>s.replace(/<[^>]+>/g,'').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'"').replace(/&amp;/g,'&');
+const len=h=>un(h).replace(/\s/g,'').length;
+const say=(m,c)=>{$('msg').className=c||'';$('msg').textContent=m};
+let FILES=[],CH=null,UN=[],dirty=false;
+
+/* ---------- files ---------- */
+function setFiles(l){FILES=[...l].filter(f=>/\.(x?html?)$/i.test(f.name)||f.type==='text/html');
+ $('fn').textContent=FILES.length?FILES.length+' file'+(FILES.length>1?'s':'')+' selected'+(FILES.length===1?': '+FILES[0].name:''):'';
+ $('bScan').disabled=$('bGo').disabled=!FILES.length;reset();say(FILES.length?'Ready. Preview the chapters or build the EPUB.':'No HTML files found in that selection.')}
+$('f').onchange=()=>setFiles($('f').files);
+const dz=$('drop');['dragenter','dragover'].forEach(e=>dz.addEventListener(e,x=>{x.preventDefault();dz.classList.add('on')}));
+['dragleave','drop'].forEach(e=>dz.addEventListener(e,x=>{x.preventDefault();dz.classList.remove('on')}));
+dz.addEventListener('drop',x=>setFiles(x.dataTransfer.files));
+/* many Japanese pages are Shift_JIS or EUC-JP: read the declared charset instead of assuming UTF-8 */
+function decode(buf){const head=new TextDecoder('latin1').decode(buf.slice(0,3000)),m=head.match(/charset\s*=\s*["']?([\w-]+)/i);
+ try{return new TextDecoder(m?m[1]:'utf-8').decode(buf)}catch{return new TextDecoder('utf-8').decode(buf)}}
+
+/* ---------- filtering ---------- */
+const NOISE='script,style,iframe,ins,noscript,form,button,select,svg,canvas,img,picture,video,audio,nav,footer,aside,rt,rp,.ads,.adsbygoogle,.code-block,[class*=advert],[id*=advert]';
+const SEL=['#chapter-content','#chr-content','.chapter-content','.chr-c','.reading-content','.read-content','.entry-content','.chapter-body','#chapter-container','.article-content','#content','article','main'];
+/* keep only text, paragraphs, line breaks, emphasis and headings, so the XHTML is always well-formed */
+function clean(el){let o='';for(const n of el.childNodes){if(n.nodeType===3)o+=esc(n.nodeValue);else if(n.nodeType===1){const t=n.tagName.toLowerCase(),i=clean(n);
+ if(t==='br'||t==='hr')o+=`<${t}/>`;else if(/^(p|blockquote|h[1-6]|li)$/.test(t)){const g=t==='li'?'p':t;o+=i.trim()?`<${g}>${i}</${g}>`:''}
+ else if(/^(em|i)$/.test(t))o+=`<em>${i}</em>`;else if(/^(strong|b)$/.test(t))o+=`<strong>${i}</strong>`;else o+=i}}return o}
+const mk=s=>{s=s.trim();if(!s)return null;try{const m=s.match(/^\/(.+)\/([a-z]*)$/);return m?new RegExp(m[1],m[2]):new RegExp(s.replace(/[.+?^${}()|[\]\\]/g,'\\$&').replace(/\*/g,'.*'),'i')}catch{return null}};
+function rootOf(d,o){let r=o.sel&&d.querySelector(o.sel);if(r)return r;
+ if([1,2,3].some(k=>d.querySelectorAll('h'+k).length>=3))return d.body;   /* a many-chapter document */
+ r=SEL.map(s=>d.querySelector(s)).find(e=>e&&e.textContent.trim().length>=o.min);if(r)return r;
+ let best=0;d.querySelectorAll('div,section,article,main').forEach(e=>{let l=0;for(const c of e.children)if(c.tagName==='P')l+=c.textContent.length;if(l>best){best=l;r=e}});
+ return r||d.body}
+function split(h,mode){let k=/^h[123]$/.test(mode)?+mode[1]:0;
+ if(mode==='auto')k=[1,2,3].find(i=>(h.match(new RegExp('<h'+i+'>','g'))||[]).length>=2)||0;
+ return(k?h.split(new RegExp('(?=<h'+k+'>)')):[h]).map(p=>{const m=p.match(/^<h([1-6])>([\s\S]*?)<\/h\1>/);return{t:m?un(m[2]).replace(/\s+/g,' ').trim():'',h:m?p.slice(m[0].length):p}})}
+
+async function scan(){
+ const o={sel:$('sel').value.trim(),rm:$('rms').value.trim(),min:+$('min').value||0,sp:$('sp').value},bad=$('rmp').value.split('\n').map(mk).filter(Boolean);
+ let fs=FILES.slice();if($('srt').checked)fs.sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
+ const out=[];
+ for(const [i,f] of fs.entries()){say(`Reading ${i+1} of ${fs.length}: ${f.name}`);await new Promise(r=>setTimeout(r));
+  const d=new DOMParser().parseFromString(decode(await f.arrayBuffer()),'text/html'),ft=d.title.trim()||f.name.replace(/\.[^.]+$/,'');
+  const r=rootOf(d,o);
+  try{r.querySelectorAll(NOISE+(o.rm?','+o.rm:'')).forEach(e=>e.remove())}catch{say('One of your CSS selectors is not valid.','er');return[]}
+  r.querySelectorAll('a[href^="#"]').forEach(e=>e.remove());       /* "back to contents" style links */
+  for(const p of split(clean(r),o.sp)){
+   const h=p.h.replace(/<p>([\s\S]*?)<\/p>/g,(m,t)=>{const x=un(t);return!x.trim()||bad.some(b=>b.test(x))?'':m}).replace(/(<br\/>\s*){3,}/g,'<br/><br/>').trim();
+   if(len(h)>=o.min&&len(h)>0)out.push({t:p.t||(o.sp==='file'||fs.length>1?ft:'')||'Chapter '+(out.length+1),h})}}
+ return out}
+function reset(){CH=null;UN=[];dirty=false;$('list').textContent='';$('tools').hidden=true}
+function show(f,a){const L=$('list'),st=L.scrollTop;$('tools').hidden=!CH;$('bUn').disabled=!UN.length;
+ L.innerHTML=CH.map((c,i)=>`<div class="row" data-i="${i}"><span class="grip" draggable="true" title="Drag to reorder">⋮⋮</span><input class="pos" type="number" min="1" max="${CH.length}" value="${i+1}" aria-label="Position of ${esc(c.t)}"><span class="t">${esc(c.t)} <small>${len(c.h).toLocaleString()} characters</small></span><button data-a="u" aria-label="Move up">▲</button><button data-a="d" aria-label="Move down">▼</button><button data-a="x" class="x" aria-label="Delete chapter">✕</button></div>`).join('');
+ L.scrollTop=st;const r=L.children[f];
+ if(r){if(a!=='x')r.classList.add('flash');
+  if(r.offsetTop<L.scrollTop||r.offsetTop+r.offsetHeight>L.scrollTop+L.clientHeight)L.scrollTop=r.offsetTop-L.clientHeight/2;
+  const b=a&&r.querySelector('[data-a="'+a+'"]');if(b)b.focus({preventScroll:true})}}
+const info=()=>say(`${CH.length} chapter${CH.length===1?'':'s'}. Drag, move or delete them, then build the EPUB.`,'ok');
+const mv=(i,j,a)=>{j=Math.max(0,Math.min(CH.length-1,j));if(i!==j){CH.splice(j,0,CH.splice(i,1)[0]);dirty=true}show(j,a)};
+$('bScan').onclick=async()=>{if(dirty&&!confirm('Preview again? Your reordering and deletions will be lost.'))return;const ch=await scan();if(!ch.length){say('No chapters found. Try another split mode or set a content selector.','er');return}CH=ch;UN=[];dirty=false;show();info()};
+
+/* ---------- EPUB 3 with a small ZIP writer (deflate when the browser supports it) ---------- */
+const CT=(()=>{const t=[];for(let n=0;n<256;n++){let c=n;for(let k=0;k<8;k++)c=c&1?0xEDB88320^(c>>>1):c>>>1;t[n]=c>>>0}return t})();
+const crc=b=>{let c=-1;for(let i=0;i<b.length;i++)c=CT[(c^b[i])&255]^(c>>>8);return(c^-1)>>>0};
+async function zip(files){const E=new TextEncoder(),parts=[],cd=[];let off=0;
+ for(const f of files){const nm=E.encode(f.n),raw=f.d,c=crc(raw);let d=raw,m=0;
+  if(!f.s&&window.CompressionStream){d=new Uint8Array(await new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream('deflate-raw'))).arrayBuffer());m=8}
+  const h=new DataView(new ArrayBuffer(30));h.setUint32(0,0x04034b50,true);h.setUint16(4,20,true);h.setUint16(6,0x800,true);h.setUint16(8,m,true);h.setUint16(12,0x21,true);h.setUint32(14,c,true);h.setUint32(18,d.length,true);h.setUint32(22,raw.length,true);h.setUint16(26,nm.length,true);
+  const e=new DataView(new ArrayBuffer(46));e.setUint32(0,0x02014b50,true);e.setUint16(4,20,true);e.setUint16(6,20,true);e.setUint16(8,0x800,true);e.setUint16(10,m,true);e.setUint16(14,0x21,true);e.setUint32(16,c,true);e.setUint32(20,d.length,true);e.setUint32(24,raw.length,true);e.setUint16(28,nm.length,true);e.setUint32(42,off,true);
+  parts.push(h,nm,d);cd.push(e,nm);off+=30+nm.length+d.length}
+ const cs=cd.reduce((a,x)=>a+x.byteLength,0),z=new DataView(new ArrayBuffer(22));
+ z.setUint32(0,0x06054b50,true);z.setUint16(8,files.length,true);z.setUint16(10,files.length,true);z.setUint32(12,cs,true);z.setUint32(16,off,true);
+ return new Blob([...parts,...cd,z],{type:'application/epub+zip'})}
+async function epub(c,m){
+ const E=new TextEncoder(),X='<?xml version="1.0" encoding="utf-8"?>',NS='xmlns="http://www.w3.org/1999/xhtml"',id='urn:uuid:'+((crypto.randomUUID&&crypto.randomUUID())||Date.now());
+ const f=[{n:'mimetype',d:E.encode('application/epub+zip'),s:1},
+  {n:'META-INF/container.xml',d:E.encode(X+'<container version="1.0" xmlns="urn:oasis:names:tc:opendocument:xmlns:container"><rootfiles><rootfile full-path="OEBPS/content.opf" media-type="application/oebps-package+xml"/></rootfiles></container>')},
+  {n:'OEBPS/s.css',d:E.encode('body{line-height:1.6}p{margin:.8em 0}h2{text-align:center;margin:1.5em 0}')},
+  {n:'OEBPS/nav.xhtml',d:E.encode(X+`<html ${NS} xmlns:epub="http://www.idpf.org/2007/ops"><head><title>Contents</title></head><body><nav epub:type="toc"><h1>Contents</h1><ol>${c.map((x,i)=>`<li><a href="c${i+1}.xhtml">${esc(x.t)}</a></li>`).join('')}</ol></nav></body></html>`)},
+  {n:'OEBPS/content.opf',d:E.encode(X+`<package xmlns="http://www.idpf.org/2007/opf" version="3.0" unique-identifier="id" xml:lang="${esc(m.l)}"><metadata xmlns:dc="http://purl.org/dc/elements/1.1/"><dc:identifier id="id">${id}</dc:identifier><dc:title>${esc(m.t)}</dc:title><dc:creator>${esc(m.a)}</dc:creator><dc:language>${esc(m.l)}</dc:language><meta property="dcterms:modified">${new Date().toISOString().replace(/\.\d+/,'')}</meta></metadata><manifest><item id="nav" href="nav.xhtml" media-type="application/xhtml+xml" properties="nav"/><item id="css" href="s.css" media-type="text/css"/>${c.map((x,i)=>`<item id="c${i+1}" href="c${i+1}.xhtml" media-type="application/xhtml+xml"/>`).join('')}</manifest><spine>${c.map((x,i)=>`<itemref idref="c${i+1}"/>`).join('')}</spine></package>`)}];
+ c.forEach((x,i)=>f.push({n:`OEBPS/c${i+1}.xhtml`,d:E.encode(X+`<html ${NS} xml:lang="${esc(m.l)}"><head><title>${esc(x.t)}</title><link rel="stylesheet" href="s.css"/></head><body><h2>${esc(x.t)}</h2>${x.h}</body></html>`)}));
+ return zip(f)}
+$('bGo').onclick=async()=>{const b=$('bGo');b.disabled=true;
+ try{let ch=CH;if(!ch){ch=await scan();if(!ch.length){say('No chapters found. Try another split mode or set a content selector.','er');return}CH=ch;UN=[];dirty=false;show()}if(!ch.length){say('No chapters left. Undo a delete or preview again.','er');return}
+  say(`Packing ${ch.length} chapters…`);await new Promise(r=>setTimeout(r));
+  const m={t:$('bt').value.trim()||'Web Novel',a:$('ba').value.trim()||'Unknown',l:$('bl').value.trim()||'en'},blob=await epub(ch,m);
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=m.t.replace(/[^\w\-]+/g,'_')+'.epub';document.body.append(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),6e4);
+  say(`Done: ${ch.length} chapters, ${(blob.size/1048576).toFixed(1)} MB.`,'ok')}
+ catch(e){say('Something went wrong: '+e.message,'er')}finally{b.disabled=!FILES.length}};
+
+/* ---------- edit the chapter list: reorder and delete ---------- */
+const L=$('list');let dg=null;
+L.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const i=+b.closest('.row').dataset.i,a=b.dataset.a;
+ if(a==='u')mv(i,i-1,'u');else if(a==='d')mv(i,i+1,'d');
+ else{UN.push([i,CH.splice(i,1)[0]]);dirty=true;say(CH.length?`Removed. ${CH.length} chapters left.`:'No chapters left. Undo the delete or preview again.',CH.length?'ok':'er');show(Math.min(i,CH.length-1),'x')}});
+L.addEventListener('change',e=>{if(e.target.classList.contains('pos'))mv(+e.target.closest('.row').dataset.i,(+e.target.value||1)-1)});
+L.addEventListener('dragstart',e=>{const r=e.target.closest('.row');if(!r)return;dg=+r.dataset.i;r.classList.add('drag');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain','');e.dataTransfer.setDragImage(r,20,16)});
+L.addEventListener('dragover',e=>{if(dg===null)return;e.preventDefault();L.querySelectorAll('.over').forEach(x=>x.classList.remove('over'));const r=e.target.closest('.row');if(r)r.classList.add('over')});
+L.addEventListener('drop',e=>{if(dg===null)return;e.preventDefault();const r=e.target.closest('.row'),i=dg;dg=null;if(r)mv(i,+r.dataset.i)});
+L.addEventListener('dragend',()=>{dg=null;L.querySelectorAll('.drag,.over').forEach(x=>x.classList.remove('drag','over'))});
+$('bUn').onclick=()=>{const u=UN.pop();if(u){CH.splice(Math.min(u[0],CH.length),0,u[1]);say(`Restored. ${CH.length} chapters.`,'ok');show(u[0])}};
+$('bRev').onclick=()=>{CH.reverse();dirty=true;say('Order reversed.','ok');show(0)};
+/* changing a filter or split option makes the old list stale, so the next Preview or Build starts fresh */
+['sp','sel','rms','rmp','min','srt'].forEach(k=>$(k).addEventListener('change',()=>{if(CH){reset();say('Settings changed. Preview the chapters again to apply them.')}}));
+</script></body></html>
