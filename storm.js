@@ -1,7 +1,8 @@
 /* =====================================================================
-   storm.js — Cyberpunk Thunderstorm Background
+   storm.js — Cyberpunk Thunderstorm Background + Audio
    Shared across all pages. Draws drifting clouds, 3 depth layers of
-   slanted rain, bottom splash ripples, and forked/sheet lightning.
+   slanted rain, bottom splash ripples, and forked/sheet lightning every
+   3-6s, paired with rain.mp3 (looped) and thunder.mp3.
    Respects prefers-reduced-motion, tab visibility, and Storm on/off.
    ===================================================================== */
 (function () {
@@ -31,6 +32,62 @@
   }
   const ctx = canvas.getContext("2d");
 
+  /* ---------- Audio (rain.mp3 loop + thunder.mp3 on lightning) ---------- */
+  let rainAudio = null;
+  let thunderAudio = null;
+  try {
+    rainAudio = new Audio("rain.mp3");
+    rainAudio.loop = true;
+    rainAudio.preload = "auto";
+    rainAudio.volume = 0.45;
+
+    thunderAudio = new Audio("thunder.mp3");
+    thunderAudio.preload = "auto";
+    thunderAudio.volume = 0.7;
+  } catch (e) {}
+
+  function syncRainAudio() {
+    if (!rainAudio) return;
+    if (enabled && !document.hidden) {
+      const p = rainAudio.play();
+      if (p && typeof p.catch === "function") p.catch(() => {});
+    } else {
+      try {
+        rainAudio.pause();
+      } catch (e) {}
+    }
+  }
+
+  function playThunderAudio(isSheetOnly) {
+    if (!thunderAudio || !enabled || document.hidden) return;
+    try {
+      thunderAudio.volume = isSheetOnly ? 0.48 : (0.65 + Math.random() * 0.2);
+      thunderAudio.currentTime = 0;
+    } catch (e) {}
+    const p = thunderAudio.play();
+    if (p && typeof p.catch === "function") p.catch(() => {});
+  }
+
+  function stopAllAudio() {
+    try {
+      if (rainAudio) rainAudio.pause();
+      if (thunderAudio) {
+        thunderAudio.pause();
+        thunderAudio.currentTime = 0;
+      }
+    } catch (e) {}
+  }
+
+  /* Unlock audio on first user gesture (required by mobile/desktop browsers) */
+  function unlockAudio() {
+    if (enabled && !document.hidden && rainAudio && rainAudio.paused) {
+      syncRainAudio();
+    }
+  }
+  ["pointerdown", "touchstart", "keydown", "click"].forEach(evt => {
+    window.addEventListener(evt, unlockAudio, { passive: true });
+  });
+
   let w = 0, h = 0, dpr = 1;
   let drops = [];
   let splashes = [];
@@ -38,7 +95,7 @@
   let rafId = 0;
   let lastTime = 0;
 
-  /* Lightning state — strictly capped at <= 3 flashes/sec and <= 0.35 alpha */
+  /* Lightning state — random every 3-6s, capped at <= 3 flashes/sec and <= 0.35 alpha */
   let nextLightningAt = 0;
   let activeFlash = null;
   const flashPeakTimestamps = [];
@@ -54,7 +111,7 @@
   ];
 
   function scheduleNextLightning(now) {
-    nextLightningAt = now + 5000 + Math.random() * 9000; // 5-14 seconds
+    nextLightningAt = now + 3000 + Math.random() * 3000; // 3-6 seconds
   }
 
   function initScene() {
@@ -158,6 +215,7 @@
     };
     flashPeakTimestamps.push(now);
     activeFlash.peak1Recorded = true;
+    playThunderAudio(isSheetOnly);
     scheduleNextLightning(now);
   }
 
@@ -307,8 +365,10 @@
         rafId = 0;
       }
       ctx.clearRect(0, 0, w, h);
+      stopAllAudio();
       return;
     }
+    syncRainAudio();
     if (reduceMotion) {
       /* Draw one static subtle rain frame with no flashes */
       drawFrame(performance.now(), 0);
@@ -353,6 +413,7 @@
         cancelAnimationFrame(rafId);
         rafId = 0;
       }
+      stopAllAudio();
     } else {
       lastTime = 0;
       start();

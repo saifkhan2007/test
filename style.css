@@ -552,7 +552,38 @@ body.is-hub .glitch{
 .tile:hover::after,.tile:focus-visible::after{
   animation:sweep .6s ease-out;
 }
+.tile-bg{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+  z-index:0;
+  pointer-events:none;
+  filter:saturate(.9) contrast(1.06);
+  transition:transform .35s ease,filter .25s ease,opacity .25s ease;
+}
+.tile-scrim{
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  background:linear-gradient(180deg,rgba(3,4,13,.45) 0%,rgba(7,18,55,.68) 48%,rgba(3,4,13,.94) 100%);
+  transition:background .22s ease;
+}
+.tile:hover .tile-bg,.tile:focus-visible .tile-bg{
+  transform:scale(1.06);
+  filter:grayscale(.25) contrast(1.15);
+  opacity:.22;
+}
+.tile:hover .tile-scrim,.tile:focus-visible .tile-scrim{
+  background:rgba(252,238,10,.86);
+}
+.tile::before,.tile::after{z-index:2}
 .tile-top{
+  position:relative;
+  z-index:2;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -579,6 +610,8 @@ body.is-hub .glitch{
 }
 .tile:hover .tile-meta,.tile:focus-visible .tile-meta{color:#000}
 .tile-body{
+  position:relative;
+  z-index:2;
   min-height:0;
   display:flex;
   flex-direction:column;

@@ -8,9 +8,11 @@
                   If the date is within the last 7 days, a yellow NEW badge
                   appears automatically on the card and in Quick Launch.
 
-   Add a section: 1) copy a whole { id, title, blurb, links: [ ... ] } block
-                     in SECTIONS below.
-                  2) copy section-template.html, rename the copy to <id>.html
+   Add a section: 1) copy a whole { id, title, blurb, img, links: [ ... ] }
+                     block in SECTIONS below.
+                  2) drop an image named <id>.jpg (or whatever you set in img)
+                     into the repo root for the hub title card background.
+                  3) copy section-template.html, rename the copy to <id>.html
                      (exact same case as id), and set data-section="<id>" on
                      its <body> tag.
                   It gets its own hub tile, section chip, and ticker entry
@@ -167,12 +169,13 @@ const PHOTOS = {
 };
 
 const SECTIONS = [
-  { id: "forum", title: "Forum", blurb: "Leave a post. Text and links both work.", forum: true },
-  { id: "photos", title: "Photos", blurb: "shitpost.Takes a min to update", photos: true },
+  { id: "forum", title: "Forum", blurb: "Leave a post. Text and links both work.", img: "forum.jpg", forum: true },
+  { id: "photos", title: "Photos", blurb: "shitpost.Takes a min to update", img: "photos.jpg", photos: true },
   {
     id: "games",
     title: "Games",
     blurb: "Vibe coded. disregard creativity, establish incompetence",
+    img: "games.jpg",
     links: [
       { name: "Ludo", url: "Ludo.html", desc: "lmao idk what is this it was made in 3am with like gemini 2.5" },
       { name: "Minecraft 1.8", url: "minecraft1.8.html", desc: "Minecraft 1.8. made by real devs" }  ,
@@ -184,6 +187,7 @@ const SECTIONS = [
     id: "tools",
     title: "Tools",
     blurb: "Real reason i made this website.These stuff are hella useful to me.",
+    img: "tools.jpg",
     links: [
       { name: "HTML to EPUB", url: "htmltoepub.html", desc: "Turn HTML pages into an EPUB ebook you can read anywhere." }
     ]
@@ -192,6 +196,7 @@ const SECTIONS = [
     id: "files",
     title: "Everything related to modding android",
     blurb: "Running Linux distros and rooting.",
+    img: "files.jpg",
     links: [
 
       { name: "Xiaomi pad 6 fix for bootloop by partition messup", url: "https://drive.google.com/file/d/1LbX7-Nut8g5t8qD-gPd7-R9KCPDxDq1b/view?usp=sharing", desc: "Use it to recover from a bad qbootctl" }
@@ -201,6 +206,7 @@ const SECTIONS = [
     id: "random",
     title: "Random",
     blurb: "Whatever does not fit anywhere else.",
+    img: "random.jpg",
     links: [
 
       { name: "TEST PLACE HOLDER", url: "", desc: "hehe" }

@@ -311,8 +311,11 @@
         countLabel = `${n} ${n === 1 ? "LINK" : "LINKS"}`;
       }
       const newBadge = sectionHasNew(s) ? '<span class="badge-new">NEW</span>' : "";
+      const imgSrc = s.img || (s.id + ".jpg");
       return `
         <a class="tile" href="${esc(s.id)}.html" data-sec="${esc(s.id)}">
+          <img class="tile-bg" src="${esc(imgSrc)}" alt="" loading="lazy" decoding="async" onerror="this.hidden=true">
+          <span class="tile-scrim" aria-hidden="true"></span>
           <div class="tile-top">
             ${iconFor(s.id)}
             <span class="tile-meta">${newBadge}<span>${esc(countLabel)}</span></span>
