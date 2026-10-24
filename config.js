@@ -183,6 +183,15 @@ const SECTIONS = [
       { name: "Angry Birds Space", url: "angry-birds-space.html", desc: "incompetence at its finest" }
     ]
   },
+   {
+    id: "Terminal",
+    title: "Terminal",
+    blurb: "Linix environment in webvm.",
+    img: "hacker.jpg",
+    links: [
+      { name: "Webvm: Linux ", url: "terminal.html", desc: "work in progress. a small local linux environment that fully runs on client side." }
+    ]
+  },
   {
     id: "tools",
     title: "Tools",
