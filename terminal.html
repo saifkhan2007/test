@@ -1,0 +1,1364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#03040d">
+<title>IBM-5150 CYBERTERM — RANDOM AHH TOOL BOX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=VT323&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<style>
+/* ---------- Cyberpunk Outer Page + Vintage IBM Amber CRT Monitor ---------- */
+.term-wrap{
+  display:flex;
+  flex-direction:column;
+  min-height:calc(100dvh - 38px);
+  padding-bottom:calc(44px + env(safe-area-inset-bottom,0px));
+}
+.ibm-bezel{
+  position:relative;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  margin-top:10px;
+  padding:clamp(10px,2vw,18px);
+  background:linear-gradient(145deg,#1d1912 0%,#110e0a 55%,#090705 100%);
+  border:2px solid rgba(252,238,10,.45);
+  box-shadow:
+    0 18px 45px rgba(0,0,0,.85),
+    0 0 24px rgba(252,238,10,.15),
+    inset 0 2px 3px rgba(255,255,255,.08),
+    inset 0 -3px 8px rgba(0,0,0,.9);
+  clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px));
+}
+.ibm-bezel::before{
+  content:"";
+  position:absolute;
+  left:0;
+  top:0;
+  bottom:0;
+  width:5px;
+  background:var(--y);
+  box-shadow:0 0 12px var(--y);
+}
+.ibm-topbar{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px 12px;
+  padding:2px 6px 10px 10px;
+  border-bottom:1px solid rgba(255,157,0,.25);
+  margin-bottom:10px;
+}
+.ibm-badge{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:clamp(.72rem,2vw,.86rem);
+  color:#ffb833;
+  letter-spacing:.08em;
+}
+.ibm-plate{
+  background:linear-gradient(90deg,#ff9d00,#ffb833);
+  color:#120800;
+  font-weight:700;
+  padding:2px 8px;
+  letter-spacing:.12em;
+  font-size:.74rem;
+  box-shadow:0 0 10px rgba(255,157,0,.45);
+}
+.ibm-controls{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:8px;
+}
+.led-group{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:.7rem;
+  color:#b87a1a;
+  margin-right:4px;
+}
+.led{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#3a2000;
+  display:inline-block;
+}
+.led.on{
+  background:#ff9d00;
+  box-shadow:0 0 8px #ff9d00;
+}
+.led.hdd.flash{
+  background:#ff3c00;
+  box-shadow:0 0 10px #ff3c00;
+}
+.crt-btn{
+  background:rgba(255,157,0,.1);
+  color:#ffb833;
+  border:1px solid rgba(255,157,0,.45);
+  padding:3px 8px;
+  font:700 .7rem var(--font);
+  letter-spacing:.07em;
+  text-transform:uppercase;
+  cursor:pointer;
+  transition:background .15s,color .15s;
+}
+.crt-btn:hover,.crt-btn:focus-visible{
+  background:#ff9d00;
+  color:#0c0500;
+  outline:none;
+}
+.crt-btn[aria-pressed="false"]{
+  opacity:.55;
+}
+
+/* ---------- Recessed Amber Phosphor CRT Screen ---------- */
+.crt-frame{
+  position:relative;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  min-height:clamp(340px,62dvh,640px);
+  max-height:calc(100dvh - 220px);
+  background:radial-gradient(ellipse at center,#180b00 0%,#0b0400 70%,#040100 100%);
+  border:3px solid #2a1d0d;
+  border-radius:14px;
+  box-shadow:
+    inset 0 0 50px rgba(0,0,0,.95),
+    inset 0 0 18px rgba(255,145,0,.18),
+    0 0 12px rgba(255,145,0,.12);
+  overflow:hidden;
+}
+/* CRT horizontal scanlines + subtle RGB/phosphor mask */
+.crt-frame::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:5;
+  pointer-events:none;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(0,0,0,.38) 0px,
+      rgba(0,0,0,.38) 1px,
+      rgba(255,157,0,.04) 2px,
+      transparent 3px
+    ),
+    radial-gradient(circle at 50% 50%,transparent 62%,rgba(0,0,0,.68) 100%);
+}
+/* Rolling amber refresh beam */
+.crt-frame::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  height:18%;
+  top:-18%;
+  z-index:6;
+  pointer-events:none;
+  background:linear-gradient(180deg,transparent,rgba(255,157,0,.09),transparent);
+  animation:crtBeam 5.5s linear infinite;
+}
+@keyframes crtBeam{to{top:105%}}
+
+.crt-frame.glitch-high .crt-screen{
+  animation:amberFlicker 4.2s infinite steps(2),amberJitter 6.5s infinite;
+}
+@keyframes amberFlicker{
+  0%,92%,100%{opacity:1}
+  93%{opacity:.84}
+  94%{opacity:.98}
+  96%{opacity:.78}
+  97%{opacity:1}
+}
+@keyframes amberJitter{
+  0%,94%,100%{transform:none;text-shadow:0 0 6px rgba(255,157,0,.6),0 0 14px rgba(255,102,0,.25)}
+  95%{transform:translateX(-2px) skewX(-0.6deg);text-shadow:2px 0 #ff3c00,-2px 0 #ffb800,0 0 10px #ff9d00}
+  96%{transform:translateX(2px);text-shadow:-2px 0 #ff3c00,2px 0 #00f0ff}
+  97%{transform:translateY(1px)}
+}
+.crt-burst{
+  animation:burstGlitch .26s steps(2) 1 !important;
+}
+@keyframes burstGlitch{
+  0%{transform:translate(-3px,1px) skewX(-2deg);filter:hue-rotate(-15deg) brightness(1.35)}
+  50%{transform:translate(3px,-1px) skewX(2deg);clip-path:inset(4% 0 6% 0)}
+  100%{transform:none;filter:none}
+}
+
+.crt-screen{
+  position:relative;
+  z-index:2;
+  flex:1;
+  overflow-y:auto;
+  overflow-x:hidden;
+  padding:clamp(12px,2.5vw,20px);
+  font-family:'VT323','Share Tech Mono',monospace;
+  font-size:clamp(1.12rem,2.6vw,1.35rem);
+  line-height:1.28;
+  letter-spacing:.03em;
+  color:#ff9d00;
+  text-shadow:0 0 6px rgba(255,157,0,.6),0 0 14px rgba(255,102,0,.25);
+  cursor:text;
+  scrollbar-width:thin;
+  scrollbar-color:#ff9d00 #120800;
+}
+.crt-screen::-webkit-scrollbar{width:7px}
+.crt-screen::-webkit-scrollbar-track{background:#120800}
+.crt-screen::-webkit-scrollbar-thumb{background:#b86200;border-radius:3px}
+
+.t-line{
+  white-space:pre-wrap;
+  word-break:break-word;
+  margin-bottom:3px;
+}
+.t-line.dim{color:#c97300;text-shadow:0 0 4px rgba(201,115,0,.4)}
+.t-line.bright{color:#ffd266;text-shadow:0 0 8px rgba(255,210,102,.75)}
+.t-line.err{color:#ff4818;text-shadow:0 0 8px rgba(255,72,24,.7)}
+.t-line.sys{color:#ffb833}
+.t-line a{color:#ffd266;text-decoration:underline}
+
+/* Glitchy inline text span */
+.g-txt{
+  position:relative;
+  display:inline-block;
+  color:#ffb833;
+  animation:txtGlitch 3.2s infinite steps(2);
+}
+@keyframes txtGlitch{
+  0%,90%,100%{transform:none;text-shadow:0 0 6px rgba(255,157,0,.7)}
+  92%{transform:translateX(-2px);text-shadow:2px 0 #ff3300,-1px 0 #ffd266}
+  95%{transform:translateX(2px);text-shadow:-2px 0 #ff3300,1px 0 #00f0ff}
+}
+
+/* ---------- Prompt Input Row ---------- */
+.t-input-row{
+  display:flex;
+  align-items:center;
+  flex-wrap:nowrap;
+  gap:6px;
+  margin-top:4px;
+  position:relative;
+}
+.t-prompt{
+  color:#ffb833;
+  white-space:nowrap;
+  flex-shrink:0;
+  user-select:none;
+}
+.t-cmd-wrap{
+  position:relative;
+  flex:1;
+  display:flex;
+  align-items:center;
+  min-width:0;
+}
+.t-input{
+  width:100%;
+  background:transparent;
+  border:0;
+  outline:none;
+  color:#ffd266;
+  font:inherit;
+  letter-spacing:inherit;
+  text-shadow:0 0 6px rgba(255,184,51,.7);
+  caret-color:#ff9d00;
+  padding:0;
+}
+
+/* Matrix / Editor Overlays inside CRT */
+#matrixCanvas{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:4;
+  background:rgba(10,4,0,.92);
+}
+.nano-modal{
+  position:absolute;
+  inset:0;
+  z-index:4;
+  background:#0d0500;
+  display:flex;
+  flex-direction:column;
+  padding:12px;
+  font-family:'VT323','Share Tech Mono',monospace;
+  color:#ff9d00;
+}
+.nano-bar{
+  background:#ff9d00;
+  color:#0d0500;
+  padding:2px 8px;
+  font-weight:700;
+  display:flex;
+  justify-content:space-between;
+}
+.nano-area{
+  flex:1;
+  width:100%;
+  margin:8px 0;
+  background:#140800;
+  color:#ffd266;
+  border:1px solid rgba(255,157,0,.4);
+  padding:8px;
+  font:1.15rem/1.3 'VT323','Share Tech Mono',monospace;
+  resize:none;
+  outline:none;
+}
+.nano-foot{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+/* ---------- Mobile & Quick-Command Touch Bar ---------- */
+.touch-keys{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin-top:10px;
+  padding-left:6px;
+}
+.t-key{
+  background:rgba(255,157,0,.12);
+  color:#ffb833;
+  border:1px solid rgba(255,157,0,.4);
+  padding:5px 10px;
+  font:700 .76rem 'Share Tech Mono',monospace;
+  letter-spacing:.05em;
+  cursor:pointer;
+  clip-path:polygon(0 0,calc(100% - 5px) 0,100% 5px,100% 100%,0 100%);
+  transition:background .15s,color .15s,transform .1s;
+}
+.t-key:hover,.t-key:focus-visible,.t-key:active{
+  background:#ff9d00;
+  color:#0c0500;
+  outline:none;
+}
+@media (prefers-reduced-motion:reduce){
+  .crt-frame::after,.crt-frame.glitch-high .crt-screen,.g-txt{animation:none!important}
+}
+</style>
+</head>
+<body>
+
+<canvas id="rain"></canvas>
+<div class="floor"></div>
+<div class="scan"></div>
+<div id="wipe" aria-hidden="true"></div>
+
+<div class="wrap term-wrap">
+  <header class="top">
+    <div class="brand">
+      <a class="back-link" href="index.html"><i class="chev-l"></i>Back to hub</a>
+      <b>"Brand logo" ahh</b>
+      <span id="brand">COOL GLITCH EFFECT</span>
+    </div>
+    <div class="status">
+      <button type="button" class="storm-btn" id="stormToggle" aria-pressed="true">STORM: ON</button>
+      <i class="dot"></i>
+      <span id="clock">--:--:--</span>
+    </div>
+  </header>
+
+  <section class="ibm-bezel" aria-label="Vintage IBM Amber Terminal">
+    <div class="ibm-topbar">
+      <div class="ibm-badge">
+        <span class="ibm-plate">IBM 5150-P3</span>
+        <span>AMBER PHOSPHOR TERMUX // NODE #381</span>
+      </div>
+      <div class="ibm-controls">
+        <div class="led-group">
+          <span>PWR</span><i class="led on"></i>
+          <span>HDD</span><i class="led hdd" id="hddLed"></i>
+        </div>
+        <button type="button" class="crt-btn" id="glitchToggle" aria-pressed="true">GLITCH: HIGH</button>
+        <button type="button" class="crt-btn" id="beepToggle" aria-pressed="true">BEEP: ON</button>
+      </div>
+    </div>
+
+    <div class="crt-frame glitch-high" id="crtFrame">
+      <div class="crt-screen" id="crtScreen" role="log" aria-live="polite">
+        <div id="termOut"></div>
+        <form class="t-input-row" id="termForm" autocomplete="off">
+          <span class="t-prompt" id="termPrompt">choomba@ibm-381:~$</span>
+          <div class="t-cmd-wrap">
+            <input type="text" class="t-input" id="termInput" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" aria-label="Terminal command input" autofocus>
+          </div>
+        </form>
+      </div>
+
+      <canvas id="matrixCanvas" hidden></canvas>
+
+      <div class="nano-modal" id="nanoModal" hidden>
+        <div class="nano-bar">
+          <span id="nanoTitle">GNU nano 7.2 — file.txt</span>
+          <span>AMBER-EDIT</span>
+        </div>
+        <textarea class="nano-area" id="nanoArea" spellcheck="false"></textarea>
+        <div class="nano-foot">
+          <button type="button" class="t-key" id="nanoSave">^O Save & Exit</button>
+          <button type="button" class="t-key" id="nanoCancel">^X Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="touch-keys" aria-label="Terminal quick keys">
+      <button type="button" class="t-key" data-k="TAB">TAB</button>
+      <button type="button" class="t-key" data-k="UP">↑ PREV</button>
+      <button type="button" class="t-key" data-k="DOWN">↓ NEXT</button>
+      <button type="button" class="t-key" data-cmd="help">help</button>
+      <button type="button" class="t-key" data-cmd="neofetch">neofetch</button>
+      <button type="button" class="t-key" data-cmd="ls -la">ls -la</button>
+      <button type="button" class="t-key" data-cmd="hack">hack</button>
+      <button type="button" class="t-key" data-cmd="matrix">matrix</button>
+      <button type="button" class="t-key" data-cmd="clear">clear</button>
+    </div>
+  </section>
+</div>
+
+<div class="ticker" aria-hidden="true"><div id="tick"></div></div>
+
+<script>
+addEventListener('error',function(e){if(document.getElementById('oops'))return;var d=document.createElement('div');d.id='oops';
+d.style.cssText='position:fixed;left:0;right:0;top:0;z-index:99;background:#ff003c;color:#fff;padding:12px 16px;font:600 14px/1.4 sans-serif';
+d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'. Check the part you edited last for a missing comma or quote.';document.body.appendChild(d)});
+</script>
+<script src="config.js"></script>
+<script src="storm.js"></script>
+<script>
+(function () {
+  const $ = id => document.getElementById(id);
+  const esc = t => String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  /* ---------- Header, Clock, Storm & Ticker sync ---------- */
+  if (typeof SITE !== "undefined" && SITE.title) {
+    $("brand").textContent = SITE.title;
+  }
+  const stormBtn = $("stormToggle");
+  if (stormBtn && window.STORM) {
+    const on = window.STORM.isOn();
+    stormBtn.setAttribute("aria-pressed", on ? "true" : "false");
+    stormBtn.textContent = on ? "STORM: ON" : "STORM: OFF";
+    stormBtn.addEventListener("click", () => window.STORM.toggle());
+  }
+  const tickEl = $("tick");
+  if (tickEl && typeof SECTIONS !== "undefined") {
+    const tickText = [
+      "NIGHT CITY ONLINE",
+      ...SECTIONS.map(s => s.title.toUpperCase() + (s.links ? " " + s.links.length : "")),
+      "IBM 5150 AMBER CRT READY",
+      "STAY SHARP, CHOOMBA"
+    ].map(t => `<span>${esc(t)}</span>`).join("");
+    tickEl.innerHTML = tickText.repeat(6);
+  }
+  const tickClock = () => {
+    $("clock").textContent = "ONLINE  " + new Date().toLocaleTimeString([], { hour12: false });
+  };
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  /* ---------- Vintage IBM Mechanical Keyclick & CRT Beep (Web Audio) ---------- */
+  let audioCtx = null;
+  let beepEnabled = true;
+  function playBeep(freq = 920, dur = 0.018, type = "square", vol = 0.04) {
+    if (!beepEnabled) return;
+    try {
+      if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      if (audioCtx.state === "suspended") audioCtx.resume();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+      gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      osc.stop(audioCtx.currentTime + dur);
+    } catch (e) {}
+  }
+
+  $("beepToggle").addEventListener("click", function () {
+    beepEnabled = !beepEnabled;
+    this.setAttribute("aria-pressed", beepEnabled ? "true" : "false");
+    this.textContent = beepEnabled ? "BEEP: ON" : "BEEP: OFF";
+    if (beepEnabled) playBeep(1200, 0.04, "square", 0.06);
+  });
+
+  $("glitchToggle").addEventListener("click", function () {
+    const frame = $("crtFrame");
+    const high = frame.classList.toggle("glitch-high");
+    this.setAttribute("aria-pressed", high ? "true" : "false");
+    this.textContent = high ? "GLITCH: HIGH" : "GLITCH: LOW";
+    playBeep(680, 0.03);
+  });
+
+  const hddLed = $("hddLed");
+  function blinkHdd() {
+    if (!hddLed) return;
+    hddLed.classList.add("flash");
+    setTimeout(() => hddLed.classList.remove("flash"), 140);
+  }
+
+  function triggerCrtBurst() {
+    const frame = $("crtFrame");
+    if (!frame || !frame.classList.contains("glitch-high")) return;
+    frame.classList.remove("crt-burst");
+    void frame.offsetWidth;
+    frame.classList.add("crt-burst");
+  }
+
+  /* ---------- Persistent Virtual Linux Filesystem (localStorage) ---------- */
+  const FS_KEY = "cyberterm_fs_v1";
+  const PKG_KEY = "cyberterm_pkgs_v1";
+  const bootTime = Date.now();
+
+  const DEFAULT_FS = {
+    "/home/choomba/readme.txt":
+      "====================================================\n" +
+      " IBM 5150-P3 // NIGHT CITY TERMUX SUBSYSTEM v4.20\n" +
+      "====================================================\n" +
+      "Welcome, choomba. Your files in this terminal are\n" +
+      "saved automatically in browser storage.\n\n" +
+      "Try running:\n" +
+      "  help          List all available commands\n" +
+      "  neofetch      Display hardware & system info\n" +
+      "  ls -la        List files in current directory\n" +
+      "  nano note.txt Open interactive amber text editor\n" +
+      "  pkg install   Install packages (cmatrix, nmap, etc.)\n" +
+      "  hack          Launch ICEBREAKER hex breach protocol\n" +
+      "  matrix        Amber phosphor falling code stream\n" +
+      "  open games    Jump straight to Games section\n",
+    "/home/choomba/netrunner.sh":
+      "#!/bin/sh\n" +
+      "echo 'Scanning Night City subnet 10.207.7.0/24...'\n" +
+      "echo 'Node #381 [ONLINE] — ICE integrity: 94%'\n" +
+      "echo 'Use `hack` to breach local daemon.'\n",
+    "/home/choomba/.bashrc":
+      "export PS1='choomba@ibm-381:\\w$ '\n" +
+      "export TERM='ibm-3278-amber'\n" +
+      "alias ll='ls -la'\n",
+    "/etc/motd":
+      "IBM CORP. 5150 PERSONAL COMPUTER // ROM BIOS 10/24/81\n" +
+      "640K BASE RAM OK // PHOSPHOR P3 AMBER DISPLAY ADAPTER",
+    "/etc/os-release":
+      "NAME=\"CyberTermux GNU/Linux\"\n" +
+      "VERSION=\"2077.10 (Night City Amber Edition)\"\n" +
+      "ID=cybertermux\n" +
+      "ARCH=x86_64-wasm\n",
+    "/proc/cpuinfo":
+      "processor   : 0\n" +
+      "vendor_id   : Arasaka-IBM Microelectronics\n" +
+      "model name  : CyberDeck 8088-X Quantum Coprocessor @ 4.77 GHz\n" +
+      "cache size  : 16384 KB\n"
+  };
+
+  function loadFs() {
+    try {
+      const raw = localStorage.getItem(FS_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === "object") return parsed;
+      }
+    } catch (e) {}
+    return Object.assign({}, DEFAULT_FS);
+  }
+
+  function saveFs() {
+    try {
+      localStorage.setItem(FS_KEY, JSON.stringify(fs));
+    } catch (e) {}
+  }
+
+  function loadPkgs() {
+    try {
+      const raw = localStorage.getItem(PKG_KEY);
+      if (raw) return JSON.parse(raw);
+    } catch (e) {}
+    return ["coreutils", "bash", "nano", "curl", "grep", "neofetch"];
+  }
+
+  function savePkgs() {
+    try {
+      localStorage.setItem(PKG_KEY, JSON.stringify(pkgs));
+    } catch (e) {}
+  }
+
+  let fs = loadFs();
+  let pkgs = loadPkgs();
+  let cwd = "/home/choomba";
+  let history = [];
+  let histIdx = -1;
+
+  function normPath(p) {
+    if (!p || p === "~") return "/home/choomba";
+    if (p.startsWith("~/")) p = "/home/choomba/" + p.slice(2);
+    else if (!p.startsWith("/")) p = (cwd === "/" ? "/" : cwd + "/") + p;
+    const parts = p.split("/");
+    const out = [];
+    for (const seg of parts) {
+      if (!seg || seg === ".") continue;
+      if (seg === "..") out.pop();
+      else out.push(seg);
+    }
+    return "/" + out.join("/");
+  }
+
+  function getDirs() {
+    const dirs = new Set(["/", "/home", "/home/choomba", "/etc", "/proc", "/bin", "/var", "/var/log"]);
+    Object.keys(fs).forEach(k => {
+      const parts = k.split("/").filter(Boolean);
+      let cur = "";
+      for (let i = 0; i < parts.length - 1; i++) {
+        cur += "/" + parts[i];
+        dirs.add(cur);
+      }
+    });
+    return dirs;
+  }
+
+  function isDir(p) {
+    const np = normPath(p);
+    if (fs[np] === "__DIR__") return true;
+    return getDirs().has(np);
+  }
+
+  function listDir(dirPath) {
+    const np = normPath(dirPath);
+    const prefix = np === "/" ? "/" : np + "/";
+    const entries = new Map();
+    getDirs().forEach(d => {
+      if (d !== np && d.startsWith(prefix)) {
+        const rest = d.slice(prefix.length).split("/")[0];
+        if (rest) entries.set(rest, { name: rest, dir: true, size: 4096 });
+      }
+    });
+    Object.keys(fs).forEach(k => {
+      if (k.startsWith(prefix)) {
+        const rest = k.slice(prefix.length);
+        if (!rest || rest.includes("/")) return;
+        if (fs[k] === "__DIR__") {
+          entries.set(rest, { name: rest, dir: true, size: 4096 });
+        } else {
+          entries.set(rest, { name: rest, dir: false, size: String(fs[k]).length });
+        }
+      }
+    });
+    return Array.from(entries.values()).sort((a, b) => (b.dir - a.dir) || a.name.localeCompare(b.name));
+  }
+
+  /* ---------- Terminal Output Helpers ---------- */
+  const outEl = $("termOut");
+  const screenEl = $("crtScreen");
+  const inputEl = $("termInput");
+  const promptEl = $("termPrompt");
+
+  function updatePrompt() {
+    const shortCwd = cwd === "/home/choomba" ? "~" : cwd.replace(/^\/home\/choomba/, "~");
+    promptEl.textContent = `choomba@ibm-381:${shortCwd}$`;
+  }
+
+  function print(text, cls = "") {
+    const div = document.createElement("div");
+    div.className = "t-line" + (cls ? " " + cls : "");
+    div.textContent = text;
+    outEl.appendChild(div);
+    screenEl.scrollTop = screenEl.scrollHeight;
+  }
+
+  function printHtml(html, cls = "") {
+    const div = document.createElement("div");
+    div.className = "t-line" + (cls ? " " + cls : "");
+    div.innerHTML = html;
+    outEl.appendChild(div);
+    screenEl.scrollTop = screenEl.scrollHeight;
+  }
+
+  /* ---------- Boot Banner ---------- */
+  function showBanner() {
+    printHtml(
+      `<span class="g-txt">IBM 5150 PERSONAL COMPUTER // PHOSPHOR P3 AMBER TERMINAL</span>`,
+      "bright"
+    );
+    print("ROM BIOS (C) 1981, 2077 ARASAKA-IBM CORP. // 640K RAM SYSTEM OK", "dim");
+    print("MOUNTED /dev/nvme0n1p1 ON /home/choomba (PERSISTENT LOCALSTORAGE FS)", "dim");
+    printHtml(
+      `Type <span class="g-txt">help</span> for commands, <span class="g-txt">neofetch</span> for specs, <span class="g-txt">hack</span> to breach ICE, or <span class="g-txt">nano readme.txt</span>.`
+    );
+    print("");
+  }
+
+  /* ---------- Interactive Nano Editor ---------- */
+  let nanoTarget = "";
+  function openNano(filepath) {
+    nanoTarget = normPath(filepath);
+    $("nanoTitle").textContent = `GNU nano 7.2 — ${nanoTarget}`;
+    $("nanoArea").value = fs[nanoTarget] && fs[nanoTarget] !== "__DIR__" ? fs[nanoTarget] : "";
+    $("nanoModal").hidden = false;
+    $("nanoArea").focus();
+  }
+  function closeNano(save) {
+    if (save && nanoTarget) {
+      fs[nanoTarget] = $("nanoArea").value;
+      saveFs();
+      print(`[ Wrote ${fs[nanoTarget].split("\n").length} lines to ${nanoTarget} ]`, "sys");
+    }
+    $("nanoModal").hidden = true;
+    inputEl.focus();
+  }
+  $("nanoSave").addEventListener("click", () => closeNano(true));
+  $("nanoCancel").addEventListener("click", () => closeNano(false));
+  $("nanoArea").addEventListener("keydown", e => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "s") {
+      e.preventDefault();
+      closeNano(true);
+    } else if (e.key === "Escape") {
+      e.preventDefault();
+      closeNano(false);
+    }
+  });
+
+  /* ---------- Amber Matrix Stream inside CRT ---------- */
+  let matrixRaf = 0;
+  function startMatrix() {
+    const mc = $("matrixCanvas");
+    mc.hidden = false;
+    const mctx = mc.getContext("2d");
+    const rect = mc.getBoundingClientRect();
+    const mw = (mc.width = Math.max(300, rect.width));
+    const mh = (mc.height = Math.max(240, rect.height));
+    const cols = Math.floor(mw / 16);
+    const ypos = new Array(cols).fill(0);
+    const chars = "0123456789ABCDEF<>#$%*+=-IBM5150";
+
+    function drawMatrix() {
+      mctx.fillStyle = "rgba(12, 4, 0, 0.14)";
+      mctx.fillRect(0, 0, mw, mh);
+      mctx.font = "16px VT323, monospace";
+      for (let i = 0; i < cols; i++) {
+        const ch = chars[(Math.random() * chars.length) | 0];
+        mctx.fillStyle = Math.random() > 0.92 ? "#ffd266" : "#ff9d00";
+        mctx.fillText(ch, i * 16, ypos[i]);
+        if (ypos[i] > mh && Math.random() > 0.975) ypos[i] = 0;
+        else ypos[i] += 16;
+      }
+      matrixRaf = requestAnimationFrame(drawMatrix);
+    }
+    drawMatrix();
+
+    function stopMatrix(e) {
+      if (e) e.preventDefault();
+      if (matrixRaf) cancelAnimationFrame(matrixRaf);
+      matrixRaf = 0;
+      mc.hidden = true;
+      window.removeEventListener("keydown", stopMatrix);
+      mc.removeEventListener("click", stopMatrix);
+      inputEl.focus();
+    }
+    setTimeout(() => {
+      window.addEventListener("keydown", stopMatrix, { once: true });
+      mc.addEventListener("click", stopMatrix, { once: true });
+    }, 100);
+  }
+
+  /* ---------- Command Execution Engine ---------- */
+  async function runSingleCommand(rawLine) {
+    /* Handle output redirection: cmd > file or cmd >> file */
+    let redirFile = null;
+    let appendMode = false;
+    let cmdLine = rawLine;
+    const redirMatch = rawLine.match(/^(.*?)\s*(>>|>)\s*([^\s>]+)\s*$/);
+    if (redirMatch) {
+      cmdLine = redirMatch[1].trim();
+      appendMode = redirMatch[2] === ">>";
+      redirFile = normPath(redirMatch[3]);
+    }
+
+    const captured = [];
+    const out = (txt, cls = "") => {
+      if (redirFile) captured.push(txt);
+      else print(txt, cls);
+    };
+
+    const tokens = cmdLine.match(/(?:[^\s"']+|"[^"]*"|'[^']*')+/g) || [];
+    const args = tokens.map(t => t.replace(/^['"]|['"]$/g, ""));
+    const cmd = (args.shift() || "").toLowerCase();
+    if (!cmd) return;
+
+    switch (cmd) {
+      case "help":
+        out("AVAILABLE CYBERTERM COMMANDS:", "bright");
+        out("  ls [-la] [dir]       List directory contents");
+        out("  cd <dir>             Change current directory");
+        out("  pwd                  Print working directory");
+        out("  cat <file>           Display file contents");
+        out("  nano <file>          Interactive amber text editor");
+        out("  mkdir <dir>          Create a directory");
+        out("  touch <file>         Create an empty file");
+        out("  rm <file>            Delete a file");
+        out("  cp <src> <dst>       Copy a file");
+        out("  mv <src> <dst>       Move/rename a file");
+        out("  grep <pat> <file>    Search for pattern in file");
+        out("  echo <text> [> file] Print text or write to file");
+        out("  pkg <install|list>   Termux package manager (cmatrix, nmap, cowsay)");
+        out("  neofetch             Display IBM-5150 & Cyberpunk system specs");
+        out("  top / ps             View active neural & system daemons");
+        out("  curl <url>           Fetch HTTP/JSON content from URL");
+        out("  ping <host>          Send ICMP echo requests");
+        out("  hack                 Run ICEBREAKER breach minigame");
+        out("  matrix               Launch amber phosphor falling code");
+        out("  storm <on|off>       Control background thunderstorm");
+        out("  open <section>       Open hub, games, forum, photos, tools, files");
+        out("  resetfs              Restore default virtual filesystem");
+        out("  clear                Clear terminal screen");
+        break;
+
+      case "clear":
+      case "cls":
+        outEl.innerHTML = "";
+        break;
+
+      case "pwd":
+        out(cwd);
+        break;
+
+      case "whoami":
+        out("choomba");
+        break;
+
+      case "id":
+        out("uid=1000(choomba) gid=1000(netrunners) groups=1000(netrunners),27(sudo),999(arasaka-root)");
+        break;
+
+      case "hostname":
+        out("ibm-381.nightcity.local");
+        break;
+
+      case "uname":
+        out(args.includes("-a")
+          ? "Linux ibm-381 6.8.0-cybertermux #1 SMP PREEMPT_DYNAMIC WebAssembly x86_64 GNU/Linux"
+          : "Linux");
+        break;
+
+      case "date":
+        out(new Date().toString());
+        break;
+
+      case "uptime": {
+        const sec = Math.floor((Date.now() - bootTime) / 1000);
+        const mins = Math.floor(sec / 60);
+        out(`up ${mins} min, ${sec % 60} sec,  1 user,  load average: 0.14, 0.08, 0.03`);
+        break;
+      }
+
+      case "ls":
+      case "ll": {
+        const flags = args.filter(a => a.startsWith("-")).join("");
+        const showAll = cmd === "ll" || flags.includes("a");
+        const longFmt = cmd === "ll" || flags.includes("l");
+        const targetArg = args.find(a => !a.startsWith("-")) || cwd;
+        const items = listDir(targetArg).filter(it => showAll || !it.name.startsWith("."));
+        if (!items.length) {
+          out("(empty directory)", "dim");
+          break;
+        }
+        if (longFmt) {
+          out(`total ${items.length * 4}`, "dim");
+          items.forEach(it => {
+            const perm = it.dir ? "drwxr-xr-x" : (it.name.endsWith(".sh") ? "-rwxr-xr-x" : "-rw-r--r--");
+            const sz = String(it.size).padStart(6, " ");
+            const nameStr = it.dir ? it.name + "/" : it.name;
+            out(`${perm}  1 choomba netrunner ${sz} Oct 24 2077 ${nameStr}`, it.dir ? "bright" : "");
+          });
+        } else {
+          out(items.map(it => (it.dir ? it.name + "/" : it.name)).join("   "));
+        }
+        break;
+      }
+
+      case "cd": {
+        const dest = normPath(args[0] || "~");
+        if (isDir(dest)) {
+          cwd = dest;
+          updatePrompt();
+        } else {
+          out(`cd: no such directory: ${args[0]}`, "err");
+        }
+        break;
+      }
+
+      case "cat": {
+        if (!args.length) {
+          out("cat: missing file operand", "err");
+          break;
+        }
+        const p = normPath(args[0]);
+        if (isDir(p)) {
+          out(`cat: ${args[0]}: Is a directory`, "err");
+        } else if (Object.prototype.hasOwnProperty.call(fs, p)) {
+          out(fs[p]);
+        } else {
+          out(`cat: ${args[0]}: No such file or directory`, "err");
+        }
+        break;
+      }
+
+      case "echo":
+        out(args.join(" "));
+        break;
+
+      case "touch": {
+        if (!args[0]) {
+          out("touch: missing file operand", "err");
+          break;
+        }
+        const p = normPath(args[0]);
+        if (!Object.prototype.hasOwnProperty.call(fs, p)) {
+          fs[p] = "";
+          saveFs();
+        }
+        break;
+      }
+
+      case "mkdir": {
+        if (!args[0]) {
+          out("mkdir: missing operand", "err");
+          break;
+        }
+        const p = normPath(args[0]);
+        fs[p] = "__DIR__";
+        saveFs();
+        out(`Directory created: ${p}`, "dim");
+        break;
+      }
+
+      case "rm": {
+        const target = args.find(a => !a.startsWith("-"));
+        if (!target) {
+          out("rm: missing operand", "err");
+          break;
+        }
+        const p = normPath(target);
+        if (Object.prototype.hasOwnProperty.call(fs, p)) {
+          delete fs[p];
+          saveFs();
+          out(`Removed ${p}`, "dim");
+        } else {
+          out(`rm: cannot remove '${target}': No such file`, "err");
+        }
+        break;
+      }
+
+      case "cp": {
+        if (args.length < 2) {
+          out("Usage: cp <source> <dest>", "err");
+          break;
+        }
+        const s = normPath(args[0]);
+        const d = normPath(args[1]);
+        if (!Object.prototype.hasOwnProperty.call(fs, s)) {
+          out(`cp: cannot stat '${args[0]}': No such file`, "err");
+          break;
+        }
+        fs[d] = fs[s];
+        saveFs();
+        out(`Copied ${s} -> ${d}`, "dim");
+        break;
+      }
+
+      case "mv": {
+        if (args.length < 2) {
+          out("Usage: mv <source> <dest>", "err");
+          break;
+        }
+        const s = normPath(args[0]);
+        const d = normPath(args[1]);
+        if (!Object.prototype.hasOwnProperty.call(fs, s)) {
+          out(`mv: cannot stat '${args[0]}': No such file`, "err");
+          break;
+        }
+        fs[d] = fs[s];
+        delete fs[s];
+        saveFs();
+        out(`Moved ${s} -> ${d}`, "dim");
+        break;
+      }
+
+      case "grep": {
+        if (args.length < 2) {
+          out("Usage: grep <pattern> <file>", "err");
+          break;
+        }
+        const pat = args[0].toLowerCase();
+        const p = normPath(args[1]);
+        if (!Object.prototype.hasOwnProperty.call(fs, p) || fs[p] === "__DIR__") {
+          out(`grep: ${args[1]}: No such file`, "err");
+          break;
+        }
+        const matches = String(fs[p]).split("\n").filter(l => l.toLowerCase().includes(pat));
+        if (matches.length) out(matches.join("\n"));
+        else out("(no matches)", "dim");
+        break;
+      }
+
+      case "nano":
+      case "edit":
+      case "vim":
+      case "vi": {
+        const file = args[0] || "untitled.txt";
+        openNano(file);
+        break;
+      }
+
+      case "tree": {
+        const allKeys = Object.keys(fs).sort();
+        out(".");
+        allKeys.forEach(k => {
+          out("├── " + k + (fs[k] === "__DIR__" ? "/" : ""));
+        });
+        break;
+      }
+
+      case "df":
+        out("Filesystem      Size  Used Avail Use% Mounted on");
+        out("/dev/nvme0n1p1  5.0M  128K  4.9M   3% /home/choomba (localStorage)");
+        out("tmpfs           640K   48K  592K   8% /run");
+        break;
+
+      case "free":
+        out("               total        used        free      shared  buff/cache   available");
+        out("Mem:             640         184         312          16         144         420");
+        out("Swap:           2048           0        2048");
+        break;
+
+      case "ps":
+      case "top":
+      case "htop":
+        out("  PID TTY          TIME CMD", "bright");
+        out("    1 tty1     00:00:01 systemd-cyberdeck");
+        out("   88 tty1     00:00:04 storm-daemon --rain --lightning");
+        out("  142 tty1     00:00:02 p3-phosphor-compositor --amber");
+        out("  381 pts/0    00:00:00 bash --login");
+        break;
+
+      case "neofetch":
+      case "fastfetch": {
+        const stormState = window.STORM && window.STORM.isOn() ? "ACTIVE (RAIN + THUNDER)" : "STANDBY";
+        const art = [
+          "   ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄   choomba@ibm-381",
+          "   █ ▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄ █   -------------------------",
+          "   █ █ > CYBERTERM █ █   OS: CyberTermux GNU/Linux 2077",
+          "   █ █   IBM 5150  █ █   Host: IBM 5150 (P3 Amber CRT)",
+          "   █ ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀ █   Kernel: 6.8.0-wasm-x86",
+          "   ▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀▀   Packages: " + pkgs.length + " (pkg)",
+          "  ▄███████████████████▄  Resolution: " + window.innerWidth + "x" + window.innerHeight,
+          "  ▀▀▀               ▀▀▀  Weather: " + stormState
+        ];
+        out(art.join("\n"), "bright");
+        break;
+      }
+
+      case "pkg":
+      case "apt": {
+        const sub = (args[0] || "").toLowerCase();
+        if (sub === "list" || sub === "list-installed") {
+          out("Installed packages: " + pkgs.join(", "));
+        } else if (sub === "update" || sub === "upgrade") {
+          out("Hit:1 https://repo.nightcity.local/termux-main InRelease [42.0 kB]");
+          out("Reading package lists... Done. All packages are up to date.", "sys");
+        } else if (sub === "install") {
+          const pkgName = (args[1] || "").toLowerCase();
+          if (!pkgName) {
+            out("Usage: pkg install <package-name> (try: cmatrix, cowsay, nmap, fortune)", "err");
+            break;
+          }
+          if (!pkgs.includes(pkgName)) {
+            pkgs.push(pkgName);
+            savePkgs();
+          }
+          out(`Unpacking ${pkgName} (2077.1-amber)...`);
+          out(`Setting up ${pkgName}... Done! You can now run '${pkgName}'.`, "bright");
+        } else {
+          out("Usage: pkg <update|list|install> [package]");
+        }
+        break;
+      }
+
+      case "matrix":
+      case "cmatrix":
+        print("Starting Amber Phosphor stream... (Tap screen or press any key to exit)", "dim");
+        startMatrix();
+        break;
+
+      case "cowsay": {
+        const msg = args.join(" ") || "Stay sharp, choomba!";
+        const bar = "-".repeat(msg.length + 2);
+        out(` ${bar}\n< ${msg} >\n ${bar}\n        \\   ^__^\n         \\  (oo)\\_______\n            (__)\\       )\\/\\\n                ||----w |\n                ||     ||`, "bright");
+        break;
+      }
+
+      case "fortune": {
+        const list = (typeof SITE !== "undefined" && Array.isArray(SITE.messages))
+          ? SITE.messages
+          : ["Wake the f*ck up, Samurai. We have a city to burn."];
+        out(list[(Math.random() * list.length) | 0], "bright");
+        break;
+      }
+
+      case "nmap": {
+        const host = args[0] || "10.207.7.381";
+        out(`Starting Nmap 7.95 ( https://nmap.org ) at ${new Date().toLocaleTimeString()}`);
+        out(`Nmap scan report for ${host}`);
+        out("PORT     STATE SERVICE       VERSION");
+        out("22/tcp   open  ssh           Arasaka OpenSSH 9.6p1");
+        out("80/tcp   open  http          GitHub-Pages-Static");
+        out("443/tcp  open  ssl/https     NightCity-TLSv1.3");
+        out("3810/tcp open  neural-link   PomboBoot Daemon v2.5");
+        break;
+      }
+
+      case "ping": {
+        const host = args[0] || "node381.nightcity";
+        out(`PING ${host} (10.207.7.1): 56 data bytes`);
+        for (let i = 1; i <= 3; i++) {
+          const ms = (1.2 + Math.random() * 2.8).toFixed(2);
+          out(`64 bytes from 10.207.7.1: icmp_seq=${i} ttl=64 time=${ms} ms`);
+        }
+        break;
+      }
+
+      case "curl": {
+        const url = args[0];
+        if (!url) {
+          out("Usage: curl <url> (e.g. curl https://api.github.com/repos/saifkhan2007/test)", "err");
+          break;
+        }
+        out(`Fetching ${url}...`, "dim");
+        try {
+          const r = await fetch(url);
+          const txt = await r.text();
+          out(txt.slice(0, 1200) + (txt.length > 1200 ? "\n...[truncated]" : ""));
+        } catch (err) {
+          out(`curl: (7) Failed to connect to ${url}: ${err.message}`, "err");
+        }
+        break;
+      }
+
+      case "hack":
+      case "breach": {
+        triggerCrtBurst();
+        playBeep(520, 0.06, "sawtooth", 0.07);
+        out("================================================", "bright");
+        out(" ICEBREAKER BREACH PROTOCOL // TARGET: NODE #381", "bright");
+        out("================================================", "bright");
+        const hexRows = [];
+        const pool = ["BD", "E9", "1C", "55", "7A", "FF"];
+        for (let r = 0; r < 4; r++) {
+          const row = [];
+          for (let c = 0; c < 6; c++) row.push(pool[(Math.random() * pool.length) | 0]);
+          hexRows.push("  " + row.join("  "));
+        }
+        out(hexRows.join("\n"));
+        out("SEQUENCE MATCHED: [BD] -> [E9] -> [1C] // ROOT DAEMON UNLOCKED", "sys");
+        break;
+      }
+
+      case "storm": {
+        const sub = (args[0] || "").toLowerCase();
+        if (!window.STORM) {
+          out("storm.js not loaded", "err");
+          break;
+        }
+        if (sub === "off") window.STORM.set(false);
+        else if (sub === "on") window.STORM.set(true);
+        else window.STORM.toggle();
+        out(`Thunderstorm is now ${window.STORM.isOn() ? "ON" : "OFF"}.`, "sys");
+        break;
+      }
+
+      case "open": {
+        const target = (args[0] || "hub").toLowerCase().replace(/\.html$/, "");
+        const dest = target === "hub" || target === "index" ? "index.html" : `${target}.html`;
+        out(`Opening ${dest}...`, "sys");
+        setTimeout(() => {
+          window.location.href = dest;
+        }, 250);
+        break;
+      }
+
+      case "sh":
+      case "bash": {
+        if (!args[0]) {
+          out("GNU bash, version 5.2.21(1)-release (x86_64-pc-linux-gnu)");
+          break;
+        }
+        const p = normPath(args[0]);
+        if (!fs[p] || fs[p] === "__DIR__") {
+          out(`sh: 0: cannot open ${args[0]}: No such file`, "err");
+          break;
+        }
+        const scriptLines = String(fs[p]).split("\n");
+        for (const sl of scriptLines) {
+          const clean = sl.trim();
+          if (!clean || clean.startsWith("#")) continue;
+          await runSingleCommand(clean);
+        }
+        break;
+      }
+
+      case "resetfs":
+        fs = Object.assign({}, DEFAULT_FS);
+        saveFs();
+        cwd = "/home/choomba";
+        updatePrompt();
+        out("Virtual filesystem restored to factory IBM-5150 state.", "sys");
+        break;
+
+      case "reboot":
+        outEl.innerHTML = "";
+        triggerCrtBurst();
+        showBanner();
+        break;
+
+      default:
+        triggerCrtBurst();
+        playBeep(240, 0.08, "sawtooth", 0.06);
+        out(`${cmd}: command not found. Type 'help' for available commands.`, "err");
+    }
+
+    if (redirFile) {
+      const content = captured.join("\n");
+      fs[redirFile] = appendMode && fs[redirFile] && fs[redirFile] !== "__DIR__"
+        ? fs[redirFile] + "\n" + content
+        : content;
+      saveFs();
+    }
+  }
+
+  async function executeInput(raw) {
+    const trimmed = raw.trim();
+    const shortCwd = cwd === "/home/choomba" ? "~" : cwd.replace(/^\/home\/choomba/, "~");
+    print(`choomba@ibm-381:${shortCwd}$ ${raw}`, "sys");
+    if (!trimmed) return;
+
+    history.push(raw);
+    histIdx = history.length;
+    blinkHdd();
+
+    const parts = trimmed.split(/\s*(?:&&|;)\s*/);
+    for (const part of parts) {
+      if (part) await runSingleCommand(part);
+    }
+  }
+
+  /* ---------- Form, Keyboard & Tab-Completion ---------- */
+  const COMMAND_LIST = [
+    "help", "ls", "ll", "cd", "pwd", "cat", "nano", "edit", "mkdir", "touch",
+    "rm", "cp", "mv", "grep", "echo", "tree", "df", "free", "ps", "top",
+    "neofetch", "pkg", "matrix", "cmatrix", "cowsay", "fortune", "nmap",
+    "ping", "curl", "hack", "breach", "storm", "open", "sh", "resetfs", "clear", "reboot"
+  ];
+
+  function handleTabCompletion() {
+    const val = inputEl.value;
+    const parts = val.split(/\s+/);
+    if (parts.length <= 1) {
+      const prefix = (parts[0] || "").toLowerCase();
+      const hit = COMMAND_LIST.find(c => c.startsWith(prefix));
+      if (hit) inputEl.value = hit + " ";
+    } else {
+      const last = parts[parts.length - 1];
+      const entries = listDir(cwd);
+      const hit = entries.find(e => e.name.toLowerCase().startsWith(last.toLowerCase()));
+      if (hit) {
+        parts[parts.length - 1] = hit.name + (hit.dir ? "/" : "");
+        inputEl.value = parts.join(" ");
+      }
+    }
+  }
+
+  $("termForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const v = inputEl.value;
+    inputEl.value = "";
+    playBeep(640, 0.025, "square", 0.05);
+    executeInput(v);
+  });
+
+  inputEl.addEventListener("keydown", e => {
+    if (e.key.length === 1) playBeep(960 + Math.random() * 180, 0.012, "square", 0.03);
+    if (e.key === "Tab") {
+      e.preventDefault();
+      handleTabCompletion();
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      if (history.length && histIdx > 0) {
+        histIdx--;
+        inputEl.value = history[histIdx];
+      }
+    } else if (e.key === "ArrowDown") {
+      e.preventDefault();
+      if (histIdx < history.length - 1) {
+        histIdx++;
+        inputEl.value = history[histIdx];
+      } else {
+        histIdx = history.length;
+        inputEl.value = "";
+      }
+    } else if (e.ctrlKey && e.key.toLowerCase() === "l") {
+      e.preventDefault();
+      outEl.innerHTML = "";
+    } else if (e.ctrlKey && e.key.toLowerCase() === "c") {
+      e.preventDefault();
+      print("^C", "err");
+      inputEl.value = "";
+    }
+  });
+
+  screenEl.addEventListener("click", () => {
+    if (window.getSelection && String(window.getSelection()).length > 0) return;
+    inputEl.focus();
+  });
+
+  document.querySelector(".touch-keys").addEventListener("click", e => {
+    const btn = e.target.closest("button.t-key");
+    if (!btn) return;
+    playBeep(880, 0.02);
+    if (btn.dataset.cmd) {
+      executeInput(btn.dataset.cmd);
+    } else if (btn.dataset.k === "TAB") {
+      handleTabCompletion();
+    } else if (btn.dataset.k === "UP") {
+      if (history.length && histIdx > 0) {
+        histIdx--;
+        inputEl.value = history[histIdx];
+      }
+    } else if (btn.dataset.k === "DOWN") {
+      if (histIdx < history.length - 1) {
+        histIdx++;
+        inputEl.value = history[histIdx];
+      } else {
+        histIdx = history.length;
+        inputEl.value = "";
+      }
+    }
+    inputEl.focus();
+  });
+
+  updatePrompt();
+  showBanner();
+})();
+</script>
+</body>
+</html>
