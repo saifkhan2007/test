@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#03040d">
+<title>RANDOM AHH TOOL BOX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="is-hub">
+
+<div id="boot"><div><p>running pomboboot <br> >WORLD.EXECUTE(ME)</p><span class="bar"><i></i></span></div></div>
+<canvas id="rain"></canvas>
+<div class="floor"></div>
+<div class="scan"></div>
+<div id="wipe" aria-hidden="true"></div>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand"><b>"Brand logo" ahh</b><span id="brand"></span></div>
+    <div class="status"><button type="button" class="storm-btn" id="stormToggle" aria-pressed="true">STORM: ON</button><i class="dot"></i><span id="clock">--:--:--</span></div>
+  </header>
+
+  <div class="hero">
+    <h1 class="glitch" id="title" data-text="">"tittle" ahh</h1>
+    <p class="tw" id="tw"></p>
+  </div>
+
+  <div class="ql" id="ql">
+    <div class="ql-bar">
+      <svg class="ql-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <input type="search" class="ql-in" id="qlIn" placeholder="Quick launch — search games, tools, forum, photos..." autocomplete="off" aria-label="Quick launch" aria-expanded="false" aria-controls="qlDrop">
+      <button type="button" class="ql-clear" id="qlClear" hidden aria-label="Clear search">✕</button>
+    </div>
+    <ul class="ql-drop" id="qlDrop" role="listbox" hidden></ul>
+  </div>
+
+  <main class="tiles" id="tiles" aria-label="Sections"></main>
+</div>
+
+<div class="ticker" aria-hidden="true"><div id="tick"></div></div>
+
+<script>
+addEventListener('error',function(e){if(document.getElementById('oops'))return;var d=document.createElement('div');d.id='oops';
+d.style.cssText='position:fixed;left:0;right:0;top:0;z-index:99;background:#ff003c;color:#fff;padding:12px 16px;font:600 14px/1.4 sans-serif';
+d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'. Check the part you edited last for a missing comma or quote.';document.body.appendChild(d)});
+</script>
+<script src="config.js"></script>
+<script src="storm.js"></script>
+<script src="site.js"></script>
+</body>
+</html>
