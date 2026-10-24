@@ -1,8 +1,9 @@
 /* =====================================================================
-   storm.js — Cyberpunk Thunderstorm Background + Audio
+   storm.js — Cyberpunk Thunderstorm Background + Multi-Track Audio
    Shared across all pages. Draws drifting clouds, 3 depth layers of
-   slanted rain, bottom splash ripples, and forked/sheet lightning every
-   3-6s, paired with rain.mp3 (looped) and thunder.mp3.
+   slanted rain, bottom splash ripples, silent distant sky flashes, and
+   thunder bolts (~every 10s at random) using rain.mp3 and random picks
+   from thunder.mp3 + thunder1.mp3 .. thunder6.mp3.
    Respects prefers-reduced-motion, tab visibility, and Storm on/off.
    ===================================================================== */
 (function () {
@@ -32,25 +33,59 @@
   }
   const ctx = canvas.getContext("2d");
 
-  /* ---------- Audio (rain.mp3 loop + thunder.mp3 on lightning) ---------- */
+  /* ---------- Audio: rain.mp3 loop + thunder.mp3 / thunder1..6.mp3 ---------- */
   let rainAudio = null;
-  let thunderAudio = null;
+  let lastRainRetry = 0;
+  const THUNDER_FILES = [
+    "thunder.mp3",
+    "thunder1.mp3",
+    "thunder2.mp3",
+    "thunder3.mp3",
+    "thunder4.mp3",
+    "thunder5.mp3",
+    "thunder6.mp3"
+  ];
+  const thunderPool = [];
+  let lastThunderIndex = -1;
+
   try {
     rainAudio = new Audio("rain.mp3");
     rainAudio.loop = true;
     rainAudio.preload = "auto";
-    rainAudio.volume = 0.45;
+    rainAudio.volume = 0.78;
+    rainAudio.addEventListener("canplaythrough", () => {
+      if (enabled && !document.hidden && rainAudio.paused) {
+        syncRainAudio();
+      }
+    });
+    /* Seamless loop fallback if browser pauses at track end */
+    rainAudio.addEventListener("ended", () => {
+      if (enabled && !document.hidden) {
+        try {
+          rainAudio.currentTime = 0;
+          syncRainAudio();
+        } catch (e) {}
+      }
+    });
 
-    thunderAudio = new Audio("thunder.mp3");
-    thunderAudio.preload = "auto";
-    thunderAudio.volume = 0.7;
+    THUNDER_FILES.forEach(src => {
+      const a = new Audio(src);
+      a.preload = "auto";
+      a.dataset.ok = "1";
+      a.addEventListener("error", () => {
+        a.dataset.ok = "0";
+      });
+      thunderPool.push(a);
+    });
   } catch (e) {}
 
   function syncRainAudio() {
     if (!rainAudio) return;
     if (enabled && !document.hidden) {
-      const p = rainAudio.play();
-      if (p && typeof p.catch === "function") p.catch(() => {});
+      if (rainAudio.paused) {
+        const p = rainAudio.play();
+        if (p && typeof p.catch === "function") p.catch(() => {});
+      }
     } else {
       try {
         rainAudio.pause();
@@ -58,33 +93,58 @@
     }
   }
 
-  function playThunderAudio(isSheetOnly) {
-    if (!thunderAudio || !enabled || document.hidden) return;
+  function playRandomThunder() {
+    if (!enabled || document.hidden || !thunderPool.length) return;
+    /* Filter to tracks that haven't failed to load */
+    const valid = [];
+    for (let i = 0; i < thunderPool.length; i++) {
+      if (thunderPool[i].dataset.ok !== "0") valid.push(i);
+    }
+    if (!valid.length) return;
+
+    /* Pick a random track, avoiding repeating the exact same one back-to-back */
+    let candidates = valid.length > 1 ? valid.filter(i => i !== lastThunderIndex) : valid;
+    const pickIdx = candidates[(Math.random() * candidates.length) | 0];
+    lastThunderIndex = pickIdx;
+
+    const clip = thunderPool[pickIdx];
     try {
-      thunderAudio.volume = isSheetOnly ? 0.48 : (0.65 + Math.random() * 0.2);
-      thunderAudio.currentTime = 0;
+      clip.volume = 0.65 + Math.random() * 0.25;
+      clip.currentTime = 0;
     } catch (e) {}
-    const p = thunderAudio.play();
-    if (p && typeof p.catch === "function") p.catch(() => {});
+    const p = clip.play();
+    if (p && typeof p.catch === "function") {
+      p.catch(() => {
+        /* Fallback to thunder.mp3 if a numbered file wasn't uploaded yet */
+        const fallback = thunderPool[0];
+        if (fallback && fallback !== clip && fallback.dataset.ok !== "0") {
+          try {
+            fallback.currentTime = 0;
+            const fp = fallback.play();
+            if (fp && typeof fp.catch === "function") fp.catch(() => {});
+          } catch (e) {}
+        }
+      });
+    }
   }
 
   function stopAllAudio() {
     try {
       if (rainAudio) rainAudio.pause();
-      if (thunderAudio) {
-        thunderAudio.pause();
-        thunderAudio.currentTime = 0;
+      for (let i = 0; i < thunderPool.length; i++) {
+        thunderPool[i].pause();
+        thunderPool[i].currentTime = 0;
       }
     } catch (e) {}
   }
 
-  /* Unlock audio on first user gesture (required by mobile/desktop browsers) */
+  /* Unlock rain audio on any user activation event */
   function unlockAudio() {
     if (enabled && !document.hidden && rainAudio && rainAudio.paused) {
       syncRainAudio();
     }
   }
-  ["pointerdown", "touchstart", "keydown", "click"].forEach(evt => {
+  ["click", "touchend", "pointerup", "pointerdown", "keydown"].forEach(evt => {
     window.addEventListener(evt, unlockAudio, { passive: true });
   });
 
@@ -95,8 +155,11 @@
   let rafId = 0;
   let lastTime = 0;
 
-  /* Lightning state — random every 3-6s, capped at <= 3 flashes/sec and <= 0.35 alpha */
-  let nextLightningAt = 0;
+  /* Separate timers:
+     - nextThunderAt: real thunder strike (bolt + flash + sound) ~every 10s at random (8-12s)
+     - nextSilentFlashAt: silent sky flash (sheet glow only, NO sound) every 4-7s at random */
+  let nextThunderAt = 0;
+  let nextSilentFlashAt = 0;
   let activeFlash = null;
   const flashPeakTimestamps = [];
 
@@ -110,8 +173,14 @@
     { speed: 1080, len: 32, alpha: 0.58, width: 1.7, share: 0.20 }
   ];
 
-  function scheduleNextLightning(now) {
-    nextLightningAt = now + 3000 + Math.random() * 3000; // 3-6 seconds
+  function scheduleNextThunder(now) {
+    /* Random around once every 10 seconds (8,000 to 12,000 ms) */
+    nextThunderAt = now + 8000 + Math.random() * 4000;
+  }
+
+  function scheduleNextSilentFlash(now) {
+    /* Silent sky flashes in between (4,000 to 7,500 ms) */
+    nextSilentFlashAt = now + 4000 + Math.random() * 3500;
   }
 
   function initScene() {
@@ -196,27 +265,47 @@
     return flashPeakTimestamps.length < 3;
   }
 
-  function triggerLightning(now) {
-    if (reduceMotion || !canTriggerPeak(now)) {
-      scheduleNextLightning(now);
-      return;
+  function triggerThunderStrike(now) {
+    scheduleNextThunder(now);
+    /* Push silent flash out so it doesn't collide right after a thunder strike */
+    if (nextSilentFlashAt - now < 2500) {
+      scheduleNextSilentFlash(now);
     }
-    const isSheetOnly = Math.random() < 0.32;
+    if (reduceMotion || !canTriggerPeak(now)) return;
+
     const startX = w * (0.15 + Math.random() * 0.7);
     activeFlash = {
       start: now,
-      duration: 400,
-      boltDuration: 110 + Math.random() * 40, // 110-150 ms
-      sheetOnly: isSheetOnly,
+      duration: 420,
+      boltDuration: 115 + Math.random() * 35,
+      sheetOnly: false,
       x: startX,
-      segs: isSheetOnly ? null : buildBoltSegments(startX, 0, h * (0.58 + Math.random() * 0.25)),
-      peak1Recorded: false,
+      segs: buildBoltSegments(startX, 0, h * (0.58 + Math.random() * 0.25)),
+      peak1Recorded: true,
       peak2Recorded: false
     };
     flashPeakTimestamps.push(now);
-    activeFlash.peak1Recorded = true;
-    playThunderAudio(isSheetOnly);
-    scheduleNextLightning(now);
+    playRandomThunder();
+  }
+
+  function triggerSilentSkyFlash(now) {
+    scheduleNextSilentFlash(now);
+    /* Skip if a real thunder strike is active or imminent within 1.5s */
+    if (reduceMotion || activeFlash || Math.abs(nextThunderAt - now) < 1500 || !canTriggerPeak(now)) {
+      return;
+    }
+    activeFlash = {
+      start: now,
+      duration: 340,
+      boltDuration: 0,
+      sheetOnly: true,
+      x: w * (0.2 + Math.random() * 0.6),
+      segs: null,
+      peak1Recorded: true,
+      peak2Recorded: false
+    };
+    flashPeakTimestamps.push(now);
+    /* Intentionally silent — no thunder audio played */
   }
 
   function getFlashAlpha(now) {
@@ -226,25 +315,25 @@
       activeFlash = null;
       return 0;
     }
-    /* Flicker envelope: on (0-80ms), off dip (80-135ms), on (135-210ms), decay (210-400ms) */
+    const maxA = activeFlash.sheetOnly ? 0.22 : 0.32;
     let a = 0;
     if (t < 80) {
-      a = 0.32 * Math.sin((t / 80) * Math.PI);
+      a = maxA * Math.sin((t / 80) * Math.PI);
     } else if (t < 135) {
-      a = 0.04;
+      a = 0.03;
     } else if (t < 210) {
       if (!activeFlash.peak2Recorded) {
         if (canTriggerPeak(now)) {
           flashPeakTimestamps.push(now);
           activeFlash.peak2Recorded = true;
         } else {
-          return 0.04;
+          return 0.03;
         }
       }
-      a = 0.28 * Math.sin(((t - 135) / 75) * Math.PI);
+      a = (maxA * 0.85) * Math.sin(((t - 135) / 75) * Math.PI);
     } else {
       const k = 1 - (t - 210) / (activeFlash.duration - 210);
-      a = 0.20 * k * k;
+      a = (maxA * 0.6) * k * k;
     }
     return Math.min(0.34, Math.max(0, a));
   }
@@ -262,8 +351,8 @@
         if (c.x - c.rx > w) c.x = -c.rx * 0.8;
       }
       const g = ctx.createRadialGradient(c.x, c.y, 10, c.x, c.y, c.rx);
-      const boost = flashAlpha * 0.55;
-      g.addColorStop(0, `rgba(${Math.round(18 + boost * 150)}, ${Math.round(42 + boost * 170)}, ${Math.round(125 + boost * 120)}, ${0.28 + boost})`);
+      const boost = flashAlpha * 0.6;
+      g.addColorStop(0, `rgba(${Math.round(18 + boost * 155)}, ${Math.round(42 + boost * 175)}, ${Math.round(125 + boost * 120)}, ${0.28 + boost})`);
       g.addColorStop(1, "rgba(3, 4, 13, 0)");
       ctx.fillStyle = g;
       ctx.beginPath();
@@ -277,8 +366,8 @@
       ctx.fillRect(0, 0, w, h);
     }
 
-    /* 3. Jagged forked lightning bolt (100-150 ms) */
-    if (activeFlash && !activeFlash.sheetOnly && (now - activeFlash.start) <= activeFlash.boltDuration) {
+    /* 3. Jagged forked lightning bolt (only for real thunder strikes, 115-150 ms) */
+    if (activeFlash && !activeFlash.sheetOnly && activeFlash.segs && (now - activeFlash.start) <= activeFlash.boltDuration) {
       ctx.save();
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
@@ -350,9 +439,18 @@
     const dt = Math.min(0.05, (now - lastTime) / 1000);
     lastTime = now;
 
-    if (now >= nextLightningAt) {
-      triggerLightning(now);
+    /* Periodically ensure rainAudio is playing once browser unlocks audio */
+    if (rainAudio && rainAudio.paused && now - lastRainRetry > 1500) {
+      lastRainRetry = now;
+      syncRainAudio();
     }
+
+    if (now >= nextThunderAt) {
+      triggerThunderStrike(now);
+    } else if (now >= nextSilentFlashAt) {
+      triggerSilentSkyFlash(now);
+    }
+
     drawFrame(now, dt);
     rafId = requestAnimationFrame(loop);
   }
@@ -370,13 +468,13 @@
     }
     syncRainAudio();
     if (reduceMotion) {
-      /* Draw one static subtle rain frame with no flashes */
       drawFrame(performance.now(), 0);
       return;
     }
     if (!rafId && !document.hidden) {
       lastTime = performance.now();
-      if (!nextLightningAt) scheduleNextLightning(lastTime);
+      if (!nextThunderAt) scheduleNextThunder(lastTime);
+      if (!nextSilentFlashAt) scheduleNextSilentFlash(lastTime);
       rafId = requestAnimationFrame(loop);
     }
   }
@@ -399,7 +497,9 @@
   };
 
   initScene();
-  scheduleNextLightning(performance.now());
+  const initNow = performance.now();
+  scheduleNextThunder(initNow);
+  scheduleNextSilentFlash(initNow);
   start();
 
   window.addEventListener("resize", () => {
