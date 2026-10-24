@@ -184,7 +184,7 @@ const SECTIONS = [
     ]
   },
    {
-    id: "Terminal",
+    id: "terminal",
     title: "Terminal",
     blurb: "Linix environment in webvm.",
     img: "hacker.jpg",
