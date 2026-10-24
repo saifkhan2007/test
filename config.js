@@ -209,7 +209,7 @@ const SECTIONS = [
     img: "random.jpg",
     links: [
 
-      { name: "TEST PLACE HOLDER", url: "", desc: "hehe" }
+      { name: "RUDE AI", url: "ai.html", desc: "offensive rude gay ai" }
     ]
   }
 ];
