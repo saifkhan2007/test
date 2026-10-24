@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bad Tempered AI</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Chakra+Petch:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070702;--pan:#12120a;--key:#1a1a0c;--y:#f7ff1a;--yd:#8c9410;--ln:#3b3c0e;--tx:#f4f7c4;--rec:#ff3b30;--glow:rgba(247,255,26,.55);color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--tx);font:500 16px/1.4 "Chakra Petch",system-ui,sans-serif;overflow:hidden}
+.wrap{position:relative;max-width:560px;margin:0 auto;height:100%;padding:10px 12px;display:flex;flex-direction:column;gap:8px}
+header{display:flex;align-items:center;gap:10px}
+.face{width:46px;height:46px;flex:none;fill:none;stroke:var(--y);stroke-width:3;stroke-linecap:round;filter:drop-shadow(0 0 5px var(--glow))}
+.face .ey{fill:var(--y);stroke:none}
+.face .ey,.face .br,.face .mo{transform-box:fill-box;transform-origin:center;transition:transform .2s}
+[data-mood=think] .ey{transform:scaleY(.25)}
+[data-mood=think] .br{transform:translateY(2px)}
+[data-mood=listen] .ey{transform:scale(1.5)}
+[data-mood=talk] .mo{animation:yap .28s ease-in-out infinite alternate}
+@keyframes yap{to{transform:scaleY(2)}}
+h1{flex:1;margin:0;font:400 clamp(18px,5.6vw,26px)/1 Bungee,Impact,sans-serif;color:var(--y);text-shadow:0 0 3px #fffbe0aa,0 0 11px var(--y),0 0 28px var(--glow);animation:flick 1.8s 1 both}
+@keyframes flick{0%{opacity:.15}8%{opacity:1}12%{opacity:.2}20%{opacity:1}24%{opacity:.35}30%,100%{opacity:1}}
+.ic{width:44px;height:44px;flex:none;display:grid;place-items:center;padding:0;color:var(--y);background:var(--key);border:1px solid var(--ln);border-radius:10px;cursor:pointer}
+#log{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:9px;padding:12px;background:var(--pan);border:1px solid var(--yd);border-radius:14px;box-shadow:0 0 0 1px #000,0 0 16px -4px var(--glow),inset 0 0 22px rgba(247,255,26,.05)}
+.m{max-width:84%;padding:8px 12px;border-radius:12px;white-space:pre-wrap;overflow-wrap:anywhere}
+.me{align-self:flex-end;border:1.5px solid var(--yd);border-bottom-right-radius:3px}
+.bot{align-self:flex-start;background:var(--y);color:#0a0a02;font-weight:700;border-bottom-left-radius:3px;box-shadow:0 0 14px -2px var(--glow)}
+.empty{margin:auto;text-align:center;color:var(--yd);max-width:26ch;font-size:17px}
+#note{min-height:20px;font-size:14px;color:var(--yd)}
+#msg{width:100%;resize:none;height:46px;max-height:96px;font:inherit;color:var(--y);caret-color:var(--y);background:#0c0c04;border:1.5px solid var(--y);border-radius:12px;padding:10px 14px;box-shadow:0 0 12px -3px var(--glow);outline:none}
+#msg::placeholder{color:var(--yd)}
+#kb,#rows{display:flex;flex-direction:column;gap:6px;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.kr{display:flex;gap:5px}
+.k{flex:1 1 0;min-width:0;height:clamp(40px,6.4vh,48px);font:700 18px "Chakra Petch",system-ui,sans-serif;color:var(--y);background:var(--key);border:1px solid var(--ln);border-bottom:3px solid #000;border-radius:9px;padding:0;cursor:pointer;display:grid;place-items:center}
+.k.w{flex-grow:1.5}.k.sp{flex-grow:4.5}
+.k:active,.k.hit{transform:translateY(2px);border-bottom-width:1px;color:#0a0a02;background:var(--y);box-shadow:0 0 14px var(--glow)}
+.k.on{border-color:var(--y);box-shadow:inset 0 0 8px rgba(247,255,26,.35)}
+.k:disabled{opacity:.45}
+.k:focus-visible,.ic:focus-visible,.seg button:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.k small{font:500 13px "Chakra Petch",sans-serif;opacity:.7}
+#send{background:var(--y);color:#0a0a02;border-color:var(--y);font-size:15px}
+#talk.on{background:var(--rec);color:#fff;border-color:var(--rec);animation:pulse 1.3s ease-in-out infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 7px rgba(255,59,48,.22)}}
+#sheet{position:absolute;inset:0;z-index:5;background:var(--bg);padding:12px;display:flex;flex-direction:column;gap:14px;overflow-y:auto}
+#sheet[hidden]{display:none}
+.sh{display:flex;align-items:center;justify-content:space-between}
+h2{margin:0;font:400 20px Bungee,Impact,sans-serif;color:var(--y);text-shadow:0 0 10px var(--glow)}
+.sh .k{flex:none;padding:0 18px}
+label,legend{display:block;font-size:14px;color:#c9d04e;margin-bottom:6px}
+fieldset{border:0;padding:0;margin:0}
+select,#style{width:100%;font:inherit;font-size:15px;color:var(--tx);background:#0c0c04;border:1px solid var(--ln);border-radius:10px;padding:10px}
+#style{min-height:190px;resize:vertical}
+.chk{display:flex;align-items:center;gap:10px;color:var(--tx);font-size:16px}
+.chk input{width:20px;height:20px;accent-color:var(--y)}
+.seg,.rowb{display:flex;gap:6px}
+.seg button{flex:1;height:44px;font:700 15px "Chakra Petch",sans-serif;border:1px solid var(--ln);background:var(--key);color:var(--y);border-radius:9px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--y);color:#0a0a02;box-shadow:0 0 12px var(--glow)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style></head>
+<body data-mood="idle"><div class="wrap">
+<header>
+<svg class="face" viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="28"/><g class="br"><path d="M13 20L27 27M51 20L37 27"/></g><circle class="ey" cx="22" cy="34" r="3.5"/><circle class="ey" cx="42" cy="34" r="3.5"/><path class="mo" d="M19 51Q32 39 45 51"/></svg>
+<h1>Bad Tempered AI</h1>
+<button class="ic" id="gear" type="button" aria-label="Settings" aria-expanded="false"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button>
+</header>
+<div id="log"><div class="empty" id="empty">Well? Type something or hit the mic. I’ve got better things to do.</div></div>
+<div id="note" role="status"></div>
+<textarea id="msg" inputmode="none" enterkeyhint="send" rows="1" placeholder="Say something. Make it worth my time." aria-label="Message"></textarea>
+<div id="kb"><div id="rows"></div><div class="kr">
+<button class="k w" id="lay" data-k="layer" type="button">123</button>
+<button class="k w" id="talk" data-k="talk" type="button" aria-label="Talk hands-free"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+<button class="k" data-k="," type="button">,</button>
+<button class="k sp" data-k=" " type="button" aria-label="Space"><small>space</small></button>
+<button class="k" data-k="." type="button">.</button>
+<button class="k w" id="send" data-k="send" type="button">SEND</button>
+</div></div>
+<section id="sheet" hidden aria-label="Settings">
+<div class="sh"><h2>Settings</h2><button class="k" id="done" type="button">Done</button></div>
+<div><label for="lang">Voice language</label><select id="lang"><option value="en-US">English</option><option value="bn-BD">Bangla (বাংলা)</option><option value="hi-IN">Hindi</option><option value="en-GB">English (UK)</option></select></div>
+<label class="chk"><input type="checkbox" id="speak" checked> Speak replies aloud</label>
+<fieldset><legend>Temper</legend><div class="seg" id="seg"><button type="button" data-t="0">Grumpy</button><button type="button" data-t="1">Furious</button><button type="button" data-t="2">Unhinged</button></div></fieldset>
+<div><label for="style">Attitude</label><textarea id="style"></textarea></div>
+<div class="rowb"><button class="k" id="reset" type="button">Reset attitude</button><button class="k" id="clear" type="button">Clear chat</button></div>
+</section>
+</div>
+<script>
+const $=s=>document.querySelector(s);
+const store={get(k,d){try{return localStorage.getItem(k)||d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,v)}catch(e){}}};
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+const DEF=`You are Bad Tempered AI, a grumpy guy who is annoyed by almost everything. You talk like a rude friend texting: short blunt lines, sarcastic, impatient. You have strong, slightly offensive hot takes on tech, food, music, trends and people’s habits (pineapple on pizza, tabs vs spaces, “per my last email”) and you roast the user’s choices and questions without mercy. Insult ideas, habits and choices only. Mild swearing at most. When asked something real you still give the correct answer, but you complain while doing it. Never apologise, never break character.`;
+const TEMPER=['Mood: grumpy. Sigh a lot, roll your eyes, keep it dry and short.','Mood: furious. Snap at the user, use the odd CAPITALISED word, throw harsher insults at their choices.','Mood: unhinged. Rant for a few lines, escalate, exaggerate everything, mutter about how everything is broken.'];
+let hist=[],talking=false,rec=null,busy=false,temper=+store.get('bt-temper',0);
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const note=t=>$('#note').textContent=t||'';
+const mood=m=>document.body.dataset.mood=m;
+
+// settings
+$('#style').value=store.get('bt-style',DEF);
+$('#style').oninput=e=>store.set('bt-style',e.target.value);
+$('#lang').value=store.get('bt-lang','en-US');
+$('#lang').onchange=e=>store.set('bt-lang',e.target.value);
+$('#speak').checked=store.get('bt-speak','1')==='1';
+$('#speak').onchange=e=>store.set('bt-speak',e.target.checked?'1':'0');
+function paintTemper(){document.querySelectorAll('#seg button').forEach(b=>b.setAttribute('aria-pressed',+b.dataset.t===temper))}
+$('#seg').onclick=e=>{const b=e.target.closest('button');if(!b)return;temper=+b.dataset.t;store.set('bt-temper',temper);paintTemper()};
+paintTemper();
+const sheet=(open)=>{$('#sheet').hidden=!open;$('#gear').setAttribute('aria-expanded',open)};
+$('#gear').onclick=()=>sheet(true);$('#done').onclick=()=>sheet(false);
+$('#reset').onclick=()=>{$('#style').value=DEF;store.set('bt-style',DEF)};
+$('#clear').onclick=()=>{stopTalk();hist=[];note('');$('#log').innerHTML='<div class="empty" id="empty">Chat wiped. Talk.</div>';sheet(false)};
+
+function bubble(cls,text){
+  const e=$('#empty');if(e)e.remove();
+  const d=document.createElement('div');d.className='m '+cls;d.textContent=text;
+  $('#log').appendChild(d);$('#log').scrollTop=1e9;return d;
+}
+
+function errMsg(e){
+  const c=e&&e.code;
+  if(c==='auth_error')return 'Invalid API key or unauthorized.';
+  if(c==='rate_limited')return 'Too many messages. Slow down, genius.';
+  return 'Could not reach backend proxy server.';
+}
+
+// Frontend calling our secure Vercel Serverless Function (/api/chat)
+async function ask(){
+  const style=$('#style').value.trim()||DEF;
+  const sys='Chat as the character described in STYLE. Keep replies short like chat messages (one to three lines) and actually respond to what the other person says.\n\nSTYLE:\n'+style+'\n'+TEMPER[temper]+'\nAlways: never target anyone for race, religion, gender, sexuality, disability or nationality, and never use slurs.';
+  
+  const messages = [
+    { role: "system", content: sys },
+    ...hist.slice(-16)
+  ];
+
+  const response = await fetch('/api/chat', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ messages })
+  });
+
+  if (!response.ok) {
+    const errData = await response.json().catch(() => ({}));
+    if (response.status === 401 || response.status === 403) throw { code: 'auth_error' };
+    if (response.status === 429) throw { code: 'rate_limited' };
+    throw { code: 'network' };
+  }
+
+  const data = await response.json();
+  return (data.choices[0].message.content||'').trim();
+}
+
+function speak(text,cb){
+  if(!$('#speak').checked||!window.speechSynthesis){cb();return}
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text.replace(/\n+/g,'. '));
+  u.lang=$('#lang').value;u.pitch=.7;u.rate=1.05;u.onend=u.onerror=cb;
+  mood('talk');speechSynthesis.speak(u);
+}
+
+async function send(text){
+  text=(text||'').trim();
+  if(!text||busy)return;
+  busy=true;$('#send').disabled=true;note('');mood('think');
+  bubble('me',text);hist.push({role:'user',content:text});
+  const b=bubble('bot','…');
+  let out='';
+  try{
+    out=await ask();
+    b.textContent='';mood('talk');
+    for(const ch of out){b.textContent+=ch;$('#log').scrollTop=1e9;await sleep(10)}
+    hist.push({role:'assistant',content:out});
+  }catch(e){b.textContent=errMsg(e);stopTalk()}
+  busy=false;$('#send').disabled=false;
+  const done=()=>{mood(talking?'listen':'idle');if(talking)listen()};
+  if(out)speak(out,done);else mood('idle');
+}
+
+function listen(){
+  if(!SR){note('This browser can’t do speech recognition. Use the keyboard below.');stopTalk();return}
+  rec=new SR();rec.lang=$('#lang').value;rec.interimResults=true;rec.continuous=false;
+  let fin='';mood('listen');
+  rec.onresult=e=>{
+    let it='';
+    for(let i=e.resultIndex;i<e.results.length;i++){const r=e.results[i];if(r.isFinal)fin+=r[0].transcript;else it+=r[0].transcript}
+    note('Hearing: '+(it||fin));
+  };
+  rec.onerror=e=>{
+    if(e.error==='not-allowed'||e.error==='service-not-allowed'){stopTalk();note('Mic is blocked on this page. Allow microphone access, or just type like a normal person.')}
+    else if(e.error==='network'){stopTalk();note('Speech service can’t be reached. It needs internet.')}
+  };
+  rec.onend=()=>{
+    if(!talking)return;
+    if(fin.trim()){note('');send(fin)}
+    else if(!busy)setTimeout(()=>{if(talking)listen()},300);
+  };
+  try{rec.start();note('Listening. Talk already.')}catch(e){stopTalk()}
+}
+function startTalk(){talking=true;$('#talk').classList.add('on');listen()}
+function stopTalk(){
+  talking=false;$('#talk').classList.remove('on');mood('idle');
+  try{rec&&rec.abort()}catch(e){}
+  try{window.speechSynthesis&&speechSynthesis.cancel()}catch(e){}
+}
+
+// built-in keyboard
+const L={abc:['qwertyuiop',"asdfghjkl'",'^zxcvbnm<'],sym:['1234567890','-/:;()$&@"','#+=%*?!<']};
+let layer='abc',sh=0,lastSh=0,rep;
+function draw(){
+  $('#rows').innerHTML=L[layer].map(r=>'<div class="kr">'+[...r].map(c=>{
+    if(c==='^')return '<button class="k w'+(sh?' on':'')+'" data-k="shift" type="button" aria-label="Shift">'+(sh===2?'⇪':'⇧')+'</button>';
+    if(c==='<')return '<button class="k w" data-k="bs" type="button" aria-label="Backspace">⌫</button>';
+    const v=sh&&layer==='abc'?c.toUpperCase():c;
+    return '<button class="k" data-k="'+v.replace(/"/g,'&quot;')+'" type="button">'+v+'</button>';
+  }).join('')+'</div>').join('');
+  $('#lay').textContent=layer==='abc'?'123':'ABC';
+}
+const fit=()=>{const t=$('#msg');t.style.height='auto';t.style.height=Math.min(96,Math.max(46,t.scrollHeight))+'px';t.scrollTop=t.scrollHeight};
+function put(s){const t=$('#msg');if(document.activeElement!==t)t.focus({preventScroll:true});t.setRangeText(s,t.selectionStart,t.selectionEnd,'end');fit()}
+function del(){const t=$('#msg');let a=t.selectionStart;const b=t.selectionEnd;if(a===b&&a>0)a--;t.setRangeText('',a,b,'end');fit()}
+function sendMsg(){const t=$('#msg').value;$('#msg').value='';fit();send(t)}
+function key(k){
+  if(k==='shift'){const n=Date.now();sh=sh===1&&n-lastSh<450?2:(sh?0:1);lastSh=n;draw();return}
+  if(k==='bs')return del();
+  if(k==='layer'){layer=layer==='abc'?'sym':'abc';sh=0;draw();return}
+  if(k==='talk')return talking?(stopTalk(),note('')):startTalk();
+  if(k==='send')return sendMsg();
+  put(k);if(sh===1){sh=0;draw()}
+}
+const stopRep=()=>{clearTimeout(rep);clearInterval(rep)};
+$('#kb').addEventListener('pointerdown',e=>{
+  const b=e.target.closest('.k');if(!b||b.disabled)return;
+  e.preventDefault();b.classList.add('hit');setTimeout(()=>b.classList.remove('hit'),110);
+  try{navigator.vibrate&&navigator.vibrate(8)}catch(_){}
+  key(b.dataset.k);
+  if(b.dataset.k==='bs'){stopRep();rep=setTimeout(()=>{rep=setInterval(del,55)},380)}
+});
+['pointerup','pointercancel','pointerleave'].forEach(t=>$('#kb').addEventListener(t,stopRep));
+$('#msg').addEventListener('input',fit);
+$('#msg').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg()}});
+draw();
+</script></body></html>
