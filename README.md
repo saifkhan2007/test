@@ -1,0 +1,1 @@
+Long before time had a name, the First Spinjitzu Master created Ninjago using four elemental weapons. But when he passed, a dark presence sought out to collect them all, Lord Garmadon. So i, Sensei Wu, his brother, sought out to find four ninja to collect them first
