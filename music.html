@@ -28,14 +28,11 @@ body{
   color:var(--ink);
   background-color:var(--void);
   background-image:linear-gradient(125deg,#000 0%,var(--navy) 32%,var(--navy2) 55%,#141002 80%,#000 100%);
-  background-size:260% 260%;
-  background-attachment:fixed;
+  background-size:200% 200%;
   min-height:100vh;
   min-height:100dvh;
   overflow-x:hidden;
-  animation:drift 24s ease-in-out infinite alternate;
 }
-@keyframes drift{to{background-position:100% 100%}}
 
 /* ---------- silent visual-only thunderstorm layers ---------- */
 #rain{
@@ -68,21 +65,10 @@ body{
 .scan{
   position:fixed;
   inset:0;
-  z-index:40;
+  z-index:1;
   pointer-events:none;
   background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px);
 }
-.scan::after{
-  content:"";
-  position:absolute;
-  left:0;
-  right:0;
-  height:14vh;
-  top:-14vh;
-  background:linear-gradient(transparent,rgba(252,238,10,.06),transparent);
-  animation:bar 7s linear infinite;
-}
-@keyframes bar{to{top:100vh}}
 [hidden]{display:none!important}
 
 /* ---------- layout & header ---------- */
@@ -247,20 +233,18 @@ body{
   }
 }
 
+/* IMPORTANT: No CSS clip-path on .panel-player so mobile Chrome GPU compositor
+   never slices/clips the hardware-accelerated YouTube iframe when scrolling! */
 .panel{
   position:relative;
   padding:clamp(16px,2.5vw,22px) clamp(16px,2.5vw,22px) clamp(16px,2.5vw,22px) clamp(20px,2.8vw,26px);
-  background:linear-gradient(135deg,rgba(13,34,117,.78),rgba(3,4,13,.94));
-  border:1px solid rgba(252,238,10,.32);
-  clip-path:polygon(0 0,calc(100% - var(--cut)) 0,100% var(--cut),100% 100%,var(--cut) 100%,0 calc(100% - var(--cut)));
+  background:linear-gradient(135deg,rgba(13,34,117,.82),rgba(3,4,13,.96));
+  border:1px solid rgba(252,238,10,.35);
+  border-left:5px solid var(--y);
+  box-shadow:0 10px 28px rgba(0,0,0,.65);
 }
-.panel::before{
-  content:"";
-  position:absolute;
-  left:0;top:0;bottom:0;
-  width:5px;
-  background:var(--y);
-  box-shadow:0 0 14px var(--y);
+.panel-clip{
+  clip-path:polygon(0 0,calc(100% - var(--cut)) 0,100% var(--cut),100% 100%,var(--cut) 100%,0 calc(100% - var(--cut)));
 }
 .panel-head{
   display:flex;
@@ -295,22 +279,29 @@ body{
 .eq-bars i:nth-child(4){height:85%;animation-duration:.65s;background:var(--y)}
 @keyframes eqBounce{from{height:20%}to{height:100%}}
 
-/* ---------- Embedded YouTube Player Frame ---------- */
+/* ---------- Embedded YouTube Player Frame (Scroll-Safe GPU Layer) ---------- */
 .player-frame{
   position:relative;
   width:100%;
-  aspect-ratio:16/9;
+  padding-top:56.25%; /* rock-solid 16:9 box across all mobile scroll states */
   background:#02030a;
   border:1px solid rgba(252,238,10,.45);
-  box-shadow:0 0 28px rgba(0,0,0,.85),0 0 16px rgba(252,238,10,.12);
+  box-shadow:0 0 24px rgba(0,0,0,.85);
   overflow:hidden;
+  transform:translateZ(0);
+  -webkit-transform:translateZ(0);
+  backface-visibility:hidden;
+  isolation:isolate;
 }
-.player-frame iframe{
+.player-frame iframe,
+.player-frame #ytPlayer{
   position:absolute;
-  inset:0;
+  top:0;
+  left:0;
   width:100%;
   height:100%;
   border:0;
+  display:block;
 }
 .now-playing{
   margin-top:12px;
@@ -320,7 +311,7 @@ body{
   justify-content:space-between;
   gap:10px;
 }
-.np-info{min-width:0;flex:1}
+.np-info{min-width:0;flex:1 1 200px}
 .np-label{
   font-size:.72rem;
   font-weight:700;
@@ -329,7 +320,7 @@ body{
   text-transform:uppercase;
 }
 .np-title{
-  font-size:1.2rem;
+  font-size:1.15rem;
   font-weight:700;
   color:var(--ink);
   white-space:nowrap;
@@ -388,12 +379,12 @@ body{
   align-items:center;
   justify-content:center;
   gap:6px;
-  padding:10px 20px;
+  padding:9px 16px;
   border:0;
   cursor:pointer;
   background:var(--y);
   color:#000;
-  font:700 .9rem var(--font);
+  font:700 .85rem var(--font);
   letter-spacing:.06em;
   text-transform:uppercase;
   text-decoration:none;
@@ -585,11 +576,11 @@ ul.pl-grid{
       <h1 class="glitch" id="title" data-text="Night City FM // Music">Night City FM // Music</h1>
       <span class="rule"></span>
     </div>
-    <p class="blurb">Attach any YouTube playlist or video and play it right here. Visual thunderstorm stays active with zero rain/thunder audio so your music plays clean.</p>
+    <p class="blurb">Attach any YouTube playlist or video and play it right here. Auto-plays the latest community stream and advances to the next one when a track ends.</p>
   </div>
 
   <div class="deck-grid">
-    <!-- Left Column: Embedded YouTube Player -->
+    <!-- Left Column: Embedded YouTube Player (No clip-path ancestor so scrolling never cuts the iframe) -->
     <section class="panel" aria-label="YouTube Music & Video Player">
       <div class="panel-head">
         <span class="panel-title">ACTIVE STREAM DECK</span>
@@ -612,6 +603,8 @@ ul.pl-grid{
           <div class="np-title" id="npTitle">Loading latest community playlist...</div>
         </div>
         <div class="np-actions">
+          <button type="button" class="btn btn-sec" id="prevSongBtn" title="Previous community song">⏮ Prev</button>
+          <button type="button" class="btn btn-sec" id="nextSongBtn" title="Next community song">⏭ Next</button>
           <button type="button" class="btn btn-sec" id="copyShareBtn">Copy Share Link</button>
           <a class="btn btn-sec" id="openYtLink" href="https://www.youtube.com" target="_blank" rel="noopener">Open on YouTube</a>
         </div>
@@ -619,7 +612,7 @@ ul.pl-grid{
     </section>
 
     <!-- Right Column: Attach Playlist (No Account Needed + Optional Public Board) -->
-    <section class="panel" aria-label="Attach YouTube Playlist">
+    <section class="panel panel-clip" aria-label="Attach YouTube Playlist">
       <div class="panel-head">
         <span class="panel-title">ATTACH YOUTUBE PLAYLIST / VIDEO</span>
       </div>
@@ -653,8 +646,8 @@ ul.pl-grid{
         <div class="status-toast" id="statusToast" role="status" aria-live="polite"></div>
 
         <p class="fnote">
-          <strong>No account needed:</strong> Clicking <em>Play &amp; Save</em> plays your playlist immediately, saves it to your browser, and updates the shareable URL.
-          Want every visitor to see your playlist on the global board below? Click <em>Publish to Public Board</em> to post it as a GitHub Issue (just like Photos).
+          <strong>No account needed:</strong> Clicking <em>Play &amp; Save</em> plays your playlist immediately and saves it to your browser.
+          Want every visitor to see and auto-play your song/playlist on the global board below? Click <em>Publish to Public Board</em> to post it as a GitHub Issue.
         </p>
       </form>
     </section>
@@ -980,10 +973,9 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
 <script>
 /* =====================================================================
    YouTube Playlist & Video Deck Engine
-   1. Instant No-Account Mode: Paste any YouTube playlist/video -> Play & Save
-      in localStorage + shareable URL parameters (?list=... or ?v=...).
-   2. Global Community Board: Reads GitHub Issues (saifkhan2007/test) with
-      "Playlist:" or "Music:" or YouTube playlist links, cached for 5 min.
+   - Scroll-safe iframe container (no clip-path on ancestor)
+   - Always auto-plays latest community song/playlist on load
+   - Automatically advances to the next community song when current ends
    ===================================================================== */
 (function () {
   const $ = id => document.getElementById(id);
@@ -991,8 +983,6 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
 
   const GITHUB_REPO = "saifkhan2007/test";
   const LOCAL_STORAGE_KEY = "nightcity_music_deck_v1";
-
-
 
   $("backHubBtn").addEventListener("click", () => {
     window.location.href = "index.html";
@@ -1009,7 +999,7 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
   /* Ticker & Clock */
   const tickText = [
     "NIGHT CITY FM ONLINE",
-    "YOUTUBE PLAYLIST DECK",
+    "AUTO-ADVANCE COMMUNITY QUEUE",
     "NO RAIN/THUNDER AUDIO INTERFERENCE",
     "STAY SHARP, CHOOMBA"
   ].map(t => `<span>${esc(t)}</span>`).join("");
@@ -1026,37 +1016,32 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
     const str = String(raw || "").trim();
     if (!str) return null;
 
-    /* 1. Check for ?list= or &list= parameter */
     const listMatch = str.match(/[?&]list=([a-zA-Z0-9_-]{10,})/);
     if (listMatch) {
       return { kind: "playlist", ytId: listMatch[1] };
     }
-
-    /* 2. Raw playlist ID (starts with PL, OLAK5uy_, UU, FL, RD) */
     if (/^(PL|OLAK5uy_|UU|FL|RD)[a-zA-Z0-9_-]{10,}$/.test(str)) {
       return { kind: "playlist", ytId: str };
     }
-
-    /* 3. Standard YouTube video URL (watch?v=, youtu.be/, embed/, shorts/, live/) */
     const vidMatch = str.match(/(?:v=|youtu\.be\/|embed\/|shorts\/|live\/)([a-zA-Z0-9_-]{11})/);
     if (vidMatch) {
       return { kind: "video", ytId: vidMatch[1] };
     }
-
-    /* 4. Raw 11-char video ID */
     if (/^[a-zA-Z0-9_-]{11}$/.test(str)) {
       return { kind: "video", ytId: str };
     }
-
     return null;
   }
 
-  function buildEmbedUrl(item, autoplay = false) {
+  function buildEmbedUrl(item, autoplay = true) {
     const ap = autoplay ? "&autoplay=1" : "";
+    const originParam = window.location.origin && window.location.origin !== "null"
+      ? `&origin=${encodeURIComponent(window.location.origin)}`
+      : "";
     if (item.kind === "playlist") {
-      return `https://www.youtube-nocookie.com/embed/videoseries?list=${encodeURIComponent(item.ytId)}&rel=0${ap}`;
+      return `https://www.youtube.com/embed/videoseries?list=${encodeURIComponent(item.ytId)}&rel=0&enablejsapi=1&playsinline=1${ap}${originParam}`;
     }
-    return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(item.ytId)}?rel=0${ap}`;
+    return `https://www.youtube.com/embed/${encodeURIComponent(item.ytId)}?rel=0&enablejsapi=1&playsinline=1${ap}${originParam}`;
   }
 
   function buildWatchUrl(item) {
@@ -1066,7 +1051,6 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
     return `https://www.youtube.com/watch?v=${encodeURIComponent(item.ytId)}`;
   }
 
-  /* ---------- Local Saved Playlists (No Account Required) ---------- */
   function loadSavedDeck() {
     try {
       const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
@@ -1094,15 +1078,20 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
     t.className = "status-toast" + (isErr ? " err" : "");
   }
 
+  function getActivePool() {
+    if (communityItems.length) return communityItems;
+    return savedItems;
+  }
+
   function playItem(item, autoplay = true) {
     if (!item || !item.ytId) return;
     activeKey = `${item.kind}:${item.ytId}`;
-    $("ytFrame").src = buildEmbedUrl(item, autoplay);
+    const frame = $("ytFrame");
+    frame.src = buildEmbedUrl(item, autoplay);
     $("npType").textContent = item.kind === "playlist" ? "STREAMING YOUTUBE PLAYLIST" : "STREAMING YOUTUBE TRACK";
     $("npTitle").textContent = item.title || item.ytId;
     $("openYtLink").href = buildWatchUrl(item);
 
-    /* Update URL query string so the current playlist can be bookmarked/shared */
     try {
       const url = new URL(window.location.href);
       url.searchParams.delete("list");
@@ -1115,6 +1104,53 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
     renderLocalGrid();
     renderCommunityGrid();
   }
+
+  function playNextCommunity(step = 1) {
+    const pool = getActivePool();
+    if (!pool.length) return;
+    const curIdx = pool.findIndex(x => `${x.kind}:${x.ytId}` === activeKey);
+    const nextIdx = curIdx >= 0 ? (curIdx + step + pool.length) % pool.length : 0;
+    const nextItem = pool[nextIdx];
+    if (nextItem) {
+      playItem(nextItem, true);
+      showToast(`Playing: ${nextItem.title}`);
+    }
+  }
+
+  $("prevSongBtn").addEventListener("click", () => playNextCommunity(-1));
+  $("nextSongBtn").addEventListener("click", () => playNextCommunity(1));
+
+  /* ---------- Subscribe to YouTube IFrame postMessage State Changes ---------- */
+  function registerYtBridge() {
+    const frame = $("ytFrame");
+    if (!frame || !frame.contentWindow) return;
+    try {
+      frame.contentWindow.postMessage(JSON.stringify({ event: "listening", id: "ytFrame" }), "*");
+      frame.contentWindow.postMessage(JSON.stringify({ event: "command", func: "addEventListener", args: ["onStateChange"] }), "*");
+    } catch (e) {}
+  }
+
+  $("ytFrame").addEventListener("load", () => {
+    registerYtBridge();
+    setTimeout(registerYtBridge, 600);
+    setTimeout(registerYtBridge, 1800);
+  });
+
+  window.addEventListener("message", e => {
+    if (!e.data || typeof e.data !== "string") return;
+    try {
+      const data = JSON.parse(e.data);
+      /* YouTube state 0 === YT.PlayerState.ENDED */
+      const state =
+        data.event === "onStateChange" ? data.info :
+        (data.event === "infoDelivery" && data.info && typeof data.info.playerState === "number") ? data.info.playerState :
+        null;
+      if (state === 0) {
+        /* When current song/playlist ends, auto-play next community item */
+        playNextCommunity(1);
+      }
+    } catch (err) {}
+  });
 
   function renderLocalGrid() {
     const emptyMsg = $("localEmptyMsg");
@@ -1191,7 +1227,6 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
     }
   });
 
-  /* ---------- Attach Form Submit (Instant No-Account Play + Save) ---------- */
   $("attachForm").addEventListener("submit", e => {
     e.preventDefault();
     const rawUrl = $("plUrl").value.trim();
@@ -1212,7 +1247,6 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
       by: "Saved on this device"
     };
 
-    /* Avoid duplicates in savedItems */
     savedItems = savedItems.filter(x => !(x.kind === newItem.kind && x.ytId === newItem.ytId));
     savedItems.unshift(newItem);
     saveDeck(savedItems);
@@ -1223,7 +1257,6 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
     showToast(`Now playing "${title}" — saved to your deck!`);
   });
 
-  /* ---------- Publish to Public GitHub Issues Board (like photos.html) ---------- */
   $("sharePublicBtn").addEventListener("click", () => {
     const rawUrl = $("plUrl").value.trim();
     const rawTitle = $("plTitle").value.trim();
@@ -1231,11 +1264,16 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
 
     const shareItem = parsed
       ? { kind: parsed.kind, ytId: parsed.ytId, title: rawTitle || "Night City Mix" }
-      : {
+      : (activeKey ? {
           kind: activeKey.startsWith("playlist:") ? "playlist" : "video",
           ytId: activeKey.split(":")[1],
           title: rawTitle || $("npTitle").textContent
-        };
+        } : null);
+
+    if (!shareItem) {
+      showToast("Paste a YouTube playlist or video URL first to publish it.", true);
+      return;
+    }
 
     const ytUrl = buildWatchUrl(shareItem);
     const issueTitle = `Playlist: ${shareItem.title}`;
@@ -1245,8 +1283,11 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
     showToast("Opened GitHub Issue tab — press 'Submit new issue' there to publish globally.");
   });
 
-  /* ---------- Copy Shareable Link Button ---------- */
   $("copyShareBtn").addEventListener("click", () => {
+    if (!activeKey) {
+      showToast("Load a playlist or video first to copy its share link.", true);
+      return;
+    }
     const [kind, ytId] = activeKey.split(":");
     const title = $("npTitle").textContent;
     let shareUrl = window.location.href;
@@ -1273,7 +1314,6 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
     }
   });
 
-  /* ---------- Fetch Community Playlists from GitHub Issues (5-min cache) ---------- */
   async function fetchCommunityPlaylists() {
     const cacheKey = "music_issues:" + GITHUB_REPO;
     try {
@@ -1326,7 +1366,6 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
         const msgEl = $("communityMsg");
         if (items.length) {
           msgEl.hidden = true;
-          /* Always auto-play the latest community video/playlist (items[0]) */
           playItem(items[0], true);
         } else {
           msgEl.textContent = "No community playlists posted yet. Attach one above and click 'Publish to Public Board (GitHub)' to be the first!";
