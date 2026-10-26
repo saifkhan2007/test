@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#03040d">
-<title>MUSIC</title>
+<title>NIGHT CITY FM // MUSIC DECK — RANDOM AHH TOOL BOX</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&display=swap" rel="stylesheet">
@@ -179,7 +179,7 @@ body{
 }
 @keyframes pulse{50%{opacity:.25;transform:scale(.7)}}
 
-/* ---------- section title & glitch ---------- */
+/* ---------- section title, glitch & typewriter ---------- */
 .sec-head{padding:clamp(16px,3.5vw,32px) 0 12px}
 .sh{display:flex;align-items:center;gap:16px}
 .glitch{
@@ -218,7 +218,79 @@ body{
   background:#fff;opacity:.8;animation:run 3.2s linear infinite;
 }
 @keyframes run{to{left:110%}}
-.blurb{margin:6px 0 16px;color:var(--dim);font-size:1rem}
+.tw{
+  margin-top:8px;
+  min-height:1.4em;
+  font-size:clamp(.85rem,2.2vw,1.02rem);
+  color:var(--amber);
+  letter-spacing:.05em;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.tw::after{
+  content:"";
+  display:inline-block;
+  width:.55em;
+  height:1em;
+  margin-left:4px;
+  vertical-align:-.14em;
+  background:var(--amber);
+  animation:caret .8s steps(1) infinite;
+}
+@keyframes caret{50%{opacity:0}}
+.blurb{margin:6px 0 14px;color:var(--dim);font-size:.98rem}
+
+/* ---------- Big Mode Toggle Bar (Uploaded Music Player vs YouTube Player) ---------- */
+.big-mode-toggle{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:16px;
+}
+.mode-tab{
+  position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  padding:clamp(12px,2.2vw,16px) clamp(12px,2vw,20px);
+  font:700 clamp(.86rem,2.4vw,1.12rem) var(--font);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--ink);
+  background:rgba(7,18,55,.78);
+  border:2px solid rgba(252,238,10,.32);
+  cursor:pointer;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));
+  transition:background .2s,color .2s,border-color .2s,box-shadow .2s,transform .15s;
+}
+.mode-tab:hover,.mode-tab:focus-visible{
+  border-color:var(--y);
+  transform:translateY(-1px);
+  outline:none;
+}
+.mode-tab[aria-selected="true"]{
+  background:var(--y);
+  color:#000;
+  border-color:var(--y);
+  box-shadow:0 0 24px rgba(252,238,10,.45);
+}
+.mode-tab .mode-ico{
+  font-size:1.25em;
+  line-height:1;
+}
+.mode-count{
+  font-size:.72em;
+  padding:2px 7px;
+  border-radius:999px;
+  background:rgba(0,0,0,.28);
+  color:currentColor;
+}
+.mode-tab[aria-selected="true"] .mode-count{
+  background:#000;
+  color:var(--y);
+}
 
 /* ---------- Music Deck Layout ---------- */
 .deck-grid{
@@ -233,8 +305,8 @@ body{
   }
 }
 
-/* IMPORTANT: No CSS clip-path on .panel-player so mobile Chrome GPU compositor
-   never slices/clips the hardware-accelerated YouTube iframe when scrolling! */
+/* IMPORTANT: No CSS clip-path on .panel holding the iframe so mobile Chrome
+   GPU compositor never slices/clips the YouTube player when scrolling! */
 .panel{
   position:relative;
   padding:clamp(16px,2.5vw,22px) clamp(16px,2.5vw,22px) clamp(16px,2.5vw,22px) clamp(20px,2.8vw,26px);
@@ -279,11 +351,11 @@ body{
 .eq-bars i:nth-child(4){height:85%;animation-duration:.65s;background:var(--y)}
 @keyframes eqBounce{from{height:20%}to{height:100%}}
 
-/* ---------- Embedded YouTube Player Frame (Scroll-Safe GPU Layer) ---------- */
+/* ---------- Embedded YouTube Frame (Scroll-Safe GPU Layer) ---------- */
 .player-frame{
   position:relative;
   width:100%;
-  padding-top:56.25%; /* rock-solid 16:9 box across all mobile scroll states */
+  padding-top:56.25%;
   background:#02030a;
   border:1px solid rgba(252,238,10,.45);
   box-shadow:0 0 24px rgba(0,0,0,.85);
@@ -293,8 +365,7 @@ body{
   backface-visibility:hidden;
   isolation:isolate;
 }
-.player-frame iframe,
-.player-frame #ytPlayer{
+.player-frame iframe{
   position:absolute;
   top:0;
   left:0;
@@ -303,36 +374,328 @@ body{
   border:0;
   display:block;
 }
-.audio-deck{
-  position:absolute;
-  inset:0;
+
+/* ---------- Uploaded Music Vinyl Player (Matches Reference Image + 7 Themes) ---------- */
+.vinyl-player{
+  position:relative;
+  width:100%;
+  border-radius:18px;
+  padding:clamp(18px,3.2vw,28px) clamp(16px,3vw,26px) clamp(14px,2.2vw,20px);
+  border:1px solid rgba(255,255,255,.22);
+  box-shadow:0 18px 42px rgba(0,0,0,.78),inset 0 1px 0 rgba(255,255,255,.18);
   display:flex;
   flex-direction:column;
   align-items:center;
-  justify-content:center;
+  justify-content:space-between;
   gap:16px;
-  padding:20px;
-  background:radial-gradient(circle at center,#12225a 0%,#040716 75%);
-  text-align:center;
+  color:#fff;
+  overflow:hidden;
+  transition:background .35s ease;
 }
-.audio-art{
-  width:74px;
-  height:74px;
+
+/* 7 User-Requested Switchable Player Background Themes */
+.vinyl-player[data-theme="0"]{
+  background:#336f87;
+  background:linear-gradient(90deg, rgba(51, 111, 135, 1) 0%, rgba(87, 199, 182, 1) 55%, rgba(43, 42, 42, 1) 100%);
+}
+.vinyl-player[data-theme="1"]{
+  background:#232336;
+  background:linear-gradient(90deg, rgba(35, 35, 54, 1) 0%, rgba(53, 53, 143, 1) 31%, rgba(0, 187, 255, 1) 100%);
+}
+.vinyl-player[data-theme="2"]{
+  background:#232336;
+  background:linear-gradient(182deg, rgba(35, 35, 54, 1) 0%, rgba(53, 53, 143, 1) 31%, rgba(0, 187, 255, 1) 100%);
+}
+.vinyl-player[data-theme="3"]{
+  background:#232336;
+  background:linear-gradient(245deg, rgba(35, 35, 54, 1) 0%, rgba(53, 53, 143, 1) 31%, rgba(0, 187, 255, 1) 100%);
+}
+.vinyl-player[data-theme="4"]{
+  background:#EEAECA;
+  background:linear-gradient(103deg, rgba(238, 174, 202, 1) 0%, rgba(148, 187, 233, 1) 100%);
+}
+.vinyl-player[data-theme="5"]{
+  background:#EEAECA;
+  background:radial-gradient(circle, rgba(238, 174, 202, 1) 0%, rgba(234, 175, 203, 1) 21%, rgba(148, 187, 233, 1) 100%);
+}
+.vinyl-player[data-theme="6"]{
+  background:#EEAECA;
+  background:radial-gradient(circle, rgba(238, 174, 202, 1) 0%, rgba(234, 175, 203, 1) 21%, rgba(65, 92, 125, 1) 98%, rgba(148, 187, 233, 1) 100%);
+}
+
+/* Theme Swatch Selector Bar at Top of Vinyl Player */
+.theme-bar{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:8px;
+  padding:6px 10px;
+  background:rgba(0,0,0,.32);
+  border-radius:999px;
+  backdrop-filter:blur(8px);
+}
+.theme-bar-label{
+  font-size:.72rem;
+  font-weight:700;
+  letter-spacing:.1em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,.88);
+  padding-left:4px;
+}
+.theme-swatches{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+}
+.theme-dot{
+  width:22px;
+  height:22px;
   border-radius:50%;
-  border:2px solid var(--y);
-  display:grid;
-  place-items:center;
-  color:var(--y);
-  font-size:2rem;
-  box-shadow:0 0 22px rgba(252,238,10,.35);
-  animation:spinDisc 8s linear infinite;
+  border:2px solid rgba(255,255,255,.45);
+  cursor:pointer;
+  transition:transform .15s,border-color .15s,box-shadow .15s;
 }
-@keyframes spinDisc{to{transform:rotate(360deg)}}
-.audio-deck audio{
-  width:min(100%,460px);
-  height:42px;
+.theme-dot:hover,.theme-dot:focus-visible{
+  transform:scale(1.15);
+  border-color:#fff;
   outline:none;
 }
+.theme-dot[aria-pressed="true"]{
+  border-color:var(--y);
+  box-shadow:0 0 0 2px rgba(0,0,0,.6),0 0 10px var(--y);
+  transform:scale(1.14);
+}
+.theme-dot[data-t="0"]{background:linear-gradient(90deg, rgba(51, 111, 135, 1) 0%, rgba(87, 199, 182, 1) 55%, rgba(43, 42, 42, 1) 100%)}
+.theme-dot[data-t="1"]{background:linear-gradient(90deg, rgba(35, 35, 54, 1) 0%, rgba(53, 53, 143, 1) 31%, rgba(0, 187, 255, 1) 100%)}
+.theme-dot[data-t="2"]{background:linear-gradient(182deg, rgba(35, 35, 54, 1) 0%, rgba(53, 53, 143, 1) 31%, rgba(0, 187, 255, 1) 100%)}
+.theme-dot[data-t="3"]{background:linear-gradient(245deg, rgba(35, 35, 54, 1) 0%, rgba(53, 53, 143, 1) 31%, rgba(0, 187, 255, 1) 100%)}
+.theme-dot[data-t="4"]{background:linear-gradient(103deg, rgba(238, 174, 202, 1) 0%, rgba(148, 187, 233, 1) 100%)}
+.theme-dot[data-t="5"]{background:radial-gradient(circle, rgba(238, 174, 202, 1) 0%, rgba(234, 175, 203, 1) 21%, rgba(148, 187, 233, 1) 100%)}
+.theme-dot[data-t="6"]{background:radial-gradient(circle, rgba(238, 174, 202, 1) 0%, rgba(234, 175, 203, 1) 21%, rgba(65, 92, 125, 1) 98%, rgba(148, 187, 233, 1) 100%)}
+
+/* Spinning Vinyl Disc (uses vinyl.jpg with realistic fallback groove/label) */
+.vinyl-stage{
+  position:relative;
+  width:clamp(195px,44vw,260px);
+  height:clamp(195px,44vw,260px);
+  margin:6px auto 2px;
+  border-radius:50%;
+  padding:8px;
+  background:linear-gradient(135deg,#f7f9fc 0%,#b8c1ec 38%,#ffffff 68%,#8d95a5 100%);
+  box-shadow:0 16px 38px rgba(0,0,0,.68),0 0 0 2px rgba(255,255,255,.5);
+  display:grid;
+  place-items:center;
+}
+.vinyl-disc{
+  position:relative;
+  width:100%;
+  height:100%;
+  border-radius:50%;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at center,
+      #f2f2f2 0 3.2%,
+      #e61919 3.5% 27%,
+      #0c0c10 27.3% 34%,
+      #1d1f26 34.3% 35%,
+      #0e0f14 35.3% 100%),
+    repeating-radial-gradient(circle at center,
+      rgba(255,255,255,.07) 0 1.5px,
+      rgba(0,0,0,.4) 1.5px 3.5px),
+    conic-gradient(from 35deg,
+      rgba(255,255,255,.22) 0deg,
+      transparent 45deg,
+      transparent 145deg,
+      rgba(255,255,255,.24) 180deg,
+      transparent 225deg,
+      transparent 325deg,
+      rgba(255,255,255,.22) 360deg);
+  background-blend-mode:normal,overlay,screen;
+  animation:spinVinyl 6.5s linear infinite;
+  animation-play-state:paused;
+  box-shadow:inset 0 0 18px rgba(0,0,0,.85);
+}
+.vinyl-disc.spinning{
+  animation-play-state:running;
+}
+.vinyl-disc img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  border-radius:50%;
+  display:block;
+}
+@keyframes spinVinyl{to{transform:rotate(360deg)}}
+
+/* Center Dark Pill for Track Title & Metadata Artist (like reference screenshot) */
+.vinyl-meta-pill{
+  background:rgba(10,12,20,.68);
+  backdrop-filter:blur(8px);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:14px;
+  padding:10px 24px;
+  min-width:min(100%,260px);
+  max-width:92%;
+  text-align:center;
+  box-shadow:0 8px 22px rgba(0,0,0,.38);
+}
+.vinyl-song-title{
+  font-size:clamp(1.15rem,3vw,1.42rem);
+  font-weight:700;
+  color:#fff;
+  line-height:1.25;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.vinyl-song-artist{
+  margin-top:3px;
+  font-size:clamp(.84rem,2.1vw,.96rem);
+  color:rgba(255,255,255,.78);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.vinyl-song-album{
+  margin-top:2px;
+  font-size:.72rem;
+  color:rgba(255,255,255,.58);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+
+/* Middle Action Row (Queue / Add + Native Pill Audio Bar + Time Indicators) */
+.vinyl-mid-icons{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 6px;
+}
+.vp-icon-btn{
+  background:transparent;
+  border:0;
+  color:#fff;
+  cursor:pointer;
+  padding:6px;
+  border-radius:8px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  opacity:.9;
+  transition:opacity .15s,transform .15s,background .15s;
+  text-decoration:none;
+}
+.vp-icon-btn:hover,.vp-icon-btn:focus-visible{
+  opacity:1;
+  background:rgba(255,255,255,.14);
+  transform:scale(1.08);
+  outline:none;
+}
+.vp-icon-btn svg{
+  width:24px;
+  height:24px;
+  fill:currentColor;
+}
+
+.vinyl-audio-wrap{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+}
+.vinyl-native-pill{
+  width:100%;
+  background:rgba(16,18,28,.65);
+  border-radius:999px;
+  padding:4px 8px;
+  border:1px solid rgba(255,255,255,.14);
+  box-shadow:inset 0 1px 4px rgba(0,0,0,.45);
+}
+.vinyl-native-pill audio{
+  width:100%;
+  height:36px;
+  display:block;
+  outline:none;
+}
+.vinyl-times{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 6px;
+  font-size:.82rem;
+  font-weight:600;
+  color:rgba(255,255,255,.92);
+  text-shadow:0 1px 3px rgba(0,0,0,.55);
+}
+
+/* Bottom Transport Row: Shuffle, Prev, Pause/Play, Next, Repeat */
+.vinyl-transport{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-around;
+  padding:4px 0 2px;
+}
+.vp-trans-btn{
+  background:transparent;
+  border:0;
+  color:#fff;
+  cursor:pointer;
+  padding:8px 10px;
+  border-radius:50%;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  opacity:.88;
+  transition:opacity .15s,transform .15s,background .15s,color .15s;
+}
+.vp-trans-btn:hover,.vp-trans-btn:focus-visible{
+  opacity:1;
+  background:rgba(255,255,255,.14);
+  transform:scale(1.1);
+  outline:none;
+}
+.vp-trans-btn[aria-pressed="true"]{
+  color:var(--y);
+  opacity:1;
+}
+.vp-trans-btn svg{
+  width:24px;
+  height:24px;
+  fill:currentColor;
+}
+.vp-play-main{
+  width:54px;
+  height:54px;
+  background:rgba(0,0,0,.36);
+  border:1px solid rgba(255,255,255,.28);
+}
+.vp-play-main svg{
+  width:30px;
+  height:30px;
+}
+
+/* Middle Bottom Small Text: Uploaded By */
+.vinyl-uploaded-by{
+  width:100%;
+  text-align:center;
+  font-size:.74rem;
+  letter-spacing:.05em;
+  color:rgba(255,255,255,.82);
+  padding-top:2px;
+  text-shadow:0 1px 3px rgba(0,0,0,.6);
+}
+.vinyl-uploaded-by a{
+  color:#fff;
+  font-weight:700;
+  text-decoration:underline;
+}
+
 .upload-box{
   margin-top:14px;
   padding-top:14px;
@@ -371,7 +734,7 @@ body{
   gap:8px;
 }
 
-/* ---------- Attach Form (No Account Needed + Optional Public Board) ---------- */
+/* ---------- GitHub Issues Submit Forms ---------- */
 .attach-form{
   display:flex;
   flex-direction:column;
@@ -451,9 +814,9 @@ body{
   font-size:.86rem;
   line-height:1.45;
 }
-.fnote a{color:var(--y)}
+.fnote a,.fnote code{color:var(--y)}
 
-/* ---------- Playlist Cards Grid ---------- */
+/* ---------- Playlist & Uploaded Audio Cards Grid ---------- */
 .list-sec{margin-top:26px}
 .list-sec h2{
   font-size:1.25rem;
@@ -552,16 +915,6 @@ ul.pl-grid{
   transition:background .15s;
 }
 .play-btn:hover,.play-btn:focus-visible{background:#fff;outline:none}
-.del-btn{
-  padding:7px 10px;
-  border:1px solid rgba(255,0,60,.45);
-  background:rgba(255,0,60,.12);
-  color:#ff5c82;
-  font:700 .78rem var(--font);
-  cursor:pointer;
-  transition:background .15s,color .15s;
-}
-.del-btn:hover,.del-btn:focus-visible{background:var(--red);color:#fff;outline:none}
 
 /* ---------- ticker (safe-area aware) ---------- */
 .ticker{
@@ -611,21 +964,113 @@ ul.pl-grid{
 
   <div class="sec-head">
     <div class="sh">
-      <h1 class="glitch" id="title" data-text="MUSIC 📢">MUSIC📢</h1>
+      <h1 class="glitch" id="title" data-text="Night City FM // Music">Night City FM // Music</h1>
       <span class="rule"></span>
     </div>
-    <p class="blurb">Attach any YouTube playlist or video and play it right here. Auto-plays the latest community stream and advances to the next one when a track ends.</p>
+    <p class="tw" id="tw">&gt; SCANNING GITHUB ISSUES FOR ATTACHED MUSIC...</p>
+    <p class="blurb">Switch between the Spinning Vinyl Uploaded Music Player and the YouTube Player below. All music is shared via GitHub Issues and auto-advances when a song ends.</p>
+  </div>
+
+  <!-- Big Toggle Between Uploaded Music Player and YouTube Player -->
+  <div class="big-mode-toggle" role="tablist" aria-label="Choose Music Player Mode">
+    <button type="button" class="mode-tab" id="modeUploadBtn" role="tab" aria-selected="true">
+      <span class="mode-ico" aria-hidden="true">💿</span>
+      <span>Uploaded Music Player</span>
+      <span class="mode-count" id="uploadCountBadge">0</span>
+    </button>
+    <button type="button" class="mode-tab" id="modeYoutubeBtn" role="tab" aria-selected="false">
+      <span class="mode-ico" aria-hidden="true">▶</span>
+      <span>YouTube Player</span>
+      <span class="mode-count" id="ytCountBadge">0</span>
+    </button>
   </div>
 
   <div class="deck-grid">
-    <!-- Left Column: Embedded YouTube Player (No clip-path ancestor so scrolling never cuts the iframe) -->
-    <section class="panel" aria-label="YouTube Music & Video Player">
+    <!-- Left Column: Active Player Deck (No clip-path ancestor so scrolling never cuts the iframe) -->
+    <section class="panel" aria-label="YouTube & Audio Music Player">
       <div class="panel-head">
-        <span class="panel-title">ACTIVE STREAM DECK</span>
+        <span class="panel-title" id="deckHeaderTitle">UPLOADED VINYL MUSIC PLAYER</span>
         <div class="eq-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
       </div>
 
-      <div class="player-frame">
+      <!-- VIEW 1: UPLOADED MUSIC PLAYER (Vinyl UI matching attached screenshot + 7 switchable gradients) -->
+      <div class="vinyl-player" id="audioDeck" data-theme="0">
+        <!-- Theme Switcher Bar -->
+        <div class="theme-bar" aria-label="Switch Music Player Background Theme">
+          <span class="theme-bar-label">Player Theme</span>
+          <div class="theme-swatches" id="themeSwatches">
+            <button type="button" class="theme-dot" data-t="0" aria-pressed="true" title="Theme 1: Teal Mint Dark"></button>
+            <button type="button" class="theme-dot" data-t="1" aria-pressed="false" title="Theme 2: Deep Navy Cyan 90°"></button>
+            <button type="button" class="theme-dot" data-t="2" aria-pressed="false" title="Theme 3: Deep Navy Cyan 182°"></button>
+            <button type="button" class="theme-dot" data-t="3" aria-pressed="false" title="Theme 4: Deep Navy Cyan 245°"></button>
+            <button type="button" class="theme-dot" data-t="4" aria-pressed="false" title="Theme 5: Pastel Pink Sky 103°"></button>
+            <button type="button" class="theme-dot" data-t="5" aria-pressed="false" title="Theme 6: Radial Rose Sky"></button>
+            <button type="button" class="theme-dot" data-t="6" aria-pressed="false" title="Theme 7: Radial Rose Slate Sky"></button>
+          </div>
+        </div>
+
+        <!-- Spinning Middle Vinyl (uses vinyl.jpg with automatic CSS vinyl fallback if image isn't loaded yet) -->
+        <div class="vinyl-stage">
+          <div class="vinyl-disc" id="vinylDisc">
+            <img id="vinylImg" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="Spinning Vinyl Record" hidden>
+          </div>
+        </div>
+
+        <!-- Track Title + ID3 Metadata Artist Pill -->
+        <div class="vinyl-meta-pill">
+          <div class="vinyl-song-title" id="vinylTitle">Loading track...</div>
+          <div class="vinyl-song-artist" id="vinylArtist">Unknown</div>
+          <div class="vinyl-song-album" id="vinylAlbum" hidden></div>
+        </div>
+
+        <!-- Middle Icons Row (Queue jump & Add Upload via GitHub Issue) -->
+        <div class="vinyl-mid-icons">
+          <button type="button" class="vp-icon-btn" id="scrollQueueBtn" title="Jump to Uploaded Music List">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h12v2H3V6zm0 5h12v2H3v-2zm0 5h8v2H3v-2zm14-2v4.18A3 3 0 1 0 19 21v-7h3v-2h-5z"/></svg>
+          </button>
+          <a class="vp-icon-btn" id="quickAddAudioBtn" href="https://github.com/saifkhan2007/test/issues/new?title=Audio%3A%20" target="_blank" rel="noopener" title="Upload New .MP3 / .WAV via GitHub Issue">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6z"/></svg>
+          </a>
+        </div>
+
+        <!-- Native Audio Pill + Elapsed / Total Time Labels -->
+        <div class="vinyl-audio-wrap">
+          <div class="vinyl-native-pill">
+            <audio id="htmlAudio" controls preload="metadata"></audio>
+          </div>
+          <div class="vinyl-times">
+            <span id="curTimeTxt">0:00</span>
+            <span id="durTimeTxt">0:00</span>
+          </div>
+        </div>
+
+        <!-- Bottom Transport Controls: Shuffle, Previous, Pause/Play, Next, Repeat -->
+        <div class="vinyl-transport">
+          <button type="button" class="vp-trans-btn" id="vpShuffleBtn" aria-pressed="false" title="Toggle Shuffle">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.59 9.17 5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+          </button>
+          <button type="button" class="vp-trans-btn" id="vpPrevBtn" title="Previous Track">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg>
+          </button>
+          <button type="button" class="vp-trans-btn vp-play-main" id="vpPlayPauseBtn" title="Play / Pause">
+            <svg id="vpPlayIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>
+          </button>
+          <button type="button" class="vp-trans-btn" id="vpNextBtn" title="Next Track">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+          </button>
+          <button type="button" class="vp-trans-btn" id="vpRepeatBtn" aria-pressed="false" title="Repeat Current Track">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4zm-4-2V9h-1l-2 1v1h1.5v4H13z"/></svg>
+          </button>
+        </div>
+
+        <!-- Middle Bottom Small Text: Uploaded By -->
+        <div class="vinyl-uploaded-by" id="vinylUploadedBy">
+          Uploaded by <a href="https://github.com/saifkhan2007/test/issues" target="_blank" rel="noopener">@ghost</a>
+        </div>
+      </div>
+
+      <!-- VIEW 2: YOUTUBE PLAYER FRAME -->
+      <div class="player-frame" id="ytPlayerWrap" hidden>
         <iframe
           id="ytFrame"
           title="YouTube Playlist Player"
@@ -633,99 +1078,79 @@ ul.pl-grid{
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowfullscreen>
         </iframe>
-        <div class="audio-deck" id="audioDeck" hidden>
-          <div class="audio-art" aria-hidden="true">♫</div>
-          <audio id="htmlAudio" controls preload="metadata" referrerpolicy="no-referrer"></audio>
-        </div>
       </div>
 
       <div class="now-playing">
         <div class="np-info">
           <div class="np-label" id="npType">WAITING FOR STREAM</div>
-          <div class="np-title" id="npTitle">Loading latest community playlist...</div>
+          <div class="np-title" id="npTitle">Loading latest community track...</div>
         </div>
         <div class="np-actions">
           <button type="button" class="btn btn-sec" id="prevSongBtn" title="Previous community song">⏮ Prev</button>
           <button type="button" class="btn btn-sec" id="nextSongBtn" title="Next community song">⏭ Next</button>
           <button type="button" class="btn btn-sec" id="copyShareBtn">Copy Share Link</button>
-          <a class="btn btn-sec" id="openYtLink" href="https://www.youtube.com" target="_blank" rel="noopener">Open on YouTube</a>
+          <a class="btn btn-sec" id="openYtLink" href="https://github.com/saifkhan2007/test/issues" target="_blank" rel="noopener">Open Source</a>
         </div>
       </div>
     </section>
 
-    <!-- Right Column: Attach Playlist (No Account Needed + Optional Public Board) -->
-    <section class="panel panel-clip" aria-label="Attach YouTube Playlist">
+    <!-- Right Column: Attach YouTube OR Upload Audio via GitHub Issues Only -->
+    <section class="panel panel-clip" aria-label="Attach Music via GitHub Issues">
       <div class="panel-head">
-        <span class="panel-title">ATTACH YOUTUBE PLAYLIST / VIDEO</span>
+        <span class="panel-title">ADD MUSIC VIA GITHUB ISSUES</span>
       </div>
 
       <form class="attach-form" id="attachForm" autocomplete="off">
         <div class="field">
-          <label for="plUrl">YouTube Playlist or Video URL / ID</label>
-          <input
-            type="text"
-            class="cyber-in"
-            id="plUrl"
-            placeholder="https://www.youtube.com/playlist?list=PL... or video link"
-            required>
-        </div>
-
-        <div class="field">
-          <label for="plTitle">Playlist / Mix Title (Optional)</label>
+          <label for="plTitle">Track / Playlist Name (Optional — uses metadata / filename if blank)</label>
           <input
             type="text"
             class="cyber-in"
             id="plTitle"
-            placeholder="e.g. Night City Synthwave Mix"
+            placeholder="Leave blank to use uploaded file's name"
             maxlength="80">
         </div>
 
+        <div class="field">
+          <label for="plUrl">Option 1: YouTube Playlist or Video URL / ID</label>
+          <input
+            type="text"
+            class="cyber-in"
+            id="plUrl"
+            placeholder="https://www.youtube.com/playlist?list=PL... or video link">
+        </div>
+
         <div class="btn-row">
-          <button type="submit" class="btn">Play & Save (No Account)</button>
-          <button type="button" class="btn btn-sec" id="sharePublicBtn">Publish to Public Board (GitHub)</button>
+          <button type="submit" class="btn" id="sharePublicBtn">Attach YouTube via GitHub Issue</button>
         </div>
 
         <div class="status-toast" id="statusToast" role="status" aria-live="polite"></div>
-
-        <p class="fnote">
-          <strong>No account needed:</strong> Clicking <em>Play &amp; Save</em> plays your playlist immediately and saves it to your browser.
-          Want every visitor to see and auto-play your song/playlist on the global board below? Click <em>Publish to Public Board</em> to post it as a GitHub Issue.
-        </p>
       </form>
 
       <div class="upload-box">
-        <span class="panel-title" style="font-size:.98rem">UPLOAD AUDIO FILE (.MP3 / .WAV)</span>
+        <span class="panel-title" style="font-size:.98rem">OPTION 2: UPLOAD AUDIO FILE (.MP3 / .WAV)</span>
         <div class="btn-row">
-          <a class="btn" id="uploadAudioGhBtn" href="https://github.com/saifkhan2007/test/issues/new?title=Audio%3A%20" target="_blank" rel="noopener">Upload .MP3 / .WAV to GitHub</a>
-          <label class="btn btn-sec" for="localAudioIn" style="cursor:pointer">Play Local Audio File</label>
-          <input type="file" id="localAudioIn" accept=".mp3,.wav,.ogg,.m4a,audio/*" hidden>
+          <a class="btn" id="uploadAudioGhBtn" href="https://github.com/saifkhan2007/test/issues/new?title=Audio%3A%20" target="_blank" rel="noopener">Upload .MP3 / .WAV via GitHub Issue</a>
         </div>
         <p class="fnote">
-          GitHub Issues natively supports attaching <code>.mp3</code> and <code>.wav</code> files up to <strong>25 MB</strong>! Click <em>Upload .MP3 / .WAV to GitHub</em>, drag your audio file into the issue box, press Submit new issue, and refresh this page.
+          GitHub Issues natively holds <code>.mp3</code> and <code>.wav</code> files up to <strong>25 MB</strong>. Click <em>Upload .MP3 / .WAV via GitHub Issue</em>, drag your audio file into the issue box, press <em>Submit new issue</em>, and refresh this page. The player automatically reads your file's ID3 metadata (artist, title, album) or falls back to the filename.
         </p>
       </div>
     </section>
   </div>
 
   <!-- Uploaded Community Audio Files (.mp3 / .wav from GitHub Issues) -->
-  <section class="list-sec" aria-label="Uploaded Community Music">
+  <section class="list-sec" id="uploadedMusicSec" aria-label="Uploaded Community Music">
     <h2>UPLOADED COMMUNITY MUSIC (.MP3 / .WAV ON GITHUB)</h2>
     <ul class="pl-grid" id="uploadedAudioGrid"></ul>
     <p class="fnote" id="uploadedAudioMsg">Loading uploaded audio tracks from GitHub Issues...</p>
   </section>
 
   <!-- Global Community Playlists (from GitHub Issues) -->
-  <section class="list-sec" aria-label="Community Shared Playlists">
-    <h2>COMMUNITY SHARED PLAYLISTS (GITHUB BOARD)</h2>
+  <section class="list-sec" id="youtubeMusicSec" aria-label="Community Shared Playlists">
+    <h2>ATTACHED YOUTUBE PLAYLISTS &amp; TRACKS (GITHUB BOARD)</h2>
     <ul class="pl-grid" id="communityGrid"></ul>
-    <p class="fnote" id="communityMsg">Loading community playlists from GitHub...</p>
-  </section>
-
-  <!-- Locally Saved Playlists -->
-  <section class="list-sec" id="localDeckSec" aria-label="Your Saved Deck">
-    <h2>YOUR SAVED DECK (THIS BROWSER)</h2>
-    <ul class="pl-grid" id="localGrid"></ul>
-    <p class="fnote" id="localEmptyMsg">No local playlists saved on this device yet.</p>
+    <p class="fnote" id="communityMsg">Loading attached YouTube music from GitHub Issues...</p>
   </section>
 </div>
 
@@ -1033,21 +1458,38 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
 </script>
 <script>
 /* =====================================================================
-   YouTube Playlist & Video Deck Engine
-   - Scroll-safe iframe container (no clip-path on ancestor)
-   - Always auto-plays latest community song/playlist on load
-   - Automatically advances to the next community song when current ends
+   GitHub Issues-Only Music Deck (Uploaded Vinyl Player + YouTube Player)
+   - Big toggle between Uploaded Music Player and YouTube Player
+   - 7 switchable gradient themes for the Uploaded Vinyl Player
+   - Spinning middle vinyl (uses vinyl.jpg with automatic fallback)
+   - Reads ID3/WAV metadata (title, artist, album) or falls back to filename
+   - Displays "Uploaded by @user" in small text at the middle bottom
+   - Bottom scrolling ticker & typewriter show all attached music
    ===================================================================== */
 (function () {
   const $ = id => document.getElementById(id);
   const esc = t => String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const GITHUB_REPO = "saifkhan2007/test";
-  const LOCAL_STORAGE_KEY = "nightcity_music_deck_v1";
+  const THEME_STORAGE_KEY = "nc_vinyl_theme";
 
   $("backHubBtn").addEventListener("click", () => {
     window.location.href = "index.html";
   });
+
+  /* Load vinyl.jpg into #vinylImg when present in the repo; keep CSS vinyl grooves underneath if missing */
+  const vinylImg = $("vinylImg");
+  if (vinylImg) {
+    const vFile = ["vinyl", "jpg"].join(".");
+    vinylImg.addEventListener("load", () => {
+      if (vinylImg.getAttribute("src") === vFile) vinylImg.hidden = false;
+    });
+    vinylImg.addEventListener("error", () => {
+      vinylImg.hidden = true;
+    });
+    vinylImg.setAttribute("src", vFile);
+  }
 
   const stormBtn = $("stormToggle");
   if (stormBtn && window.STORM) {
@@ -1057,20 +1499,305 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
     stormBtn.addEventListener("click", () => window.STORM.toggle());
   }
 
-  /* Ticker & Clock */
-  const tickText = [
-    "NIGHT CITY FM ONLINE",
-    "AUTO-ADVANCE COMMUNITY QUEUE",
-    "NO RAIN/THUNDER AUDIO INTERFERENCE",
-    "STAY SHARP, CHOOMBA"
-  ].map(t => `<span>${esc(t)}</span>`).join("");
-  $("tick").innerHTML = tickText.repeat(6);
-
   const tickClock = () => {
     $("clock").textContent = "ONLINE  " + new Date().toLocaleTimeString([], { hour12: false });
   };
   tickClock();
   setInterval(tickClock, 1000);
+
+  /* ---------- 7 Background Themes Switcher for Uploaded Music Player ---------- */
+  function setVinylTheme(idx) {
+    const t = String(idx);
+    const deck = $("audioDeck");
+    if (deck) deck.setAttribute("data-theme", t);
+    const dots = document.querySelectorAll("#themeSwatches .theme-dot");
+    dots.forEach(btn => {
+      btn.setAttribute("aria-pressed", btn.dataset.t === t ? "true" : "false");
+    });
+    try { localStorage.setItem(THEME_STORAGE_KEY, t); } catch (e) {}
+  }
+
+  try {
+    const savedTheme = localStorage.getItem(THEME_STORAGE_KEY);
+    if (savedTheme !== null && /^[0-6]$/.test(savedTheme)) {
+      setVinylTheme(savedTheme);
+    }
+  } catch (e) {}
+
+  $("themeSwatches").addEventListener("click", e => {
+    const btn = e.target.closest("[data-t]");
+    if (btn) setVinylTheme(btn.dataset.t);
+  });
+
+  /* ---------- Big Toggle Between Uploaded Music Player & YouTube Player ---------- */
+  let currentMode = "upload"; // "upload" | "youtube"
+
+  function switchPlayerMode(mode, autoStartTrack = false) {
+    currentMode = mode === "youtube" ? "youtube" : "upload";
+    const isUpload = currentMode === "upload";
+
+    $("modeUploadBtn").setAttribute("aria-selected", isUpload ? "true" : "false");
+    $("modeYoutubeBtn").setAttribute("aria-selected", isUpload ? "false" : "true");
+
+    $("audioDeck").hidden = !isUpload;
+    $("ytPlayerWrap").hidden = isUpload;
+    $("deckHeaderTitle").textContent = isUpload ? "UPLOADED VINYL MUSIC PLAYER" : "YOUTUBE STREAM DECK";
+
+    if (isUpload) {
+      /* Stop YouTube iframe when switching to Uploaded Music Player */
+      const frame = $("ytFrame");
+      if (frame && frame.src !== "about:blank") {
+        frame.src = "about:blank";
+      }
+      if (autoStartTrack && uploadedAudioItems.length) {
+        const isAlreadyAudio = activeKey.startsWith("audio:");
+        if (!isAlreadyAudio) {
+          playItem(uploadedAudioItems[0], true);
+        }
+      } else if (!uploadedAudioItems.length) {
+        $("vinylTitle").textContent = "No uploaded audio yet";
+        $("vinylArtist").textContent = "Upload an .mp3 or .wav via GitHub Issues";
+        $("npType").textContent = "UPLOADED MUSIC PLAYER";
+        $("npTitle").textContent = "No uploaded .mp3 / .wav tracks found yet";
+      }
+    } else {
+      /* Pause HTML5 audio when switching to YouTube Player */
+      try { $("htmlAudio").pause(); } catch (e) {}
+      if (autoStartTrack && communityItems.length) {
+        const isAlreadyYt = activeKey.startsWith("playlist:") || activeKey.startsWith("video:");
+        if (!isAlreadyYt) {
+          playItem(communityItems[0], true);
+        }
+      } else if (!communityItems.length) {
+        $("npType").textContent = "YOUTUBE STREAM DECK";
+        $("npTitle").textContent = "No attached YouTube tracks found yet";
+      }
+    }
+  }
+
+  $("modeUploadBtn").addEventListener("click", () => switchPlayerMode("upload", true));
+  $("modeYoutubeBtn").addEventListener("click", () => switchPlayerMode("youtube", true));
+
+  $("scrollQueueBtn").addEventListener("click", () => {
+    const sec = $("uploadedMusicSec");
+    if (sec) sec.scrollIntoView({ behavior: "smooth" });
+  });
+
+  /* ---------- Dynamic Bottom Ticker & Typewriter (shows all attached music) ---------- */
+  let twLines = ["SCANNING GITHUB ISSUES FOR ATTACHED MUSIC..."];
+  let twTimer = 0;
+
+  function updateTickerAndTypewriter(allTracks) {
+    const items = allTracks && allTracks.length
+      ? [
+          "NIGHT CITY FM // LIVE ROTATION",
+          ...allTracks.map(
+            m => `${m.kind === "audio" ? "[AUDIO]" : "[YOUTUBE]"} ${m.title.toUpperCase()}${m.artist && m.artist !== "Unknown" ? " — " + m.artist.toUpperCase() : ""} (BY @${(m.by || "GHOST").toUpperCase()})`
+          ),
+          `TOTAL TRACKS: ${allTracks.length}`
+        ]
+      : ["NIGHT CITY FM ONLINE", "NO MUSIC ATTACHED IN GITHUB ISSUES YET", "ATTACH YOUTUBE OR .MP3/.WAV TO START"];
+
+    $("tick").innerHTML = items.map(t => `<span>${esc(t)}</span>`).join("").repeat(6);
+
+    twLines = allTracks && allTracks.length
+      ? allTracks.map(
+          m => `> ${m.kind === "audio" ? "[UPLOADED AUDIO]" : "[YOUTUBE]"} ${m.title.toUpperCase()} — @${(m.by || "GHOST").toUpperCase()}`
+        )
+      : ["> NO ATTACHED MUSIC FOUND ON GITHUB ISSUES YET"];
+
+    startTypewriter();
+  }
+
+  function startTypewriter() {
+    const el = $("tw");
+    if (!el) return;
+    if (twTimer) clearTimeout(twTimer);
+    if (reduce) {
+      el.textContent = twLines[0];
+      return;
+    }
+    let li = 0, ci = 0, del = false;
+    (function step() {
+      const s = twLines[li % twLines.length] || "> NIGHT CITY FM";
+      ci += del ? -1 : 1;
+      el.textContent = s.slice(0, ci);
+      let t = del ? 20 : 48;
+      if (!del && ci >= s.length) {
+        del = true;
+        t = 1800;
+      } else if (del && ci <= 0) {
+        del = false;
+        li = (li + 1) % twLines.length;
+        t = 320;
+      }
+      twTimer = setTimeout(step, t);
+    })();
+  }
+
+  updateTickerAndTypewriter([]);
+
+  /* ---------- Parse Filename & Fetch Binary ID3v2 / ID3v1 / WAV RIFF Metadata ---------- */
+  const metadataCache = new Map();
+
+  function parseFilenameMetadata(fileName, customTitle) {
+    const base = String(fileName || "uploaded-audio.mp3")
+      .replace(/\.[a-z0-9]{2,4}$/i, "")
+      .replace(/[_]+/g, " ")
+      .trim();
+
+    /* If filename looks like "Artist - Song Title", split it cleanly */
+    const dashParts = base.split(/\s+[-–—]\s+/);
+    if (dashParts.length >= 2) {
+      return {
+        artist: dashParts[0].trim() || "Unknown",
+        title: customTitle || dashParts.slice(1).join(" - ").trim() || base,
+        album: ""
+      };
+    }
+    return {
+      artist: "Unknown",
+      title: customTitle || base || fileName || "Untitled Audio",
+      album: ""
+    };
+  }
+
+  function decodeId3Text(bytes) {
+    if (!bytes || !bytes.length) return "";
+    const enc = bytes[0];
+    const payload = bytes.subarray(1);
+    let text = "";
+    try {
+      if (enc === 0) {
+        text = new TextDecoder("iso-8859-1").decode(payload);
+      } else if (enc === 1) {
+        text = new TextDecoder("utf-16").decode(payload);
+      } else if (enc === 2) {
+        text = new TextDecoder("utf-16be").decode(payload);
+      } else {
+        text = new TextDecoder("utf-8").decode(payload);
+      }
+    } catch (e) {
+      try { text = new TextDecoder("utf-8").decode(payload); } catch (e2) {}
+    }
+    return text.replace(/\0+/g, "").trim();
+  }
+
+  function parseId3TagsFromBuffer(buf) {
+    const u8 = new Uint8Array(buf);
+    const out = { title: "", artist: "", album: "" };
+
+    /* Check ID3v2 header ("ID3") */
+    if (u8.length > 10 && u8[0] === 0x49 && u8[1] === 0x44 && u8[2] === 0x33) {
+      const version = u8[3];
+      const tagSize =
+        ((u8[6] & 0x7f) << 21) |
+        ((u8[7] & 0x7f) << 14) |
+        ((u8[8] & 0x7f) << 7) |
+        (u8[9] & 0x7f);
+      const limit = Math.min(u8.length, 10 + tagSize);
+      let pos = 10;
+
+      while (pos + 10 <= limit) {
+        if (u8[pos] === 0) break;
+        if (version === 2) {
+          if (pos + 6 > limit) break;
+          const id = String.fromCharCode(u8[pos], u8[pos + 1], u8[pos + 2]);
+          const size = (u8[pos + 3] << 16) | (u8[pos + 4] << 8) | u8[pos + 5];
+          if (size <= 0 || pos + 6 + size > limit) break;
+          const val = decodeId3Text(u8.subarray(pos + 6, pos + 6 + size));
+          if (id === "TT2" && val) out.title = val;
+          else if ((id === "TP1" || id === "TP2") && val && !out.artist) out.artist = val;
+          else if (id === "TAL" && val) out.album = val;
+          pos += 6 + size;
+        } else {
+          const id = String.fromCharCode(u8[pos], u8[pos + 1], u8[pos + 2], u8[pos + 3]);
+          if (!/^[A-Z0-9]{4}$/.test(id)) break;
+          let size = 0;
+          if (version === 4) {
+            size = ((u8[pos + 4] & 0x7f) << 21) | ((u8[pos + 5] & 0x7f) << 14) | ((u8[pos + 6] & 0x7f) << 7) | (u8[pos + 7] & 0x7f);
+          } else {
+            size = (u8[pos + 4] << 24) | (u8[pos + 5] << 16) | (u8[pos + 6] << 8) | u8[pos + 7];
+          }
+          if (size <= 0 || pos + 10 + size > limit) break;
+          const val = decodeId3Text(u8.subarray(pos + 10, pos + 10 + size));
+          if (id === "TIT2" && val) out.title = val;
+          else if ((id === "TPE1" || id === "TPE2") && val && !out.artist) out.artist = val;
+          else if (id === "TALB" && val) out.album = val;
+          pos += 10 + size;
+        }
+      }
+    }
+
+    /* Check ID3v1 at end of buffer ("TAG") if present */
+    if (!out.title && !out.artist && u8.length >= 128) {
+      const off = u8.length - 128;
+      if (u8[off] === 0x54 && u8[off + 1] === 0x41 && u8[off + 2] === 0x47) {
+        const dec = new TextDecoder("iso-8859-1");
+        out.title = dec.decode(u8.subarray(off + 3, off + 33)).replace(/\0+/g, "").trim();
+        out.artist = dec.decode(u8.subarray(off + 33, off + 63)).replace(/\0+/g, "").trim();
+        out.album = dec.decode(u8.subarray(off + 63, off + 93)).replace(/\0+/g, "").trim();
+      }
+    }
+    return out;
+  }
+
+  async function resolveAudioMetadata(item) {
+    if (!item || item.kind !== "audio") return;
+    if (metadataCache.has(item.ytId)) {
+      const cached = metadataCache.get(item.ytId);
+      applyResolvedMeta(item, cached);
+      return;
+    }
+
+    const fallback = parseFilenameMetadata(item.fileName || item.title, item.customTitle);
+    /* Start with filename/issue metadata immediately */
+    applyResolvedMeta(item, fallback);
+
+    /* Attempt to read first 64KB of the audio file to parse embedded ID3v2 tags */
+    try {
+      const res = await fetch(item.ytId, {
+        headers: { Range: "bytes=0-65535" }
+      });
+      if (res.ok) {
+        const buf = await res.arrayBuffer();
+        const tags = parseId3TagsFromBuffer(buf);
+        const merged = {
+          title: item.customTitle || tags.title || fallback.title,
+          artist: tags.artist || item.issueArtist || fallback.artist || "Unknown",
+          album: tags.album || ""
+        };
+        metadataCache.set(item.ytId, merged);
+        applyResolvedMeta(item, merged);
+        return;
+      }
+    } catch (e) {
+      /* CORS on github.com redirect is expected in some browsers; fallback handles it cleanly */
+    }
+    metadataCache.set(item.ytId, fallback);
+  }
+
+  function applyResolvedMeta(item, meta) {
+    if (!meta) return;
+    if (meta.title && !item.customTitle) item.title = meta.title;
+    if (meta.artist) item.artist = meta.artist;
+    if (meta.album) item.album = meta.album;
+
+    if (activeKey === `audio:${item.ytId}`) {
+      $("vinylTitle").textContent = item.title;
+      $("vinylArtist").textContent = item.artist || "Unknown";
+      const alb = $("vinylAlbum");
+      if (item.album) {
+        alb.textContent = item.album;
+        alb.hidden = false;
+      } else {
+        alb.hidden = true;
+      }
+      $("npTitle").textContent = `${item.title}${item.artist && item.artist !== "Unknown" ? " — " + item.artist : ""}`;
+    }
+    renderUploadedAudioGrid();
+    updateTickerAndTypewriter(allOrderedItems);
+  }
 
   /* ---------- Parse any YouTube Playlist or Video URL / ID ---------- */
   function parseYouTubeInput(raw) {
@@ -1112,27 +1839,12 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
     return `https://www.youtube.com/watch?v=${encodeURIComponent(item.ytId)}`;
   }
 
-  function loadSavedDeck() {
-    try {
-      const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) return parsed;
-      }
-    } catch (e) {}
-    return [];
-  }
-
-  function saveDeck(list) {
-    try {
-      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(list));
-    } catch (e) {}
-  }
-
-  let savedItems = loadSavedDeck();
   let communityItems = [];
   let uploadedAudioItems = [];
+  let allOrderedItems = [];
   let activeKey = "";
+  let shuffleOn = false;
+  let repeatOneOn = false;
 
   function showToast(msg, isErr = false) {
     const t = $("statusToast");
@@ -1140,63 +1852,160 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
     t.className = "status-toast" + (isErr ? " err" : "");
   }
 
-  function getActivePool() {
-    const combined = [...uploadedAudioItems, ...communityItems];
-    if (combined.length) return combined;
-    return savedItems;
+  function formatSeconds(sec) {
+    if (!Number.isFinite(sec) || sec < 0) return "0:00";
+    const s = Math.floor(sec);
+    const m = Math.floor(s / 60);
+    const rem = s % 60;
+    return `${m}:${rem < 10 ? "0" : ""}${rem}`;
   }
+
+  function updatePlayPauseIcon(playing) {
+    const disc = $("vinylDisc");
+    const icon = $("vpPlayIcon");
+    if (disc) disc.classList.toggle("spinning", !!playing);
+    if (icon) {
+      icon.innerHTML = playing
+        ? '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'
+        : '<path d="M8 5v14l11-7z"/>';
+    }
+  }
+
+  const htmlAudio = $("htmlAudio");
+  htmlAudio.addEventListener("play", () => updatePlayPauseIcon(true));
+  htmlAudio.addEventListener("playing", () => updatePlayPauseIcon(true));
+  htmlAudio.addEventListener("pause", () => updatePlayPauseIcon(false));
+  htmlAudio.addEventListener("ended", () => {
+    updatePlayPauseIcon(false);
+    if (repeatOneOn) {
+      htmlAudio.currentTime = 0;
+      const p = htmlAudio.play();
+      if (p && typeof p.catch === "function") p.catch(() => {});
+      return;
+    }
+    playNextCommunity(1);
+  });
+  htmlAudio.addEventListener("timeupdate", () => {
+    $("curTimeTxt").textContent = formatSeconds(htmlAudio.currentTime);
+    if (Number.isFinite(htmlAudio.duration)) {
+      $("durTimeTxt").textContent = formatSeconds(htmlAudio.duration);
+    }
+  });
+  htmlAudio.addEventListener("loadedmetadata", () => {
+    $("durTimeTxt").textContent = formatSeconds(htmlAudio.duration);
+  });
+
+  $("vpPlayPauseBtn").addEventListener("click", () => {
+    if (!htmlAudio.src) {
+      if (uploadedAudioItems.length) {
+        playItem(uploadedAudioItems[0], true);
+      } else {
+        showToast("No uploaded .mp3 / .wav tracks yet — upload one via GitHub Issues!", true);
+      }
+      return;
+    }
+    if (htmlAudio.paused) {
+      const p = htmlAudio.play();
+      if (p && typeof p.catch === "function") p.catch(() => {});
+    } else {
+      htmlAudio.pause();
+    }
+  });
+
+  $("vpPrevBtn").addEventListener("click", () => playNextInCurrentMode(-1));
+  $("vpNextBtn").addEventListener("click", () => playNextInCurrentMode(1));
+
+  $("vpShuffleBtn").addEventListener("click", () => {
+    shuffleOn = !shuffleOn;
+    $("vpShuffleBtn").setAttribute("aria-pressed", shuffleOn ? "true" : "false");
+    showToast(shuffleOn ? "Shuffle enabled" : "Shuffle off");
+  });
+
+  $("vpRepeatBtn").addEventListener("click", () => {
+    repeatOneOn = !repeatOneOn;
+    $("vpRepeatBtn").setAttribute("aria-pressed", repeatOneOn ? "true" : "false");
+    showToast(repeatOneOn ? "Repeat 1 track enabled" : "Repeat off");
+  });
 
   function playItem(item, autoplay = true) {
     if (!item || !item.ytId) return;
     activeKey = `${item.kind}:${item.ytId}`;
     const frame = $("ytFrame");
-    const audioDeck = $("audioDeck");
-    const htmlAudio = $("htmlAudio");
 
     if (item.kind === "audio") {
-      frame.src = "about:blank";
-      frame.hidden = true;
-      audioDeck.hidden = false;
+      switchPlayerMode("upload", false);
       htmlAudio.src = item.ytId;
+      $("curTimeTxt").textContent = "0:00";
+      $("durTimeTxt").textContent = "0:00";
+
+      $("vinylTitle").textContent = item.title;
+      $("vinylArtist").textContent = item.artist || "Unknown";
+      const alb = $("vinylAlbum");
+      if (item.album) {
+        alb.textContent = item.album;
+        alb.hidden = false;
+      } else {
+        alb.hidden = true;
+      }
+      $("vinylUploadedBy").innerHTML = `Uploaded by <a href="https://github.com/${esc(item.by)}" target="_blank" rel="noopener">@${esc(item.by)}</a> · <a href="${esc(item.issueUrl)}" target="_blank" rel="noopener">GitHub Issue</a>`;
+
       if (autoplay) {
         const p = htmlAudio.play();
         if (p && typeof p.catch === "function") p.catch(() => {});
       }
       $("npType").textContent = "PLAYING UPLOADED AUDIO (.MP3 / .WAV)";
-      $("npTitle").textContent = item.title || "Uploaded Track";
+      $("npTitle").textContent = `${item.title}${item.artist && item.artist !== "Unknown" ? " — " + item.artist : ""}`;
       $("openYtLink").href = item.issueUrl || item.ytId;
-      $("openYtLink").textContent = item.issueUrl ? "View on GitHub" : "Open Audio";
+      $("openYtLink").textContent = "View on GitHub";
+
+      resolveAudioMetadata(item);
     } else {
-      try { htmlAudio.pause(); htmlAudio.removeAttribute("src"); } catch (e) {}
-      audioDeck.hidden = true;
-      frame.hidden = false;
+      switchPlayerMode("youtube", false);
       frame.src = buildEmbedUrl(item, autoplay);
       $("npType").textContent = item.kind === "playlist" ? "STREAMING YOUTUBE PLAYLIST" : "STREAMING YOUTUBE TRACK";
-      $("npTitle").textContent = item.title || item.ytId;
+      $("npTitle").textContent = item.title;
       $("openYtLink").href = buildWatchUrl(item);
       $("openYtLink").textContent = "Open on YouTube";
-
-      try {
-        const url = new URL(window.location.href);
-        url.searchParams.delete("list");
-        url.searchParams.delete("v");
-        url.searchParams.set(item.kind === "playlist" ? "list" : "v", item.ytId);
-        if (item.title) url.searchParams.set("title", item.title);
-        window.history.replaceState(null, "", url.toString());
-      } catch (e) {}
     }
 
     renderUploadedAudioGrid();
-    renderLocalGrid();
     renderCommunityGrid();
   }
 
-  function playNextCommunity(step = 1) {
-    const pool = getActivePool();
+  function playNextInCurrentMode(step = 1) {
+    const pool = currentMode === "upload" && uploadedAudioItems.length
+      ? uploadedAudioItems
+      : (currentMode === "youtube" && communityItems.length ? communityItems : allOrderedItems);
+
     if (!pool.length) return;
+    if (shuffleOn && pool.length > 1) {
+      const others = pool.filter(x => `${x.kind}:${x.ytId}` !== activeKey);
+      const pick = others[Math.floor(Math.random() * others.length)] || pool[0];
+      playItem(pick, true);
+      showToast(`Playing: ${pick.title}`);
+      return;
+    }
     const curIdx = pool.findIndex(x => `${x.kind}:${x.ytId}` === activeKey);
     const nextIdx = curIdx >= 0 ? (curIdx + step + pool.length) % pool.length : 0;
     const nextItem = pool[nextIdx];
+    if (nextItem) {
+      playItem(nextItem, true);
+      showToast(`Playing: ${nextItem.title}`);
+    }
+  }
+
+  function playNextCommunity(step = 1) {
+    if (!allOrderedItems.length) return;
+    if (shuffleOn && allOrderedItems.length > 1) {
+      const others = allOrderedItems.filter(x => `${x.kind}:${x.ytId}` !== activeKey);
+      const pick = others[Math.floor(Math.random() * others.length)] || allOrderedItems[0];
+      playItem(pick, true);
+      showToast(`Playing: ${pick.title}`);
+      return;
+    }
+    const curIdx = allOrderedItems.findIndex(x => `${x.kind}:${x.ytId}` === activeKey);
+    const nextIdx = curIdx >= 0 ? (curIdx + step + allOrderedItems.length) % allOrderedItems.length : 0;
+    const nextItem = allOrderedItems[nextIdx];
     if (nextItem) {
       playItem(nextItem, true);
       showToast(`Playing: ${nextItem.title}`);
@@ -1226,36 +2035,39 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
     if (!e.data || typeof e.data !== "string") return;
     try {
       const data = JSON.parse(e.data);
-      /* YouTube state 0 === YT.PlayerState.ENDED */
       const state =
         data.event === "onStateChange" ? data.info :
         (data.event === "infoDelivery" && data.info && typeof data.info.playerState === "number") ? data.info.playerState :
         null;
       if (state === 0) {
-        /* When current song/playlist ends, auto-play next community item */
         playNextCommunity(1);
       }
     } catch (err) {}
   });
 
-  function renderLocalGrid() {
-    const emptyMsg = $("localEmptyMsg");
-    if (emptyMsg) emptyMsg.hidden = savedItems.length > 0;
-    $("localGrid").innerHTML = savedItems.map((item, idx) => {
-      const isAct = activeKey === `${item.kind}:${item.ytId}`;
-      const badge = item.kind === "playlist" ? "PLAYLIST" : "VIDEO";
+  /* ---------- Render Uploaded Audio & YouTube Grids ---------- */
+  function renderUploadedAudioGrid() {
+    const grid = $("uploadedAudioGrid");
+    if (!grid) return;
+    $("uploadCountBadge").textContent = String(uploadedAudioItems.length);
+    if (!uploadedAudioItems.length) {
+      grid.innerHTML = "";
+      return;
+    }
+    grid.innerHTML = uploadedAudioItems.map((item, idx) => {
+      const isAct = activeKey === `audio:${item.ytId}`;
+      const artistLine = item.artist && item.artist !== "Unknown" ? `${esc(item.artist)} · ` : "";
       return `
         <li class="pl-card${isAct ? " active" : ""}">
           <div>
             <div class="pl-top">
               <span class="pl-name">${esc(item.title)}</span>
-              <span class="pl-badge">${isAct ? "PLAYING" : badge}</span>
+              <span class="pl-badge">${isAct ? "PLAYING" : "AUDIO"}</span>
             </div>
-            <div class="pl-meta">${esc(item.by || "Saved in browser")} · <code>${esc(item.ytId.slice(0, 16))}</code></div>
+            <div class="pl-meta">${artistLine}Uploaded by <a href="https://github.com/${esc(item.by)}" target="_blank" rel="noopener">@${esc(item.by)}</a> · <a href="${esc(item.issueUrl)}" target="_blank" rel="noopener">Issue</a></div>
           </div>
           <div class="pl-btns">
-            <button type="button" class="play-btn" data-local="${idx}">${isAct ? "▶ Playing" : "▶ Load in Player"}</button>
-            <button type="button" class="del-btn" data-del="${idx}" aria-label="Remove ${esc(item.title)}">✕</button>
+            <button type="button" class="play-btn" data-upaudio="${idx}">${isAct ? "▶ Playing on Vinyl" : "▶ Play on Vinyl"}</button>
           </div>
         </li>`;
     }).join("");
@@ -1263,6 +2075,7 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
 
   function renderCommunityGrid() {
     const grid = $("communityGrid");
+    $("ytCountBadge").textContent = String(communityItems.length);
     if (!communityItems.length) {
       grid.innerHTML = "";
       return;
@@ -1277,180 +2090,10 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
               <span class="pl-name">${esc(item.title)}</span>
               <span class="pl-badge">${isAct ? "PLAYING" : badge}</span>
             </div>
-            <div class="pl-meta">by <a href="https://github.com/${esc(item.by)}" target="_blank" rel="noopener">${esc(item.by)}</a> · <a href="${esc(item.issueUrl)}" target="_blank" rel="noopener">Issue</a></div>
+            <div class="pl-meta">by <a href="https://github.com/${esc(item.by)}" target="_blank" rel="noopener">@${esc(item.by)}</a> · <a href="${esc(item.issueUrl)}" target="_blank" rel="noopener">Issue</a></div>
           </div>
           <div class="pl-btns">
-            <button type="button" class="play-btn" data-comm="${idx}">${isAct ? "▶ Playing" : "▶ Load in Player"}</button>
-          </div>
-        </li>`;
-    }).join("");
-  }
-
-  $("localGrid").addEventListener("click", e => {
-    const playBtn = e.target.closest("[data-local]");
-    if (playBtn) {
-      const item = savedItems[+playBtn.dataset.local];
-      if (item) playItem(item, true);
-      return;
-    }
-    const delBtn = e.target.closest("[data-del]");
-    if (delBtn) {
-      const i = +delBtn.dataset.del;
-      if (i >= 0 && i < savedItems.length) {
-        savedItems.splice(i, 1);
-        saveDeck(savedItems);
-        renderLocalGrid();
-        showToast("Removed playlist from your browser deck.");
-      }
-    }
-  });
-
-  $("communityGrid").addEventListener("click", e => {
-    const playBtn = e.target.closest("[data-comm]");
-    if (playBtn) {
-      const item = communityItems[+playBtn.dataset.comm];
-      if (item) playItem(item, true);
-    }
-  });
-
-  $("attachForm").addEventListener("submit", e => {
-    e.preventDefault();
-    const rawUrl = $("plUrl").value.trim();
-    const rawTitle = $("plTitle").value.trim();
-    const parsed = parseYouTubeInput(rawUrl);
-
-    if (!parsed) {
-      showToast("Could not find a valid YouTube playlist (?list=PL...) or video ID.", true);
-      return;
-    }
-
-    const title = rawTitle || (parsed.kind === "playlist" ? `YouTube Playlist (${parsed.ytId.slice(0, 10)})` : `YouTube Track (${parsed.ytId})`);
-    const newItem = {
-      id: Date.now().toString(36),
-      title: title,
-      kind: parsed.kind,
-      ytId: parsed.ytId,
-      by: "Saved on this device"
-    };
-
-    savedItems = savedItems.filter(x => !(x.kind === newItem.kind && x.ytId === newItem.ytId));
-    savedItems.unshift(newItem);
-    saveDeck(savedItems);
-
-    playItem(newItem, true);
-    $("plUrl").value = "";
-    $("plTitle").value = "";
-    showToast(`Now playing "${title}" — saved to your deck!`);
-  });
-
-  $("sharePublicBtn").addEventListener("click", () => {
-    const rawUrl = $("plUrl").value.trim();
-    const rawTitle = $("plTitle").value.trim();
-    const parsed = parseYouTubeInput(rawUrl);
-
-    const shareItem = parsed
-      ? { kind: parsed.kind, ytId: parsed.ytId, title: rawTitle || "Night City Mix" }
-      : (activeKey ? {
-          kind: activeKey.startsWith("playlist:") ? "playlist" : "video",
-          ytId: activeKey.split(":")[1],
-          title: rawTitle || $("npTitle").textContent
-        } : null);
-
-    if (!shareItem) {
-      showToast("Paste a YouTube playlist or video URL first to publish it.", true);
-      return;
-    }
-
-    const ytUrl = buildWatchUrl(shareItem);
-    const issueTitle = `Playlist: ${shareItem.title}`;
-    const issueBody = `YouTube Link: ${ytUrl}\n\n*(Submit this issue and refresh music.html to see it on the Community Shared Playlists board!)*`;
-    const ghUrl = `https://github.com/${GITHUB_REPO}/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
-    window.open(ghUrl, "_blank", "noopener");
-    showToast("Opened GitHub Issue tab — press 'Submit new issue' there to publish globally.");
-  });
-
-  $("copyShareBtn").addEventListener("click", () => {
-    if (!activeKey) {
-      showToast("Load a playlist or video first to copy its share link.", true);
-      return;
-    }
-    const [kind, ytId] = activeKey.split(":");
-    const title = $("npTitle").textContent;
-    let shareUrl = window.location.href;
-    try {
-      const u = new URL(window.location.href);
-      u.searchParams.delete("list");
-      u.searchParams.delete("v");
-      u.searchParams.set(kind === "playlist" ? "list" : "v", ytId);
-      u.searchParams.set("title", title);
-      shareUrl = u.toString();
-    } catch (e) {}
-
-    if (navigator.clipboard && navigator.clipboard.writeText) {
-      navigator.clipboard.writeText(shareUrl).then(() => {
-        showToast("Shareable link copied to clipboard!");
-      }).catch(() => {});
-    } else {
-      const ta = document.createElement("textarea");
-      ta.value = shareUrl;
-      document.body.appendChild(ta);
-      ta.select();
-      try { document.execCommand("copy"); showToast("Shareable link copied!"); } catch (e) {}
-      ta.remove();
-    }
-  });
-
-  $("htmlAudio").addEventListener("ended", () => {
-    playNextCommunity(1);
-  });
-
-  $("localAudioIn").addEventListener("change", e => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    const blobUrl = URL.createObjectURL(file);
-    const cleanName = file.name.replace(/\.[a-z0-9]+$/i, "");
-    const item = {
-      title: cleanName,
-      kind: "audio",
-      ytId: blobUrl,
-      by: "Local file",
-      issueUrl: ""
-    };
-    uploadedAudioItems.unshift(item);
-    playItem(item, true);
-    showToast(`Playing local audio file: ${file.name}`);
-  });
-
-  /* Update GitHub Audio Upload button title dynamically if user typed a title */
-  $("plTitle").addEventListener("input", () => {
-    const t = $("plTitle").value.trim();
-    const bodyHint = "Drag and drop your .mp3 or .wav file (up to 25 MB) below, then click Submit new issue:";
-    $("uploadAudioGhBtn").href = `https://github.com/${GITHUB_REPO}/issues/new?title=${encodeURIComponent("Audio: " + t)}&body=${encodeURIComponent(bodyHint + "\n\n")}`;
-  });
-
-  function renderUploadedAudioGrid() {
-    const grid = $("uploadedAudioGrid");
-    if (!grid) return;
-    if (!uploadedAudioItems.length) {
-      grid.innerHTML = "";
-      return;
-    }
-    grid.innerHTML = uploadedAudioItems.map((item, idx) => {
-      const isAct = activeKey === `audio:${item.ytId}`;
-      const metaHtml = item.issueUrl
-        ? `by <a href="https://github.com/${esc(item.by)}" target="_blank" rel="noopener">${esc(item.by)}</a> · <a href="${esc(item.issueUrl)}" target="_blank" rel="noopener">Issue</a>`
-        : esc(item.by || "Local file");
-      return `
-        <li class="pl-card${isAct ? " active" : ""}">
-          <div>
-            <div class="pl-top">
-              <span class="pl-name">${esc(item.title)}</span>
-              <span class="pl-badge">${isAct ? "PLAYING" : "AUDIO"}</span>
-            </div>
-            <div class="pl-meta">${metaHtml}</div>
-          </div>
-          <div class="pl-btns">
-            <button type="button" class="play-btn" data-upaudio="${idx}">${isAct ? "▶ Playing" : "▶ Play Audio"}</button>
+            <button type="button" class="play-btn" data-comm="${idx}">${isAct ? "▶ Playing" : "▶ Load in YouTube Player"}</button>
           </div>
         </li>`;
     }).join("");
@@ -1464,33 +2107,104 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
     }
   });
 
-  /* Extract uploaded .mp3 / .wav / audio attachments from a GitHub Issue body */
-  function extractIssueAudioUrls(body, isAudioIssue) {
-    const urls = [];
+  $("communityGrid").addEventListener("click", e => {
+    const playBtn = e.target.closest("[data-comm]");
+    if (playBtn) {
+      const item = communityItems[+playBtn.dataset.comm];
+      if (item) playItem(item, true);
+    }
+  });
+
+  /* ---------- GitHub Issues Submission Only (YouTube & Audio Upload) ---------- */
+  function syncAudioUploadHref() {
+    const t = $("plTitle").value.trim();
+    const issueTitle = t ? `Audio: ${t}` : "Audio: ";
+    const bodyHint = "Artist: \nDrag and drop your .mp3 or .wav file (up to 25 MB) below, then click Submit new issue:";
+    const url = `https://github.com/${GITHUB_REPO}/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(bodyHint + "\n\n")}`;
+    $("uploadAudioGhBtn").href = url;
+    $("quickAddAudioBtn").href = url;
+  }
+  $("plTitle").addEventListener("input", syncAudioUploadHref);
+  syncAudioUploadHref();
+
+  $("attachForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const rawUrl = $("plUrl").value.trim();
+    const rawTitle = $("plTitle").value.trim();
+    const parsed = parseYouTubeInput(rawUrl);
+
+    if (!parsed) {
+      showToast("Enter a valid YouTube playlist (?list=PL...) or video URL to attach via GitHub Issue.", true);
+      return;
+    }
+
+    const defaultName = parsed.kind === "playlist" ? `YouTube Playlist (${parsed.ytId.slice(0, 10)})` : `YouTube Track (${parsed.ytId})`;
+    const title = rawTitle || defaultName;
+    const ytUrl = buildWatchUrl({ kind: parsed.kind, ytId: parsed.ytId });
+    const issueTitle = `Playlist: ${title}`;
+    const issueBody = `YouTube Link: ${ytUrl}\n\n*(Submit this issue and refresh music.html to play it on the board!)*`;
+    const ghUrl = `https://github.com/${GITHUB_REPO}/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
+    window.open(ghUrl, "_blank", "noopener");
+    showToast("Opened GitHub Issue tab — press 'Submit new issue' there to attach your music!");
+  });
+
+  $("copyShareBtn").addEventListener("click", () => {
+    const shareUrl = window.location.href;
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        showToast("Page link copied to clipboard!");
+      }).catch(() => {});
+    } else {
+      const ta = document.createElement("textarea");
+      ta.value = shareUrl;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); showToast("Page link copied!"); } catch (e) {}
+      ta.remove();
+    }
+  });
+
+  /* ---------- Extract Uploaded Audio Attachments + Filename & Artist Fallback ---------- */
+  function extractIssueAudioAttachments(body, isAudioIssue) {
+    const out = [];
+    const seenUrls = new Set();
     const text = String(body || "");
-    /* 1. Markdown links to .mp3/.wav/.ogg/.m4a or GitHub user-attachments */
+
+    /* 1. Markdown links: [song-file.mp3](https://github.com/user-attachments/assets/...) */
     const mdRe = /\[([^\]]*)\]\((https:\/\/(?:github\.com\/user-attachments\/assets\/|github\.com\/[^\s)]+\/files\/|user-images\.githubusercontent\.com\/)[^)\s]+)\)/gi;
     let m;
     while ((m = mdRe.exec(text))) {
-      const label = m[1] || "";
+      const label = (m[1] || "").trim();
       const u = m[2];
-      if (/\.(mp3|wav|ogg|m4a|flac|webm|mp4)$/i.test(label) || /\.(mp3|wav|ogg|m4a|flac)$/i.test(u) || isAudioIssue) {
-        if (!urls.includes(u)) urls.push(u);
+      const isAudioFile = /\.(mp3|wav|ogg|m4a|flac|webm|mp4)$/i.test(label) || /\.(mp3|wav|ogg|m4a|flac)$/i.test(u);
+      if ((isAudioFile || isAudioIssue) && !seenUrls.has(u)) {
+        seenUrls.add(u);
+        let fileName = label;
+        if (!fileName) {
+          try {
+            const lastSeg = decodeURIComponent(u.split("/").pop().split("?")[0]);
+            if (/\.[a-z0-9]{2,4}$/i.test(lastSeg)) fileName = lastSeg;
+          } catch (e) {}
+        }
+        out.push({ url: u, fileName: fileName || "uploaded-audio.mp3" });
       }
     }
-    /* 2. <audio src="..."> or <video src="..."> or bare user-attachments in an Audio: issue */
+
+    /* 2. HTML <audio>/<video src="..."> or bare user-attachments URLs in an Audio: issue */
     const tagRe = /(?:src="|(https:\/\/github\.com\/user-attachments\/assets\/[a-zA-Z0-9-]+))(https:\/\/[^"\s)]+)?/gi;
     while ((m = tagRe.exec(text))) {
       const u = m[1] || m[2];
-      if (u && isAudioIssue && /^https:\/\/github\.com\/user-attachments\/assets\//.test(u)) {
-        if (!urls.includes(u)) urls.push(u);
+      if (u && isAudioIssue && /^https:\/\/github\.com\/user-attachments\/assets\//.test(u) && !seenUrls.has(u)) {
+        seenUrls.add(u);
+        const assetId = u.split("/").pop().slice(0, 8);
+        out.push({ url: u, fileName: `audio-${assetId}.mp3` });
       }
     }
-    return urls;
+    return out;
   }
 
   async function fetchCommunityMedia() {
-    const cacheKey = "music_media_v2:" + GITHUB_REPO;
+    const cacheKey = "music_media_v4:" + GITHUB_REPO;
     try {
       const cached = JSON.parse(sessionStorage.getItem(cacheKey));
       if (cached && Date.now() - cached.t < 300000) return cached.d;
@@ -1509,35 +2223,50 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
       if (issue.pull_request) return;
       const t = String(issue.title || "");
       const b = String(issue.body || "");
-      const isAudioIssue = /^(audio|track|mp3|wav)\s*:/i.test(t);
-      const isMusicIssue = /^(playlist|music|song|radio)\s*:/i.test(t);
-      const cleanTitle = t.replace(/^(playlist|music|song|radio|audio|track|mp3|wav)\s*:\s*/i, "").trim() || "Untitled Track";
+      const isAudioIssue = /^(audio|track|mp3|wav)\s*:?/i.test(t);
+      const isMusicIssue = /^(playlist|music|song|radio)\s*:?/i.test(t);
+
+      /* Strip prefix like "Audio:" or "Playlist:" — if blank, customTitle is "" */
+      const customTitle = t.replace(/^(playlist|music|song|radio|audio|track|mp3|wav)\s*:?\s*/i, "").trim();
       const author = (issue.user || {}).login || "ghost";
 
-      /* Check for uploaded audio attachments first */
-      const audioUrls = extractIssueAudioUrls(b, isAudioIssue);
-      audioUrls.forEach(u => {
-        const key = "audio:" + u;
+      /* Optional "Artist: ..." line in issue body */
+      const artistMatch = b.match(/^\s*Artist\s*:\s*([^\r\n]+)/im);
+      const issueArtist = artistMatch ? artistMatch[1].trim() : "";
+
+      /* 1. Uploaded audio attachments: extract filename & artist metadata */
+      const audioAttachments = extractIssueAudioAttachments(b, isAudioIssue);
+      audioAttachments.forEach(att => {
+        const key = "audio:" + att.url;
         if (seen.has(key)) return;
         seen.add(key);
+        const parsedMeta = parseFilenameMetadata(att.fileName, customTitle);
         audioList.push({
-          title: cleanTitle,
+          title: customTitle || parsedMeta.title || att.fileName,
+          customTitle: customTitle,
+          fileName: att.fileName,
+          artist: issueArtist || parsedMeta.artist || "Unknown",
+          issueArtist: issueArtist,
+          album: "",
           kind: "audio",
-          ytId: u,
+          ytId: att.url,
           by: author,
           issueUrl: issue.html_url,
           createdAt: issue.created_at
         });
       });
 
-      /* Check for YouTube playlist or video links */
+      /* 2. YouTube playlist or video links */
       const parsed = parseYouTubeInput(b) || ((isMusicIssue || isAudioIssue) ? parseYouTubeInput(t) : null);
       if (parsed) {
         const key = `${parsed.kind}:${parsed.ytId}`;
         if (!seen.has(key)) {
           seen.add(key);
+          const fallbackYtName = parsed.kind === "playlist"
+            ? `YouTube Playlist (${parsed.ytId.slice(0, 10)})`
+            : `YouTube Video (${parsed.ytId})`;
           ytList.push({
-            title: cleanTitle,
+            title: customTitle || fallbackYtName,
             kind: parsed.kind,
             ytId: parsed.ytId,
             by: author,
@@ -1555,10 +2284,8 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
     return result;
   }
 
-  /* ---------- Initialize: Always auto-play the latest community upload or playlist ---------- */
+  /* ---------- Initialize: Load from GitHub Issues, populate ticker, auto-play latest ---------- */
   (function init() {
-    renderLocalGrid();
-
     fetchCommunityMedia()
       .then(({ ytList, audioList }) => {
         communityItems = ytList || [];
@@ -1570,34 +2297,35 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
         if (uploadedAudioItems.length) {
           upMsg.hidden = true;
         } else {
-          upMsg.textContent = "No uploaded .mp3 / .wav tracks yet. Click 'Upload .MP3 / .WAV to GitHub' above to attach an audio file!";
+          upMsg.textContent = "No uploaded .mp3 / .wav tracks yet. Click 'Upload .MP3 / .WAV via GitHub Issue' above to attach an audio file!";
         }
 
         const commMsg = $("communityMsg");
         if (communityItems.length) {
           commMsg.hidden = true;
         } else {
-          commMsg.textContent = "No community YouTube playlists posted yet. Attach one above and click 'Publish to Public Board (GitHub)'!";
+          commMsg.textContent = "No community YouTube playlists posted yet. Attach one above via GitHub Issues!";
         }
 
-        /* Pick whichever community submission (uploaded audio or YouTube) is newest */
-        const allCommunity = [...uploadedAudioItems, ...communityItems].sort(
+        allOrderedItems = [...uploadedAudioItems, ...communityItems].sort(
           (a, b) => Date.parse(b.createdAt || 0) - Date.parse(a.createdAt || 0)
         );
-        if (allCommunity.length) {
-          playItem(allCommunity[0], true);
-        } else if (savedItems.length) {
-          playItem(savedItems[0], true);
+
+        /* Show all attached music (both YouTube and audio uploads) in bottom ticker & typewriter */
+        updateTickerAndTypewriter(allOrderedItems);
+
+        if (allOrderedItems.length) {
+          playItem(allOrderedItems[0], true);
         } else {
-          $("npTitle").textContent = "No community streams yet — upload an .mp3/.wav or attach a YouTube link!";
+          $("vinylTitle").textContent = "No uploaded audio yet";
+          $("vinylArtist").textContent = "Unknown";
+          $("npTitle").textContent = "No community music yet — upload an .mp3/.wav or attach a YouTube link via GitHub Issues!";
         }
       })
       .catch(err => {
         $("uploadedAudioMsg").innerHTML = `Could not load uploaded audio (${esc(err.message)}).`;
         $("communityMsg").innerHTML = `Could not load community playlists (${esc(err.message)}). Check <a href="https://github.com/${esc(GITHUB_REPO)}/issues" target="_blank" rel="noopener">GitHub Issues</a>.`;
-        if (savedItems.length) {
-          playItem(savedItems[0], true);
-        }
+        $("npTitle").textContent = "Could not reach GitHub API — try refreshing in a moment.";
       });
   })();
 })();
