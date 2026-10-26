@@ -184,6 +184,15 @@ const SECTIONS = [
     ]
   },
    {
+    id: "music",
+    title: "Music",
+    blurb: "all things music.",
+    img: "music.jpg",
+    links: [
+      { name: "YouTube playlists.", url: "music.html", desc: "Attach your own or listen to others" }
+    ]
+  },
+   {
     id: "terminal",
     title: "Terminal",
     blurb: "Linix environment in webvm.",
