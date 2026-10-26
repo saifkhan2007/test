@@ -1,0 +1,1375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#03040d">
+<title>NIGHT CITY FM // MUSIC DECK — RANDOM AHH TOOL BOX</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --void:#03040d; --navy:#071237; --navy2:#0d2275;
+  --y:#fcee0a; --amber:#ffb800; --cyan:#00f0ff; --red:#ff003c;
+  --ink:#ece9cf; --dim:#9aa3c7;
+  --font:'Chakra Petch','Arial Narrow',Arial,sans-serif;
+  --cut:18px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{
+  background-color:var(--void);
+  color-scheme:dark;
+  scroll-behavior:smooth;
+  height:100%;
+}
+body{
+  font-family:var(--font);
+  color:var(--ink);
+  background-color:var(--void);
+  background-image:linear-gradient(125deg,#000 0%,var(--navy) 32%,var(--navy2) 55%,#141002 80%,#000 100%);
+  background-size:260% 260%;
+  background-attachment:fixed;
+  min-height:100vh;
+  min-height:100dvh;
+  overflow-x:hidden;
+  animation:drift 24s ease-in-out infinite alternate;
+}
+@keyframes drift{to{background-position:100% 100%}}
+
+/* ---------- silent visual-only thunderstorm layers ---------- */
+#rain{
+  position:fixed;
+  inset:0;
+  width:100%;
+  height:100%;
+  z-index:0;
+  pointer-events:none;
+}
+.floor{
+  position:fixed;
+  left:-60%;
+  right:-60%;
+  bottom:0;
+  height:42vh;
+  z-index:0;
+  pointer-events:none;
+  opacity:.32;
+  background:
+    linear-gradient(rgba(252,238,10,.12) 1px,transparent 1px) 0 0/100% 52px,
+    linear-gradient(90deg,rgba(0,240,255,.08) 1px,transparent 1px) 0 0/52px 100%;
+  transform:perspective(420px) rotateX(66deg);
+  transform-origin:bottom;
+  -webkit-mask-image:linear-gradient(to top,rgba(0,0,0,.75),transparent 78%);
+  mask-image:linear-gradient(to top,rgba(0,0,0,.75),transparent 78%);
+  animation:floor 2.8s linear infinite;
+}
+@keyframes floor{to{background-position:0 52px,0 0}}
+.scan{
+  position:fixed;
+  inset:0;
+  z-index:40;
+  pointer-events:none;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,.18) 0 1px,transparent 1px 3px);
+}
+.scan::after{
+  content:"";
+  position:absolute;
+  left:0;
+  right:0;
+  height:14vh;
+  top:-14vh;
+  background:linear-gradient(transparent,rgba(252,238,10,.06),transparent);
+  animation:bar 7s linear infinite;
+}
+@keyframes bar{to{top:100vh}}
+[hidden]{display:none!important}
+
+/* ---------- layout & header ---------- */
+.wrap{
+  position:relative;
+  z-index:2;
+  width:100%;
+  max-width:1100px;
+  margin:0 auto;
+  padding:0 clamp(14px,3.5vw,36px) calc(64px + env(safe-area-inset-bottom,0px));
+}
+.top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  padding:10px 0;
+  border-bottom:1px solid rgba(252,238,10,.22);
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-weight:700;
+  letter-spacing:.1em;
+  min-width:0;
+  overflow:hidden;
+}
+.brand b{
+  background:var(--y);
+  color:#000;
+  padding:3px 10px 3px 8px;
+  font-size:clamp(.72rem,2.2vw,.88rem);
+  clip-path:polygon(0 0,100% 0,calc(100% - 8px) 100%,0 100%);
+  letter-spacing:.05em;
+  white-space:nowrap;
+  flex-shrink:0;
+}
+#brand{
+  font-size:clamp(.72rem,2vw,.9rem);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  color:var(--ink);
+}
+@media (max-width:480px){
+  #brand{display:none}
+}
+.back-link{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  color:var(--y);
+  text-decoration:none;
+  font-weight:700;
+  font-size:clamp(.78rem,2.3vw,.92rem);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  padding:4px 12px 4px 10px;
+  background:rgba(252,238,10,.1);
+  border-left:3px solid var(--y);
+  border-top:0;border-right:0;border-bottom:0;
+  font-family:var(--font);
+  cursor:pointer;
+  clip-path:polygon(0 0,100% 0,calc(100% - 8px) 100%,0 100%);
+  transition:background .2s,color .2s;
+  flex-shrink:0;
+}
+.back-link:hover,.back-link:focus-visible{
+  background:var(--y);
+  color:#000;
+  outline:none;
+}
+.chev-l{
+  display:inline-block;
+  width:8px;
+  height:8px;
+  border-bottom:2.5px solid currentColor;
+  border-left:2.5px solid currentColor;
+  transform:rotate(45deg);
+}
+.status{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  color:var(--dim);
+  font-size:clamp(.72rem,2vw,.86rem);
+  flex-shrink:0;
+}
+.storm-btn{
+  background:rgba(252,238,10,.1);
+  color:var(--y);
+  border:1px solid rgba(252,238,10,.4);
+  padding:3px 9px;
+  font:700 clamp(.68rem,1.9vw,.78rem) var(--font);
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  cursor:pointer;
+  clip-path:polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,0 100%);
+  transition:background .2s,color .2s;
+}
+.storm-btn:hover,.storm-btn:focus-visible{background:var(--y);color:#000;outline:none}
+.storm-btn[aria-pressed="false"]{color:var(--dim);border-color:rgba(154,163,199,.35);background:rgba(3,4,13,.6)}
+.dot{
+  width:8px;height:8px;border-radius:50%;
+  background:#2dff87;box-shadow:0 0 10px #2dff87;
+  animation:pulse 1.6s ease-in-out infinite;flex-shrink:0;
+}
+@keyframes pulse{50%{opacity:.25;transform:scale(.7)}}
+
+/* ---------- section title & glitch ---------- */
+.sec-head{padding:clamp(16px,3.5vw,32px) 0 12px}
+.sh{display:flex;align-items:center;gap:16px}
+.glitch{
+  position:relative;display:inline-block;font-weight:700;line-height:.96;
+  letter-spacing:.05em;text-transform:uppercase;
+  font-size:clamp(1.6rem,5vw,2.7rem);color:var(--y);
+  text-shadow:0 0 18px rgba(252,238,10,.35);
+  animation:flicker 5s infinite 2.2s;
+}
+.glitch::before,.glitch::after{
+  content:attr(data-text);position:absolute;left:0;top:0;width:100%;
+  mix-blend-mode:screen;pointer-events:none;
+}
+.glitch::before{color:var(--cyan);animation:g1 3.4s infinite steps(1) 2.2s}
+.glitch::after{color:var(--red);animation:g2 3.4s infinite steps(1) 2.2s}
+@keyframes g1{
+  0%,88%,100%{clip-path:inset(0 0 100% 0);transform:none}
+  89%{clip-path:inset(8% 0 62% 0);transform:translate(-5px,0)}
+  92%{clip-path:inset(58% 0 14% 0);transform:translate(4px,0)}
+  96%{clip-path:inset(30% 0 44% 0);transform:translate(-3px,0)}
+}
+@keyframes g2{
+  0%,88%,100%{clip-path:inset(0 0 100% 0);transform:none}
+  90%{clip-path:inset(40% 0 38% 0);transform:translate(5px,0)}
+  93%{clip-path:inset(12% 0 70% 0);transform:translate(-4px,0)}
+  97%{clip-path:inset(66% 0 8% 0);transform:translate(3px,0)}
+}
+@keyframes flicker{0%,93%,100%{opacity:1}94%{opacity:.6}95%{opacity:1}96%{opacity:.75}}
+.sh .rule{
+  flex:1;height:2px;
+  background:linear-gradient(90deg,var(--y),rgba(252,238,10,0));
+  position:relative;overflow:hidden;
+}
+.sh .rule::after{
+  content:"";position:absolute;top:0;left:-30%;width:30%;height:100%;
+  background:#fff;opacity:.8;animation:run 3.2s linear infinite;
+}
+@keyframes run{to{left:110%}}
+.blurb{margin:6px 0 16px;color:var(--dim);font-size:1rem}
+
+/* ---------- Music Deck Layout ---------- */
+.deck-grid{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:20px;
+  align-items:start;
+}
+@media (min-width:860px){
+  .deck-grid{
+    grid-template-columns:1.35fr 1fr;
+  }
+}
+
+.panel{
+  position:relative;
+  padding:clamp(16px,2.5vw,22px) clamp(16px,2.5vw,22px) clamp(16px,2.5vw,22px) clamp(20px,2.8vw,26px);
+  background:linear-gradient(135deg,rgba(13,34,117,.78),rgba(3,4,13,.94));
+  border:1px solid rgba(252,238,10,.32);
+  clip-path:polygon(0 0,calc(100% - var(--cut)) 0,100% var(--cut),100% 100%,var(--cut) 100%,0 calc(100% - var(--cut)));
+}
+.panel::before{
+  content:"";
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:5px;
+  background:var(--y);
+  box-shadow:0 0 14px var(--y);
+}
+.panel-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-bottom:12px;
+}
+.panel-title{
+  font-size:1.15rem;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--y);
+}
+.eq-bars{
+  display:inline-flex;
+  align-items:flex-end;
+  gap:3px;
+  height:16px;
+}
+.eq-bars i{
+  display:block;
+  width:3px;
+  background:var(--cyan);
+  box-shadow:0 0 6px var(--cyan);
+  animation:eqBounce .8s ease-in-out infinite alternate;
+}
+.eq-bars i:nth-child(1){height:40%;animation-duration:.55s}
+.eq-bars i:nth-child(2){height:95%;animation-duration:.75s;background:var(--y)}
+.eq-bars i:nth-child(3){height:65%;animation-duration:.45s}
+.eq-bars i:nth-child(4){height:85%;animation-duration:.65s;background:var(--y)}
+@keyframes eqBounce{from{height:20%}to{height:100%}}
+
+/* ---------- Embedded YouTube Player Frame ---------- */
+.player-frame{
+  position:relative;
+  width:100%;
+  aspect-ratio:16/9;
+  background:#02030a;
+  border:1px solid rgba(252,238,10,.45);
+  box-shadow:0 0 28px rgba(0,0,0,.85),0 0 16px rgba(252,238,10,.12);
+  overflow:hidden;
+}
+.player-frame iframe{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  border:0;
+}
+.now-playing{
+  margin-top:12px;
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+}
+.np-info{min-width:0;flex:1}
+.np-label{
+  font-size:.72rem;
+  font-weight:700;
+  letter-spacing:.12em;
+  color:var(--cyan);
+  text-transform:uppercase;
+}
+.np-title{
+  font-size:1.2rem;
+  font-weight:700;
+  color:var(--ink);
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.np-actions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+/* ---------- Attach Form (No Account Needed + Optional Public Board) ---------- */
+.attach-form{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.field{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
+}
+.field label{
+  font-size:.78rem;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--amber);
+}
+.cyber-in{
+  width:100%;
+  padding:10px 12px;
+  background:rgba(3,4,13,.85);
+  border:1px solid rgba(252,238,10,.38);
+  color:var(--ink);
+  font:600 .95rem var(--font);
+  letter-spacing:.03em;
+  outline:none;
+  clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,0 100%);
+  transition:border-color .2s,box-shadow .2s;
+}
+.cyber-in:focus{
+  border-color:var(--y);
+  box-shadow:0 0 12px rgba(252,238,10,.28);
+}
+.cyber-in::placeholder{color:var(--dim);opacity:.7}
+.btn-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:4px;
+}
+.btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  padding:10px 20px;
+  border:0;
+  cursor:pointer;
+  background:var(--y);
+  color:#000;
+  font:700 .9rem var(--font);
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  text-decoration:none;
+  clip-path:polygon(0 0,100% 0,calc(100% - 10px) 100%,0 100%);
+  transition:transform .15s,background .2s,color .2s;
+}
+.btn:hover,.btn:focus-visible{background:#fff;transform:translateY(-2px);outline:none}
+.btn-sec{
+  background:rgba(252,238,10,.12);
+  color:var(--y);
+  border:1px solid rgba(252,238,10,.42);
+}
+.btn-sec:hover,.btn-sec:focus-visible{
+  background:var(--y);
+  color:#000;
+}
+.status-toast{
+  font-size:.86rem;
+  font-weight:600;
+  color:var(--cyan);
+  min-height:1.3em;
+}
+.status-toast.err{color:var(--red)}
+.fnote{
+  color:var(--dim);
+  font-size:.86rem;
+  line-height:1.45;
+}
+.fnote a{color:var(--y)}
+
+/* ---------- Playlist Cards Grid ---------- */
+.list-sec{margin-top:26px}
+.list-sec h2{
+  font-size:1.25rem;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--y);
+  margin-bottom:12px;
+}
+ul.pl-grid{
+  list-style:none;
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+  gap:14px;
+}
+.pl-card{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  gap:10px;
+  padding:14px 16px 14px 20px;
+  background:linear-gradient(135deg,rgba(13,34,117,.7),rgba(3,4,13,.92));
+  border:1px solid rgba(252,238,10,.28);
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));
+  transition:border-color .2s,transform .2s,box-shadow .2s;
+}
+.pl-card::before{
+  content:"";
+  position:absolute;
+  left:0;top:0;bottom:0;
+  width:4px;
+  background:var(--y);
+  transition:width .2s,background .2s;
+}
+.pl-card.active{
+  border-color:var(--cyan);
+  box-shadow:0 0 18px rgba(0,240,255,.28);
+}
+.pl-card.active::before{
+  background:var(--cyan);
+  box-shadow:0 0 12px var(--cyan);
+  width:6px;
+}
+.pl-top{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:8px;
+}
+.pl-badge{
+  font-size:.66rem;
+  font-weight:700;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  padding:2px 6px;
+  background:rgba(252,238,10,.15);
+  color:var(--y);
+  border:1px solid rgba(252,238,10,.35);
+  white-space:nowrap;
+}
+.pl-card.active .pl-badge{
+  background:var(--cyan);
+  color:#000;
+  border-color:var(--cyan);
+}
+.pl-name{
+  font-size:1.1rem;
+  font-weight:700;
+  color:var(--ink);
+  line-height:1.2;
+  word-break:break-word;
+}
+.pl-meta{
+  font-size:.78rem;
+  color:var(--dim);
+}
+.pl-meta a{color:var(--y)}
+.pl-btns{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  margin-top:4px;
+}
+.play-btn{
+  flex:1;
+  padding:7px 12px;
+  border:0;
+  cursor:pointer;
+  background:var(--y);
+  color:#000;
+  font:700 .82rem var(--font);
+  letter-spacing:.07em;
+  text-transform:uppercase;
+  clip-path:polygon(0 0,100% 0,calc(100% - 8px) 100%,0 100%);
+  transition:background .15s;
+}
+.play-btn:hover,.play-btn:focus-visible{background:#fff;outline:none}
+.del-btn{
+  padding:7px 10px;
+  border:1px solid rgba(255,0,60,.45);
+  background:rgba(255,0,60,.12);
+  color:#ff5c82;
+  font:700 .78rem var(--font);
+  cursor:pointer;
+  transition:background .15s,color .15s;
+}
+.del-btn:hover,.del-btn:focus-visible{background:var(--red);color:#fff;outline:none}
+
+/* ---------- ticker (safe-area aware) ---------- */
+.ticker{
+  position:fixed;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:30;
+  overflow:hidden;
+  background:var(--y);
+  color:#000;
+  font-weight:700;
+  font-size:clamp(.75rem,2vw,.9rem);
+  letter-spacing:.12em;
+  padding:5px 0 calc(5px + env(safe-area-inset-bottom,0px));
+  box-shadow:0 40px 0 40px var(--y);
+  white-space:nowrap;
+}
+.ticker div{display:inline-block;animation:tick 38s linear infinite}
+.ticker span{margin:0 28px}
+@keyframes tick{to{transform:translateX(-50%)}}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+}
+</style>
+</head>
+<body>
+
+<canvas id="rain"></canvas>
+<div class="floor"></div>
+<div class="scan"></div>
+
+<div class="wrap">
+  <header class="top">
+    <div class="brand">
+      <button type="button" class="back-link" id="backHubBtn"><i class="chev-l"></i>Back to hub</button>
+      <b>"Brand logo" ahh</b>
+      <span id="brand">COOL GLITCH EFFECT</span>
+    </div>
+    <div class="status">
+      <button type="button" class="storm-btn" id="stormToggle" aria-pressed="true">STORM: ON</button>
+      <i class="dot"></i>
+      <span id="clock">--:--:--</span>
+    </div>
+  </header>
+
+  <div class="sec-head">
+    <div class="sh">
+      <h1 class="glitch" id="title" data-text="Night City FM // Music">Night City FM // Music</h1>
+      <span class="rule"></span>
+    </div>
+    <p class="blurb">Attach any YouTube playlist or video and play it right here. Visual thunderstorm stays active with zero rain/thunder audio so your music plays clean.</p>
+  </div>
+
+  <div class="deck-grid">
+    <!-- Left Column: Embedded YouTube Player -->
+    <section class="panel" aria-label="YouTube Music & Video Player">
+      <div class="panel-head">
+        <span class="panel-title">ACTIVE STREAM DECK</span>
+        <div class="eq-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+      </div>
+
+      <div class="player-frame">
+        <iframe
+          id="ytFrame"
+          title="YouTube Playlist Player"
+          src="https://www.youtube-nocookie.com/embed/jfKfPfyJRdk?rel=0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          allowfullscreen>
+        </iframe>
+      </div>
+
+      <div class="now-playing">
+        <div class="np-info">
+          <div class="np-label" id="npType">NOW STREAMING</div>
+          <div class="np-title" id="npTitle">Lofi / Synthwave Radio Beat Stream</div>
+        </div>
+        <div class="np-actions">
+          <button type="button" class="btn btn-sec" id="copyShareBtn">Copy Share Link</button>
+          <a class="btn btn-sec" id="openYtLink" href="https://www.youtube.com/watch?v=jfKfPfyJRdk" target="_blank" rel="noopener">Open on YouTube</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right Column: Attach Playlist (No Account Needed + Optional Public Board) -->
+    <section class="panel" aria-label="Attach YouTube Playlist">
+      <div class="panel-head">
+        <span class="panel-title">ATTACH YOUTUBE PLAYLIST / VIDEO</span>
+      </div>
+
+      <form class="attach-form" id="attachForm" autocomplete="off">
+        <div class="field">
+          <label for="plUrl">YouTube Playlist or Video URL / ID</label>
+          <input
+            type="text"
+            class="cyber-in"
+            id="plUrl"
+            placeholder="https://www.youtube.com/playlist?list=PL... or video link"
+            required>
+        </div>
+
+        <div class="field">
+          <label for="plTitle">Playlist / Mix Title (Optional)</label>
+          <input
+            type="text"
+            class="cyber-in"
+            id="plTitle"
+            placeholder="e.g. Night City Synthwave Mix"
+            maxlength="80">
+        </div>
+
+        <div class="btn-row">
+          <button type="submit" class="btn">Play & Save (No Account)</button>
+          <button type="button" class="btn btn-sec" id="sharePublicBtn">Publish to Public Board (GitHub)</button>
+        </div>
+
+        <div class="status-toast" id="statusToast" role="status" aria-live="polite"></div>
+
+        <p class="fnote">
+          <strong>No account needed:</strong> Clicking <em>Play &amp; Save</em> plays your playlist immediately, saves it to your browser, and updates the shareable URL.
+          Want every visitor to see your playlist on the global board below? Click <em>Publish to Public Board</em> to post it as a GitHub Issue (just like Photos).
+        </p>
+      </form>
+    </section>
+  </div>
+
+  <!-- Saved & Built-in Playlists -->
+  <section class="list-sec" aria-label="Your Deck & Built-in Playlists">
+    <h2>YOUR DECK &amp; STATION PRESETS</h2>
+    <ul class="pl-grid" id="localGrid"></ul>
+  </section>
+
+  <!-- Global Community Playlists (from GitHub Issues) -->
+  <section class="list-sec" aria-label="Community Shared Playlists">
+    <h2>COMMUNITY SHARED PLAYLISTS (GITHUB BOARD)</h2>
+    <ul class="pl-grid" id="communityGrid"></ul>
+    <p class="fnote" id="communityMsg">Loading community playlists from GitHub...</p>
+  </section>
+</div>
+
+<div class="ticker" aria-hidden="true"><div id="tick"></div></div>
+
+<script>
+addEventListener('error',function(e){if(!e.message||document.getElementById('oops'))return;var d=document.createElement('div');d.id='oops';
+d.style.cssText='position:fixed;left:0;right:0;top:0;z-index:99;background:#ff003c;color:#fff;padding:12px 16px;font:600 14px/1.4 sans-serif';
+d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'. Check the part you edited last for a missing comma or quote.';document.body.appendChild(d)});
+</script>
+<script>
+/* =====================================================================
+   Silent Visual-Only Thunderstorm Background (NO rain.mp3 or thunder.mp3)
+   ===================================================================== */
+(function () {
+  const STORAGE_KEY = "storm_off";
+  const reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function getSavedState() {
+    try { return localStorage.getItem(STORAGE_KEY) !== "1"; } catch (e) { return true; }
+  }
+  function saveState(on) {
+    try { localStorage.setItem(STORAGE_KEY, on ? "0" : "1"); } catch (e) {}
+  }
+
+  let enabled = getSavedState();
+  const canvas = document.getElementById("rain");
+  const ctx = canvas.getContext("2d");
+
+  let w = 0, h = 0, dpr = 1;
+  let drops = [], splashes = [], clouds = [];
+  let rafId = 0, lastTime = 0;
+  let nextThunderAt = 0, nextSilentFlashAt = 0, activeFlash = null;
+  const flashPeakTimestamps = [];
+
+  const ANGLE = 12 * (Math.PI / 180);
+  const SIN_A = Math.sin(ANGLE), COS_A = Math.cos(ANGLE);
+  const LAYERS = [
+    { speed: 520, len: 14, alpha: 0.22, width: 1.0, share: 0.45 },
+    { speed: 780, len: 22, alpha: 0.38, width: 1.3, share: 0.35 },
+    { speed: 1080, len: 32, alpha: 0.58, width: 1.7, share: 0.20 }
+  ];
+
+  function scheduleNextThunder(now) { nextThunderAt = now + 8000 + Math.random() * 4000; }
+  function scheduleNextSilentFlash(now) { nextSilentFlashAt = now + 4000 + Math.random() * 3500; }
+
+  function initScene() {
+    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    w = window.innerWidth || 360;
+    h = window.innerHeight || 640;
+    canvas.width = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const isPhone = w <= 500;
+    const maxDrops = isPhone ? 170 : 280;
+    const count = Math.min(maxDrops, Math.max(70, Math.round((w * h) / 4800)));
+
+    drops = new Array(count);
+    for (let i = 0; i < count; i++) {
+      const r = Math.random();
+      const li = r < LAYERS[0].share ? 0 : (r < LAYERS[0].share + LAYERS[1].share ? 1 : 2);
+      const L = LAYERS[li];
+      drops[i] = {
+        x: Math.random() * (w + 120) - 60,
+        y: Math.random() * h,
+        speed: L.speed * (0.9 + Math.random() * 0.2),
+        len: L.len * (0.85 + Math.random() * 0.3),
+        alpha: L.alpha,
+        width: L.width,
+        yellow: Math.random() < 0.025
+      };
+    }
+
+    const splashCount = isPhone ? 18 : 30;
+    splashes = new Array(splashCount);
+    for (let i = 0; i < splashCount; i++) {
+      splashes[i] = {
+        x: Math.random() * w,
+        y: h - 6 - Math.random() * 28,
+        r: Math.random() * 8,
+        maxR: 5 + Math.random() * 7,
+        yellow: Math.random() < 0.05
+      };
+    }
+
+    clouds = [
+      { x: w * 0.15, y: h * 0.12, rx: w * 0.48, ry: h * 0.22, vx: 8 },
+      { x: w * 0.65, y: h * 0.08, rx: w * 0.52, ry: h * 0.25, vx: 12 },
+      { x: w * 0.40, y: h * 0.20, rx: w * 0.45, ry: h * 0.18, vx: 6 }
+    ];
+  }
+
+  function buildBoltSegments(startX, startY, endY) {
+    const segs = [];
+    let cx = startX, cy = startY;
+    const steps = 14, dy = (endY - startY) / steps;
+    for (let i = 0; i < steps; i++) {
+      const nx = cx + (Math.random() - 0.46) * 48;
+      const ny = cy + dy;
+      segs.push({ x1: cx, y1: cy, x2: nx, y2: ny, main: true });
+      if (i > 2 && i < steps - 2 && Math.random() < 0.38) {
+        let bx = nx, by = ny;
+        const dir = Math.random() < 0.5 ? -1 : 1;
+        for (let b = 0; b < 4; b++) {
+          const bnx = bx + dir * (12 + Math.random() * 24);
+          const bny = by + dy * (0.75 + Math.random() * 0.4);
+          segs.push({ x1: bx, y1: by, x2: bnx, y2: bny, main: false });
+          bx = bnx; by = bny;
+        }
+      }
+      cx = nx; cy = ny;
+    }
+    return segs;
+  }
+
+  function canTriggerPeak(now) {
+    while (flashPeakTimestamps.length && now - flashPeakTimestamps[0] > 1000) {
+      flashPeakTimestamps.shift();
+    }
+    return flashPeakTimestamps.length < 3;
+  }
+
+  function triggerThunderStrike(now) {
+    scheduleNextThunder(now);
+    if (nextSilentFlashAt - now < 2500) scheduleNextSilentFlash(now);
+    if (reduceMotion || !canTriggerPeak(now)) return;
+    const startX = w * (0.15 + Math.random() * 0.7);
+    activeFlash = {
+      start: now, duration: 420, boltDuration: 115 + Math.random() * 35,
+      sheetOnly: false, x: startX,
+      segs: buildBoltSegments(startX, 0, h * (0.58 + Math.random() * 0.25)),
+      peak1Recorded: true, peak2Recorded: false
+    };
+    flashPeakTimestamps.push(now);
+  }
+
+  function triggerSilentSkyFlash(now) {
+    scheduleNextSilentFlash(now);
+    if (reduceMotion || activeFlash || Math.abs(nextThunderAt - now) < 1500 || !canTriggerPeak(now)) return;
+    activeFlash = {
+      start: now, duration: 340, boltDuration: 0,
+      sheetOnly: true, x: w * (0.2 + Math.random() * 0.6),
+      segs: null, peak1Recorded: true, peak2Recorded: false
+    };
+    flashPeakTimestamps.push(now);
+  }
+
+  function getFlashAlpha(now) {
+    if (!activeFlash) return 0;
+    const t = now - activeFlash.start;
+    if (t > activeFlash.duration) { activeFlash = null; return 0; }
+    const maxA = activeFlash.sheetOnly ? 0.22 : 0.32;
+    let a = 0;
+    if (t < 80) a = maxA * Math.sin((t / 80) * Math.PI);
+    else if (t < 135) a = 0.03;
+    else if (t < 210) {
+      if (!activeFlash.peak2Recorded) {
+        if (canTriggerPeak(now)) { flashPeakTimestamps.push(now); activeFlash.peak2Recorded = true; }
+        else return 0.03;
+      }
+      a = (maxA * 0.85) * Math.sin(((t - 135) / 75) * Math.PI);
+    } else {
+      const k = 1 - (t - 210) / (activeFlash.duration - 210);
+      a = (maxA * 0.6) * k * k;
+    }
+    return Math.min(0.34, Math.max(0, a));
+  }
+
+  function drawFrame(now, dt) {
+    ctx.clearRect(0, 0, w, h);
+    const flashAlpha = reduceMotion ? 0 : getFlashAlpha(now);
+
+    for (let i = 0; i < clouds.length; i++) {
+      const c = clouds[i];
+      if (!reduceMotion) {
+        c.x += c.vx * dt;
+        if (c.x - c.rx > w) c.x = -c.rx * 0.8;
+      }
+      const g = ctx.createRadialGradient(c.x, c.y, 10, c.x, c.y, c.rx);
+      const boost = flashAlpha * 0.6;
+      g.addColorStop(0, `rgba(${Math.round(18 + boost * 155)}, ${Math.round(42 + boost * 175)}, ${Math.round(125 + boost * 120)}, ${0.28 + boost})`);
+      g.addColorStop(1, "rgba(3, 4, 13, 0)");
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.ellipse(c.x, c.y, c.rx, c.ry, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    if (flashAlpha > 0.005) {
+      ctx.fillStyle = `rgba(180, 212, 255, ${flashAlpha.toFixed(3)})`;
+      ctx.fillRect(0, 0, w, h);
+    }
+
+    if (activeFlash && !activeFlash.sheetOnly && activeFlash.segs && (now - activeFlash.start) <= activeFlash.boltDuration) {
+      ctx.save();
+      ctx.lineCap = "round"; ctx.lineJoin = "round";
+      ctx.shadowColor = "rgba(130, 215, 255, 0.9)"; ctx.shadowBlur = 16;
+      const segs = activeFlash.segs;
+      for (let i = 0; i < segs.length; i++) {
+        const s = segs[i];
+        ctx.strokeStyle = s.main ? "rgba(218, 238, 255, 0.92)" : "rgba(165, 210, 255, 0.65)";
+        ctx.lineWidth = s.main ? 2.3 : 1.1;
+        ctx.beginPath(); ctx.moveTo(s.x1, s.y1); ctx.lineTo(s.x2, s.y2); ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    ctx.lineCap = "round";
+    for (let i = 0; i < drops.length; i++) {
+      const d = drops[i];
+      if (!reduceMotion) {
+        d.x += SIN_A * d.speed * dt;
+        d.y += COS_A * d.speed * dt;
+        if (d.y > h + 30 || d.x > w + 60) {
+          d.y = -20 - Math.random() * 40;
+          d.x = Math.random() * (w + h * SIN_A) - h * SIN_A;
+        }
+      }
+      ctx.lineWidth = d.width;
+      ctx.strokeStyle = d.yellow ? "rgba(252, 238, 10, 0.78)" : `rgba(190, 216, 255, ${d.alpha})`;
+      ctx.beginPath();
+      ctx.moveTo(d.x, d.y);
+      ctx.lineTo(d.x - SIN_A * d.len, d.y - COS_A * d.len);
+      ctx.stroke();
+    }
+
+    if (!reduceMotion) {
+      ctx.lineWidth = 1;
+      for (let i = 0; i < splashes.length; i++) {
+        const sp = splashes[i];
+        sp.r += 16 * dt;
+        if (sp.r >= sp.maxR) {
+          sp.r = 0; sp.x = Math.random() * w; sp.y = h - 6 - Math.random() * 28;
+        }
+        const a = (1 - sp.r / sp.maxR) * 0.35;
+        ctx.strokeStyle = sp.yellow ? `rgba(252, 238, 10, ${a.toFixed(3)})` : `rgba(185, 215, 255, ${a.toFixed(3)})`;
+        ctx.beginPath();
+        ctx.ellipse(sp.x, sp.y, sp.r * 1.8, sp.r * 0.45, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+  }
+
+  function loop(now) {
+    if (!enabled || document.hidden || reduceMotion) { rafId = 0; return; }
+    if (!lastTime) lastTime = now;
+    const dt = Math.min(0.05, (now - lastTime) / 1000);
+    lastTime = now;
+
+    if (now >= nextThunderAt) triggerThunderStrike(now);
+    else if (now >= nextSilentFlashAt) triggerSilentSkyFlash(now);
+
+    drawFrame(now, dt);
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function start() {
+    canvas.style.display = enabled ? "block" : "none";
+    if (!enabled) {
+      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+      ctx.clearRect(0, 0, w, h);
+      return;
+    }
+    if (reduceMotion) { drawFrame(performance.now(), 0); return; }
+    if (!rafId && !document.hidden) {
+      lastTime = performance.now();
+      if (!nextThunderAt) scheduleNextThunder(lastTime);
+      if (!nextSilentFlashAt) scheduleNextSilentFlash(lastTime);
+      rafId = requestAnimationFrame(loop);
+    }
+  }
+
+  function setStorm(on) {
+    enabled = !!on;
+    saveState(enabled);
+    start();
+    const btn = document.getElementById("stormToggle");
+    if (btn) {
+      btn.setAttribute("aria-pressed", enabled ? "true" : "false");
+      btn.textContent = enabled ? "STORM: ON" : "STORM: OFF";
+    }
+  }
+
+  window.STORM = { isOn: () => enabled, set: setStorm, toggle: () => setStorm(!enabled) };
+  initScene();
+  const initNow = performance.now();
+  scheduleNextThunder(initNow);
+  scheduleNextSilentFlash(initNow);
+  start();
+
+  window.addEventListener("resize", () => {
+    initScene();
+    if (enabled && reduceMotion) drawFrame(performance.now(), 0);
+  });
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      if (rafId) { cancelAnimationFrame(rafId); rafId = 0; }
+    } else {
+      lastTime = 0;
+      start();
+    }
+  });
+})();
+</script>
+<script>
+/* =====================================================================
+   YouTube Playlist & Video Deck Engine
+   1. Instant No-Account Mode: Paste any YouTube playlist/video -> Play & Save
+      in localStorage + shareable URL parameters (?list=... or ?v=...).
+   2. Global Community Board: Reads GitHub Issues (saifkhan2007/test) with
+      "Playlist:" or "Music:" or YouTube playlist links, cached for 5 min.
+   ===================================================================== */
+(function () {
+  const $ = id => document.getElementById(id);
+  const esc = t => String(t).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  const GITHUB_REPO = "saifkhan2007/test";
+  const LOCAL_STORAGE_KEY = "nightcity_music_deck_v1";
+
+  const PRESET_PLAYLISTS = [
+    {
+      id: "preset-lofi",
+      title: "Lofi Hip Hop Radio — Beats to Study/Relax",
+      kind: "video",
+      ytId: "jfKfPfyJRdk",
+      by: "Station Preset",
+      preset: true
+    },
+    {
+      id: "preset-synth",
+      title: "Cyberpunk 2077 / Synthwave Night Drive Mix",
+      kind: "playlist",
+      ytId: "PL4o29bINVT4EG_y-k5jGoOu3-Am8Nvi10",
+      by: "Station Preset",
+      preset: true
+    }
+  ];
+
+  $("backHubBtn").addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  const stormBtn = $("stormToggle");
+  if (stormBtn && window.STORM) {
+    const on = window.STORM.isOn();
+    stormBtn.setAttribute("aria-pressed", on ? "true" : "false");
+    stormBtn.textContent = on ? "STORM: ON" : "STORM: OFF";
+    stormBtn.addEventListener("click", () => window.STORM.toggle());
+  }
+
+  /* Ticker & Clock */
+  const tickText = [
+    "NIGHT CITY FM ONLINE",
+    "YOUTUBE PLAYLIST DECK",
+    "NO RAIN/THUNDER AUDIO INTERFERENCE",
+    "STAY SHARP, CHOOMBA"
+  ].map(t => `<span>${esc(t)}</span>`).join("");
+  $("tick").innerHTML = tickText.repeat(6);
+
+  const tickClock = () => {
+    $("clock").textContent = "ONLINE  " + new Date().toLocaleTimeString([], { hour12: false });
+  };
+  tickClock();
+  setInterval(tickClock, 1000);
+
+  /* ---------- Parse any YouTube Playlist or Video URL / ID ---------- */
+  function parseYouTubeInput(raw) {
+    const str = String(raw || "").trim();
+    if (!str) return null;
+
+    /* 1. Check for ?list= or &list= parameter */
+    const listMatch = str.match(/[?&]list=([a-zA-Z0-9_-]{10,})/);
+    if (listMatch) {
+      return { kind: "playlist", ytId: listMatch[1] };
+    }
+
+    /* 2. Raw playlist ID (starts with PL, OLAK5uy_, UU, FL, RD) */
+    if (/^(PL|OLAK5uy_|UU|FL|RD)[a-zA-Z0-9_-]{10,}$/.test(str)) {
+      return { kind: "playlist", ytId: str };
+    }
+
+    /* 3. Standard YouTube video URL (watch?v=, youtu.be/, embed/, shorts/, live/) */
+    const vidMatch = str.match(/(?:v=|youtu\.be\/|embed\/|shorts\/|live\/)([a-zA-Z0-9_-]{11})/);
+    if (vidMatch) {
+      return { kind: "video", ytId: vidMatch[1] };
+    }
+
+    /* 4. Raw 11-char video ID */
+    if (/^[a-zA-Z0-9_-]{11}$/.test(str)) {
+      return { kind: "video", ytId: str };
+    }
+
+    return null;
+  }
+
+  function buildEmbedUrl(item, autoplay = false) {
+    const ap = autoplay ? "&autoplay=1" : "";
+    if (item.kind === "playlist") {
+      return `https://www.youtube-nocookie.com/embed/videoseries?list=${encodeURIComponent(item.ytId)}&rel=0${ap}`;
+    }
+    return `https://www.youtube-nocookie.com/embed/${encodeURIComponent(item.ytId)}?rel=0${ap}`;
+  }
+
+  function buildWatchUrl(item) {
+    if (item.kind === "playlist") {
+      return `https://www.youtube.com/playlist?list=${encodeURIComponent(item.ytId)}`;
+    }
+    return `https://www.youtube.com/watch?v=${encodeURIComponent(item.ytId)}`;
+  }
+
+  /* ---------- Local Saved Playlists (No Account Required) ---------- */
+  function loadSavedDeck() {
+    try {
+      const raw = localStorage.getItem(LOCAL_STORAGE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) return parsed;
+      }
+    } catch (e) {}
+    return [];
+  }
+
+  function saveDeck(list) {
+    try {
+      localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(list));
+    } catch (e) {}
+  }
+
+  let savedItems = loadSavedDeck();
+  let communityItems = [];
+  let activeKey = "video:jfKfPfyJRdk";
+
+  function showToast(msg, isErr = false) {
+    const t = $("statusToast");
+    t.textContent = msg;
+    t.className = "status-toast" + (isErr ? " err" : "");
+  }
+
+  function playItem(item, autoplay = true) {
+    if (!item || !item.ytId) return;
+    activeKey = `${item.kind}:${item.ytId}`;
+    $("ytFrame").src = buildEmbedUrl(item, autoplay);
+    $("npType").textContent = item.kind === "playlist" ? "STREAMING YOUTUBE PLAYLIST" : "STREAMING YOUTUBE TRACK";
+    $("npTitle").textContent = item.title || item.ytId;
+    $("openYtLink").href = buildWatchUrl(item);
+
+    /* Update URL query string so the current playlist can be bookmarked/shared */
+    try {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("list");
+      url.searchParams.delete("v");
+      url.searchParams.set(item.kind === "playlist" ? "list" : "v", item.ytId);
+      if (item.title) url.searchParams.set("title", item.title);
+      window.history.replaceState(null, "", url.toString());
+    } catch (e) {}
+
+    renderLocalGrid();
+    renderCommunityGrid();
+  }
+
+  function renderLocalGrid() {
+    const all = [...savedItems, ...PRESET_PLAYLISTS];
+    $("localGrid").innerHTML = all.map((item, idx) => {
+      const isAct = activeKey === `${item.kind}:${item.ytId}`;
+      const badge = item.kind === "playlist" ? "PLAYLIST" : "VIDEO";
+      const delBtn = item.preset
+        ? ""
+        : `<button type="button" class="del-btn" data-del="${idx}" aria-label="Remove ${esc(item.title)}">✕</button>`;
+      return `
+        <li class="pl-card${isAct ? " active" : ""}">
+          <div>
+            <div class="pl-top">
+              <span class="pl-name">${esc(item.title)}</span>
+              <span class="pl-badge">${isAct ? "PLAYING" : badge}</span>
+            </div>
+            <div class="pl-meta">${esc(item.by || "Saved in browser")} · <code>${esc(item.ytId.slice(0, 16))}</code></div>
+          </div>
+          <div class="pl-btns">
+            <button type="button" class="play-btn" data-local="${idx}">${isAct ? "▶ Playing" : "▶ Load in Player"}</button>
+            ${delBtn}
+          </div>
+        </li>`;
+    }).join("");
+  }
+
+  function renderCommunityGrid() {
+    const grid = $("communityGrid");
+    if (!communityItems.length) {
+      grid.innerHTML = "";
+      return;
+    }
+    grid.innerHTML = communityItems.map((item, idx) => {
+      const isAct = activeKey === `${item.kind}:${item.ytId}`;
+      const badge = item.kind === "playlist" ? "PLAYLIST" : "VIDEO";
+      return `
+        <li class="pl-card${isAct ? " active" : ""}">
+          <div>
+            <div class="pl-top">
+              <span class="pl-name">${esc(item.title)}</span>
+              <span class="pl-badge">${isAct ? "PLAYING" : badge}</span>
+            </div>
+            <div class="pl-meta">by <a href="https://github.com/${esc(item.by)}" target="_blank" rel="noopener">${esc(item.by)}</a> · <a href="${esc(item.issueUrl)}" target="_blank" rel="noopener">Issue</a></div>
+          </div>
+          <div class="pl-btns">
+            <button type="button" class="play-btn" data-comm="${idx}">${isAct ? "▶ Playing" : "▶ Load in Player"}</button>
+          </div>
+        </li>`;
+    }).join("");
+  }
+
+  $("localGrid").addEventListener("click", e => {
+    const playBtn = e.target.closest("[data-local]");
+    if (playBtn) {
+      const all = [...savedItems, ...PRESET_PLAYLISTS];
+      const item = all[+playBtn.dataset.local];
+      if (item) playItem(item, true);
+      return;
+    }
+    const delBtn = e.target.closest("[data-del]");
+    if (delBtn) {
+      const i = +delBtn.dataset.del;
+      if (i >= 0 && i < savedItems.length) {
+        savedItems.splice(i, 1);
+        saveDeck(savedItems);
+        renderLocalGrid();
+        showToast("Removed playlist from your browser deck.");
+      }
+    }
+  });
+
+  $("communityGrid").addEventListener("click", e => {
+    const playBtn = e.target.closest("[data-comm]");
+    if (playBtn) {
+      const item = communityItems[+playBtn.dataset.comm];
+      if (item) playItem(item, true);
+    }
+  });
+
+  /* ---------- Attach Form Submit (Instant No-Account Play + Save) ---------- */
+  $("attachForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const rawUrl = $("plUrl").value.trim();
+    const rawTitle = $("plTitle").value.trim();
+    const parsed = parseYouTubeInput(rawUrl);
+
+    if (!parsed) {
+      showToast("Could not find a valid YouTube playlist (?list=PL...) or video ID.", true);
+      return;
+    }
+
+    const title = rawTitle || (parsed.kind === "playlist" ? `YouTube Playlist (${parsed.ytId.slice(0, 10)})` : `YouTube Track (${parsed.ytId})`);
+    const newItem = {
+      id: Date.now().toString(36),
+      title: title,
+      kind: parsed.kind,
+      ytId: parsed.ytId,
+      by: "Saved on this device"
+    };
+
+    /* Avoid duplicates in savedItems */
+    savedItems = savedItems.filter(x => !(x.kind === newItem.kind && x.ytId === newItem.ytId));
+    savedItems.unshift(newItem);
+    saveDeck(savedItems);
+
+    playItem(newItem, true);
+    $("plUrl").value = "";
+    $("plTitle").value = "";
+    showToast(`Now playing "${title}" — saved to your deck!`);
+  });
+
+  /* ---------- Publish to Public GitHub Issues Board (like photos.html) ---------- */
+  $("sharePublicBtn").addEventListener("click", () => {
+    const rawUrl = $("plUrl").value.trim();
+    const rawTitle = $("plTitle").value.trim();
+    const parsed = parseYouTubeInput(rawUrl);
+
+    const shareItem = parsed
+      ? { kind: parsed.kind, ytId: parsed.ytId, title: rawTitle || "Night City Mix" }
+      : {
+          kind: activeKey.startsWith("playlist:") ? "playlist" : "video",
+          ytId: activeKey.split(":")[1],
+          title: rawTitle || $("npTitle").textContent
+        };
+
+    const ytUrl = buildWatchUrl(shareItem);
+    const issueTitle = `Playlist: ${shareItem.title}`;
+    const issueBody = `YouTube Link: ${ytUrl}\n\n*(Submit this issue and refresh music.html to see it on the Community Shared Playlists board!)*`;
+    const ghUrl = `https://github.com/${GITHUB_REPO}/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
+    window.open(ghUrl, "_blank", "noopener");
+    showToast("Opened GitHub Issue tab — press 'Submit new issue' there to publish globally.");
+  });
+
+  /* ---------- Copy Shareable Link Button ---------- */
+  $("copyShareBtn").addEventListener("click", () => {
+    const [kind, ytId] = activeKey.split(":");
+    const title = $("npTitle").textContent;
+    let shareUrl = window.location.href;
+    try {
+      const u = new URL(window.location.href);
+      u.searchParams.delete("list");
+      u.searchParams.delete("v");
+      u.searchParams.set(kind === "playlist" ? "list" : "v", ytId);
+      u.searchParams.set("title", title);
+      shareUrl = u.toString();
+    } catch (e) {}
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        showToast("Shareable link copied to clipboard!");
+      }).catch(() => {});
+    } else {
+      const ta = document.createElement("textarea");
+      ta.value = shareUrl;
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); showToast("Shareable link copied!"); } catch (e) {}
+      ta.remove();
+    }
+  });
+
+  /* ---------- Fetch Community Playlists from GitHub Issues (5-min cache) ---------- */
+  async function fetchCommunityPlaylists() {
+    const cacheKey = "music_issues:" + GITHUB_REPO;
+    try {
+      const cached = JSON.parse(sessionStorage.getItem(cacheKey));
+      if (cached && Date.now() - cached.t < 300000) return cached.d;
+    } catch (e) {}
+
+    const r = await fetch(`https://api.github.com/repos/${GITHUB_REPO}/issues?state=open&sort=created&direction=desc&per_page=100`, {
+      headers: { Accept: "application/vnd.github+json" }
+    });
+    if (!r.ok) throw new Error("GitHub said " + r.status);
+
+    const out = [];
+    const seen = new Set();
+    (await r.json()).forEach(issue => {
+      if (issue.pull_request) return;
+      const t = String(issue.title || "");
+      const b = String(issue.body || "");
+      const isMusicIssue = /^(playlist|music|song|radio)\s*:/i.test(t);
+      const parsed = parseYouTubeInput(b) || (isMusicIssue ? parseYouTubeInput(t) : null);
+      if (!parsed) return;
+
+      const key = `${parsed.kind}:${parsed.ytId}`;
+      if (seen.has(key)) return;
+      seen.add(key);
+
+      out.push({
+        title: t.replace(/^(playlist|music|song|radio)\s*:\s*/i, "").trim() || "Untitled Mix",
+        kind: parsed.kind,
+        ytId: parsed.ytId,
+        by: (issue.user || {}).login || "ghost",
+        issueUrl: issue.html_url
+      });
+    });
+
+    try {
+      sessionStorage.setItem(cacheKey, JSON.stringify({ t: Date.now(), d: out }));
+    } catch (e) {}
+    return out;
+  }
+
+  /* ---------- Initialize from URL params (?list=... or ?v=...) or default ---------- */
+  (function init() {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const listParam = params.get("list");
+      const vParam = params.get("v");
+      const titleParam = params.get("title");
+      if (listParam && /^[a-zA-Z0-9_-]{10,}$/.test(listParam)) {
+        playItem({ kind: "playlist", ytId: listParam, title: titleParam || `Shared Playlist (${listParam.slice(0, 8)})` }, false);
+      } else if (vParam && /^[a-zA-Z0-9_-]{11}$/.test(vParam)) {
+        playItem({ kind: "video", ytId: vParam, title: titleParam || `Shared Track (${vParam})` }, false);
+      } else if (savedItems.length) {
+        playItem(savedItems[0], false);
+      } else {
+        playItem(PRESET_PLAYLISTS[0], false);
+      }
+    } catch (e) {
+      renderLocalGrid();
+    }
+
+    fetchCommunityPlaylists()
+      .then(items => {
+        communityItems = items;
+        renderCommunityGrid();
+        const msgEl = $("communityMsg");
+        if (items.length) {
+          msgEl.hidden = true;
+        } else {
+          msgEl.textContent = "No community playlists posted yet. Attach one above and click 'Publish to Public Board (GitHub)' to be the first!";
+        }
+      })
+      .catch(err => {
+        $("communityMsg").innerHTML = `Could not load community playlists (${esc(err.message)}). Your local deck above still works without any account, or check <a href="https://github.com/${esc(GITHUB_REPO)}/issues" target="_blank" rel="noopener">GitHub Issues</a>.`;
+      });
+  })();
+})();
+</script>
+</body>
+</html>
