@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#03040d">
-<title>NIGHT CITY FM // MUSIC DECK — RANDOM AHH TOOL BOX</title>
+<title>MUSIC</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&display=swap" rel="stylesheet">
@@ -303,6 +303,44 @@ body{
   border:0;
   display:block;
 }
+.audio-deck{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  padding:20px;
+  background:radial-gradient(circle at center,#12225a 0%,#040716 75%);
+  text-align:center;
+}
+.audio-art{
+  width:74px;
+  height:74px;
+  border-radius:50%;
+  border:2px solid var(--y);
+  display:grid;
+  place-items:center;
+  color:var(--y);
+  font-size:2rem;
+  box-shadow:0 0 22px rgba(252,238,10,.35);
+  animation:spinDisc 8s linear infinite;
+}
+@keyframes spinDisc{to{transform:rotate(360deg)}}
+.audio-deck audio{
+  width:min(100%,460px);
+  height:42px;
+  outline:none;
+}
+.upload-box{
+  margin-top:14px;
+  padding-top:14px;
+  border-top:1px dashed rgba(252,238,10,.3);
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
 .now-playing{
   margin-top:12px;
   display:flex;
@@ -573,7 +611,7 @@ ul.pl-grid{
 
   <div class="sec-head">
     <div class="sh">
-      <h1 class="glitch" id="title" data-text="Night City FM // Music">Night City FM // Music</h1>
+      <h1 class="glitch" id="title" data-text="MUSIC 📢">MUSIC📢</h1>
       <span class="rule"></span>
     </div>
     <p class="blurb">Attach any YouTube playlist or video and play it right here. Auto-plays the latest community stream and advances to the next one when a track ends.</p>
@@ -595,6 +633,10 @@ ul.pl-grid{
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowfullscreen>
         </iframe>
+        <div class="audio-deck" id="audioDeck" hidden>
+          <div class="audio-art" aria-hidden="true">♫</div>
+          <audio id="htmlAudio" controls preload="metadata" referrerpolicy="no-referrer"></audio>
+        </div>
       </div>
 
       <div class="now-playing">
@@ -650,8 +692,27 @@ ul.pl-grid{
           Want every visitor to see and auto-play your song/playlist on the global board below? Click <em>Publish to Public Board</em> to post it as a GitHub Issue.
         </p>
       </form>
+
+      <div class="upload-box">
+        <span class="panel-title" style="font-size:.98rem">UPLOAD AUDIO FILE (.MP3 / .WAV)</span>
+        <div class="btn-row">
+          <a class="btn" id="uploadAudioGhBtn" href="https://github.com/saifkhan2007/test/issues/new?title=Audio%3A%20" target="_blank" rel="noopener">Upload .MP3 / .WAV to GitHub</a>
+          <label class="btn btn-sec" for="localAudioIn" style="cursor:pointer">Play Local Audio File</label>
+          <input type="file" id="localAudioIn" accept=".mp3,.wav,.ogg,.m4a,audio/*" hidden>
+        </div>
+        <p class="fnote">
+          GitHub Issues natively supports attaching <code>.mp3</code> and <code>.wav</code> files up to <strong>25 MB</strong>! Click <em>Upload .MP3 / .WAV to GitHub</em>, drag your audio file into the issue box, press Submit new issue, and refresh this page.
+        </p>
+      </div>
     </section>
   </div>
+
+  <!-- Uploaded Community Audio Files (.mp3 / .wav from GitHub Issues) -->
+  <section class="list-sec" aria-label="Uploaded Community Music">
+    <h2>UPLOADED COMMUNITY MUSIC (.MP3 / .WAV ON GITHUB)</h2>
+    <ul class="pl-grid" id="uploadedAudioGrid"></ul>
+    <p class="fnote" id="uploadedAudioMsg">Loading uploaded audio tracks from GitHub Issues...</p>
+  </section>
 
   <!-- Global Community Playlists (from GitHub Issues) -->
   <section class="list-sec" aria-label="Community Shared Playlists">
@@ -1070,6 +1131,7 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
 
   let savedItems = loadSavedDeck();
   let communityItems = [];
+  let uploadedAudioItems = [];
   let activeKey = "";
 
   function showToast(msg, isErr = false) {
@@ -1079,7 +1141,8 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
   }
 
   function getActivePool() {
-    if (communityItems.length) return communityItems;
+    const combined = [...uploadedAudioItems, ...communityItems];
+    if (combined.length) return combined;
     return savedItems;
   }
 
@@ -1087,20 +1150,43 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
     if (!item || !item.ytId) return;
     activeKey = `${item.kind}:${item.ytId}`;
     const frame = $("ytFrame");
-    frame.src = buildEmbedUrl(item, autoplay);
-    $("npType").textContent = item.kind === "playlist" ? "STREAMING YOUTUBE PLAYLIST" : "STREAMING YOUTUBE TRACK";
-    $("npTitle").textContent = item.title || item.ytId;
-    $("openYtLink").href = buildWatchUrl(item);
+    const audioDeck = $("audioDeck");
+    const htmlAudio = $("htmlAudio");
 
-    try {
-      const url = new URL(window.location.href);
-      url.searchParams.delete("list");
-      url.searchParams.delete("v");
-      url.searchParams.set(item.kind === "playlist" ? "list" : "v", item.ytId);
-      if (item.title) url.searchParams.set("title", item.title);
-      window.history.replaceState(null, "", url.toString());
-    } catch (e) {}
+    if (item.kind === "audio") {
+      frame.src = "about:blank";
+      frame.hidden = true;
+      audioDeck.hidden = false;
+      htmlAudio.src = item.ytId;
+      if (autoplay) {
+        const p = htmlAudio.play();
+        if (p && typeof p.catch === "function") p.catch(() => {});
+      }
+      $("npType").textContent = "PLAYING UPLOADED AUDIO (.MP3 / .WAV)";
+      $("npTitle").textContent = item.title || "Uploaded Track";
+      $("openYtLink").href = item.issueUrl || item.ytId;
+      $("openYtLink").textContent = item.issueUrl ? "View on GitHub" : "Open Audio";
+    } else {
+      try { htmlAudio.pause(); htmlAudio.removeAttribute("src"); } catch (e) {}
+      audioDeck.hidden = true;
+      frame.hidden = false;
+      frame.src = buildEmbedUrl(item, autoplay);
+      $("npType").textContent = item.kind === "playlist" ? "STREAMING YOUTUBE PLAYLIST" : "STREAMING YOUTUBE TRACK";
+      $("npTitle").textContent = item.title || item.ytId;
+      $("openYtLink").href = buildWatchUrl(item);
+      $("openYtLink").textContent = "Open on YouTube";
 
+      try {
+        const url = new URL(window.location.href);
+        url.searchParams.delete("list");
+        url.searchParams.delete("v");
+        url.searchParams.set(item.kind === "playlist" ? "list" : "v", item.ytId);
+        if (item.title) url.searchParams.set("title", item.title);
+        window.history.replaceState(null, "", url.toString());
+      } catch (e) {}
+    }
+
+    renderUploadedAudioGrid();
     renderLocalGrid();
     renderCommunityGrid();
   }
@@ -1314,8 +1400,97 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
     }
   });
 
-  async function fetchCommunityPlaylists() {
-    const cacheKey = "music_issues:" + GITHUB_REPO;
+  $("htmlAudio").addEventListener("ended", () => {
+    playNextCommunity(1);
+  });
+
+  $("localAudioIn").addEventListener("change", e => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const blobUrl = URL.createObjectURL(file);
+    const cleanName = file.name.replace(/\.[a-z0-9]+$/i, "");
+    const item = {
+      title: cleanName,
+      kind: "audio",
+      ytId: blobUrl,
+      by: "Local file",
+      issueUrl: ""
+    };
+    uploadedAudioItems.unshift(item);
+    playItem(item, true);
+    showToast(`Playing local audio file: ${file.name}`);
+  });
+
+  /* Update GitHub Audio Upload button title dynamically if user typed a title */
+  $("plTitle").addEventListener("input", () => {
+    const t = $("plTitle").value.trim();
+    const bodyHint = "Drag and drop your .mp3 or .wav file (up to 25 MB) below, then click Submit new issue:";
+    $("uploadAudioGhBtn").href = `https://github.com/${GITHUB_REPO}/issues/new?title=${encodeURIComponent("Audio: " + t)}&body=${encodeURIComponent(bodyHint + "\n\n")}`;
+  });
+
+  function renderUploadedAudioGrid() {
+    const grid = $("uploadedAudioGrid");
+    if (!grid) return;
+    if (!uploadedAudioItems.length) {
+      grid.innerHTML = "";
+      return;
+    }
+    grid.innerHTML = uploadedAudioItems.map((item, idx) => {
+      const isAct = activeKey === `audio:${item.ytId}`;
+      const metaHtml = item.issueUrl
+        ? `by <a href="https://github.com/${esc(item.by)}" target="_blank" rel="noopener">${esc(item.by)}</a> · <a href="${esc(item.issueUrl)}" target="_blank" rel="noopener">Issue</a>`
+        : esc(item.by || "Local file");
+      return `
+        <li class="pl-card${isAct ? " active" : ""}">
+          <div>
+            <div class="pl-top">
+              <span class="pl-name">${esc(item.title)}</span>
+              <span class="pl-badge">${isAct ? "PLAYING" : "AUDIO"}</span>
+            </div>
+            <div class="pl-meta">${metaHtml}</div>
+          </div>
+          <div class="pl-btns">
+            <button type="button" class="play-btn" data-upaudio="${idx}">${isAct ? "▶ Playing" : "▶ Play Audio"}</button>
+          </div>
+        </li>`;
+    }).join("");
+  }
+
+  $("uploadedAudioGrid").addEventListener("click", e => {
+    const btn = e.target.closest("[data-upaudio]");
+    if (btn) {
+      const item = uploadedAudioItems[+btn.dataset.upaudio];
+      if (item) playItem(item, true);
+    }
+  });
+
+  /* Extract uploaded .mp3 / .wav / audio attachments from a GitHub Issue body */
+  function extractIssueAudioUrls(body, isAudioIssue) {
+    const urls = [];
+    const text = String(body || "");
+    /* 1. Markdown links to .mp3/.wav/.ogg/.m4a or GitHub user-attachments */
+    const mdRe = /\[([^\]]*)\]\((https:\/\/(?:github\.com\/user-attachments\/assets\/|github\.com\/[^\s)]+\/files\/|user-images\.githubusercontent\.com\/)[^)\s]+)\)/gi;
+    let m;
+    while ((m = mdRe.exec(text))) {
+      const label = m[1] || "";
+      const u = m[2];
+      if (/\.(mp3|wav|ogg|m4a|flac|webm|mp4)$/i.test(label) || /\.(mp3|wav|ogg|m4a|flac)$/i.test(u) || isAudioIssue) {
+        if (!urls.includes(u)) urls.push(u);
+      }
+    }
+    /* 2. <audio src="..."> or <video src="..."> or bare user-attachments in an Audio: issue */
+    const tagRe = /(?:src="|(https:\/\/github\.com\/user-attachments\/assets\/[a-zA-Z0-9-]+))(https:\/\/[^"\s)]+)?/gi;
+    while ((m = tagRe.exec(text))) {
+      const u = m[1] || m[2];
+      if (u && isAudioIssue && /^https:\/\/github\.com\/user-attachments\/assets\//.test(u)) {
+        if (!urls.includes(u)) urls.push(u);
+      }
+    }
+    return urls;
+  }
+
+  async function fetchCommunityMedia() {
+    const cacheKey = "music_media_v2:" + GITHUB_REPO;
     try {
       const cached = JSON.parse(sessionStorage.getItem(cacheKey));
       if (cached && Date.now() - cached.t < 300000) return cached.d;
@@ -1326,62 +1501,102 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
     });
     if (!r.ok) throw new Error("GitHub said " + r.status);
 
-    const out = [];
+    const ytList = [];
+    const audioList = [];
     const seen = new Set();
+
     (await r.json()).forEach(issue => {
       if (issue.pull_request) return;
       const t = String(issue.title || "");
       const b = String(issue.body || "");
+      const isAudioIssue = /^(audio|track|mp3|wav)\s*:/i.test(t);
       const isMusicIssue = /^(playlist|music|song|radio)\s*:/i.test(t);
-      const parsed = parseYouTubeInput(b) || (isMusicIssue ? parseYouTubeInput(t) : null);
-      if (!parsed) return;
+      const cleanTitle = t.replace(/^(playlist|music|song|radio|audio|track|mp3|wav)\s*:\s*/i, "").trim() || "Untitled Track";
+      const author = (issue.user || {}).login || "ghost";
 
-      const key = `${parsed.kind}:${parsed.ytId}`;
-      if (seen.has(key)) return;
-      seen.add(key);
-
-      out.push({
-        title: t.replace(/^(playlist|music|song|radio)\s*:\s*/i, "").trim() || "Untitled Mix",
-        kind: parsed.kind,
-        ytId: parsed.ytId,
-        by: (issue.user || {}).login || "ghost",
-        issueUrl: issue.html_url
+      /* Check for uploaded audio attachments first */
+      const audioUrls = extractIssueAudioUrls(b, isAudioIssue);
+      audioUrls.forEach(u => {
+        const key = "audio:" + u;
+        if (seen.has(key)) return;
+        seen.add(key);
+        audioList.push({
+          title: cleanTitle,
+          kind: "audio",
+          ytId: u,
+          by: author,
+          issueUrl: issue.html_url,
+          createdAt: issue.created_at
+        });
       });
+
+      /* Check for YouTube playlist or video links */
+      const parsed = parseYouTubeInput(b) || ((isMusicIssue || isAudioIssue) ? parseYouTubeInput(t) : null);
+      if (parsed) {
+        const key = `${parsed.kind}:${parsed.ytId}`;
+        if (!seen.has(key)) {
+          seen.add(key);
+          ytList.push({
+            title: cleanTitle,
+            kind: parsed.kind,
+            ytId: parsed.ytId,
+            by: author,
+            issueUrl: issue.html_url,
+            createdAt: issue.created_at
+          });
+        }
+      }
     });
 
+    const result = { ytList, audioList };
     try {
-      sessionStorage.setItem(cacheKey, JSON.stringify({ t: Date.now(), d: out }));
+      sessionStorage.setItem(cacheKey, JSON.stringify({ t: Date.now(), d: result }));
     } catch (e) {}
-    return out;
+    return result;
   }
 
-  /* ---------- Initialize: Always auto-play the latest community video/playlist ---------- */
+  /* ---------- Initialize: Always auto-play the latest community upload or playlist ---------- */
   (function init() {
     renderLocalGrid();
 
-    fetchCommunityPlaylists()
-      .then(items => {
-        communityItems = items;
+    fetchCommunityMedia()
+      .then(({ ytList, audioList }) => {
+        communityItems = ytList || [];
+        uploadedAudioItems = audioList || [];
+        renderUploadedAudioGrid();
         renderCommunityGrid();
-        const msgEl = $("communityMsg");
-        if (items.length) {
-          msgEl.hidden = true;
-          playItem(items[0], true);
+
+        const upMsg = $("uploadedAudioMsg");
+        if (uploadedAudioItems.length) {
+          upMsg.hidden = true;
         } else {
-          msgEl.textContent = "No community playlists posted yet. Attach one above and click 'Publish to Public Board (GitHub)' to be the first!";
-          if (savedItems.length) {
-            playItem(savedItems[0], true);
-          } else {
-            $("npTitle").textContent = "No community streams yet — attach a YouTube link on the right!";
-          }
+          upMsg.textContent = "No uploaded .mp3 / .wav tracks yet. Click 'Upload .MP3 / .WAV to GitHub' above to attach an audio file!";
+        }
+
+        const commMsg = $("communityMsg");
+        if (communityItems.length) {
+          commMsg.hidden = true;
+        } else {
+          commMsg.textContent = "No community YouTube playlists posted yet. Attach one above and click 'Publish to Public Board (GitHub)'!";
+        }
+
+        /* Pick whichever community submission (uploaded audio or YouTube) is newest */
+        const allCommunity = [...uploadedAudioItems, ...communityItems].sort(
+          (a, b) => Date.parse(b.createdAt || 0) - Date.parse(a.createdAt || 0)
+        );
+        if (allCommunity.length) {
+          playItem(allCommunity[0], true);
+        } else if (savedItems.length) {
+          playItem(savedItems[0], true);
+        } else {
+          $("npTitle").textContent = "No community streams yet — upload an .mp3/.wav or attach a YouTube link!";
         }
       })
       .catch(err => {
-        $("communityMsg").innerHTML = `Could not load community playlists (${esc(err.message)}). Your local deck below still works without any account, or check <a href="https://github.com/${esc(GITHUB_REPO)}/issues" target="_blank" rel="noopener">GitHub Issues</a>.`;
+        $("uploadedAudioMsg").innerHTML = `Could not load uploaded audio (${esc(err.message)}).`;
+        $("communityMsg").innerHTML = `Could not load community playlists (${esc(err.message)}). Check <a href="https://github.com/${esc(GITHUB_REPO)}/issues" target="_blank" rel="noopener">GitHub Issues</a>.`;
         if (savedItems.length) {
           playItem(savedItems[0], true);
-        } else {
-          $("npTitle").textContent = "Attach a YouTube playlist or video to start streaming";
         }
       });
   })();
