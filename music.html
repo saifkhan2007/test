@@ -585,14 +585,14 @@ ul.pl-grid{
       <h1 class="glitch" id="title" data-text="Night City FM // Music">Night City FM // Music</h1>
       <span class="rule"></span>
     </div>
-    <p class="blurb">Attach any YouTube playlist or video and play it right here.Making a playlist public requires a GitHub account.</p>
+    <p class="blurb">Attach any YouTube playlist or video and play it right here. Visual thunderstorm stays active with zero rain/thunder audio so your music plays clean.</p>
   </div>
 
   <div class="deck-grid">
     <!-- Left Column: Embedded YouTube Player -->
     <section class="panel" aria-label="YouTube Music & Video Player">
       <div class="panel-head">
-        <span class="panel-title">Currently Playing</span>
+        <span class="panel-title">ACTIVE STREAM DECK</span>
         <div class="eq-bars" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
       </div>
 
@@ -600,7 +600,7 @@ ul.pl-grid{
         <iframe
           id="ytFrame"
           title="YouTube Playlist Player"
-          src="https://www.youtube-nocookie.com/embed/jfKfPfyJRdk?rel=0"
+          src="about:blank"
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowfullscreen>
         </iframe>
@@ -608,12 +608,12 @@ ul.pl-grid{
 
       <div class="now-playing">
         <div class="np-info">
-          <div class="np-label" id="npType">NOW STREAMING</div>
-          <div class="np-title" id="npTitle">World execute me</div>
+          <div class="np-label" id="npType">WAITING FOR STREAM</div>
+          <div class="np-title" id="npTitle">Loading latest community playlist...</div>
         </div>
         <div class="np-actions">
           <button type="button" class="btn btn-sec" id="copyShareBtn">Copy Share Link</button>
-          <a class="btn btn-sec" id="openYtLink" href="https://youtu.be/qV0aezH6Aj8?si=-ha0nxJB4C0_eGWR" target="_blank" rel="noopener">Open on YouTube</a>
+          <a class="btn btn-sec" id="openYtLink" href="https://www.youtube.com" target="_blank" rel="noopener">Open on YouTube</a>
         </div>
       </div>
     </section>
@@ -660,17 +660,18 @@ ul.pl-grid{
     </section>
   </div>
 
-  <!-- Saved & Built-in Playlists -->
-  <section class="list-sec" aria-label="Your Deck & Built-in Playlists">
-    <h2>YOUR DECK &amp; STATION PRESETS</h2>
-    <ul class="pl-grid" id="localGrid"></ul>
-  </section>
-
   <!-- Global Community Playlists (from GitHub Issues) -->
   <section class="list-sec" aria-label="Community Shared Playlists">
     <h2>COMMUNITY SHARED PLAYLISTS (GITHUB BOARD)</h2>
     <ul class="pl-grid" id="communityGrid"></ul>
     <p class="fnote" id="communityMsg">Loading community playlists from GitHub...</p>
+  </section>
+
+  <!-- Locally Saved Playlists -->
+  <section class="list-sec" id="localDeckSec" aria-label="Your Saved Deck">
+    <h2>YOUR SAVED DECK (THIS BROWSER)</h2>
+    <ul class="pl-grid" id="localGrid"></ul>
+    <p class="fnote" id="localEmptyMsg">No local playlists saved on this device yet.</p>
   </section>
 </div>
 
@@ -991,16 +992,7 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
   const GITHUB_REPO = "saifkhan2007/test";
   const LOCAL_STORAGE_KEY = "nightcity_music_deck_v1";
 
-  const PRESET_PLAYLISTS = [
-    {
-      id: "preset-lofi",
-      title: "word execute (me) ",
-      kind: "video",
-      ytId: "qV0aezH6Aj8",
-      by: "Station Preset",
-      preset: true
-    }
-  ];
+
 
   $("backHubBtn").addEventListener("click", () => {
     window.location.href = "index.html";
@@ -1094,7 +1086,7 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
 
   let savedItems = loadSavedDeck();
   let communityItems = [];
-  let activeKey = "video:jfKfPfyJRdk";
+  let activeKey = "";
 
   function showToast(msg, isErr = false) {
     const t = $("statusToast");
@@ -1125,13 +1117,11 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
   }
 
   function renderLocalGrid() {
-    const all = [...savedItems, ...PRESET_PLAYLISTS];
-    $("localGrid").innerHTML = all.map((item, idx) => {
+    const emptyMsg = $("localEmptyMsg");
+    if (emptyMsg) emptyMsg.hidden = savedItems.length > 0;
+    $("localGrid").innerHTML = savedItems.map((item, idx) => {
       const isAct = activeKey === `${item.kind}:${item.ytId}`;
       const badge = item.kind === "playlist" ? "PLAYLIST" : "VIDEO";
-      const delBtn = item.preset
-        ? ""
-        : `<button type="button" class="del-btn" data-del="${idx}" aria-label="Remove ${esc(item.title)}">✕</button>`;
       return `
         <li class="pl-card${isAct ? " active" : ""}">
           <div>
@@ -1143,7 +1133,7 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
           </div>
           <div class="pl-btns">
             <button type="button" class="play-btn" data-local="${idx}">${isAct ? "▶ Playing" : "▶ Load in Player"}</button>
-            ${delBtn}
+            <button type="button" class="del-btn" data-del="${idx}" aria-label="Remove ${esc(item.title)}">✕</button>
           </div>
         </li>`;
     }).join("");
@@ -1177,8 +1167,7 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
   $("localGrid").addEventListener("click", e => {
     const playBtn = e.target.closest("[data-local]");
     if (playBtn) {
-      const all = [...savedItems, ...PRESET_PLAYLISTS];
-      const item = all[+playBtn.dataset.local];
+      const item = savedItems[+playBtn.dataset.local];
       if (item) playItem(item, true);
       return;
     }
@@ -1326,25 +1315,9 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
     return out;
   }
 
-  /* ---------- Initialize from URL params (?list=... or ?v=...) or default ---------- */
+  /* ---------- Initialize: Always auto-play the latest community video/playlist ---------- */
   (function init() {
-    try {
-      const params = new URLSearchParams(window.location.search);
-      const listParam = params.get("list");
-      const vParam = params.get("v");
-      const titleParam = params.get("title");
-      if (listParam && /^[a-zA-Z0-9_-]{10,}$/.test(listParam)) {
-        playItem({ kind: "playlist", ytId: listParam, title: titleParam || `Shared Playlist (${listParam.slice(0, 8)})` }, false);
-      } else if (vParam && /^[a-zA-Z0-9_-]{11}$/.test(vParam)) {
-        playItem({ kind: "video", ytId: vParam, title: titleParam || `Shared Track (${vParam})` }, false);
-      } else if (savedItems.length) {
-        playItem(savedItems[0], false);
-      } else {
-        playItem(PRESET_PLAYLISTS[0], false);
-      }
-    } catch (e) {
-      renderLocalGrid();
-    }
+    renderLocalGrid();
 
     fetchCommunityPlaylists()
       .then(items => {
@@ -1353,12 +1326,24 @@ d.textContent='Script error: '+e.message+(e.lineno?' (line '+e.lineno+')':'')+'.
         const msgEl = $("communityMsg");
         if (items.length) {
           msgEl.hidden = true;
+          /* Always auto-play the latest community video/playlist (items[0]) */
+          playItem(items[0], true);
         } else {
           msgEl.textContent = "No community playlists posted yet. Attach one above and click 'Publish to Public Board (GitHub)' to be the first!";
+          if (savedItems.length) {
+            playItem(savedItems[0], true);
+          } else {
+            $("npTitle").textContent = "No community streams yet — attach a YouTube link on the right!";
+          }
         }
       })
       .catch(err => {
-        $("communityMsg").innerHTML = `Could not load community playlists (${esc(err.message)}). Your local deck above still works without any account, or check <a href="https://github.com/${esc(GITHUB_REPO)}/issues" target="_blank" rel="noopener">GitHub Issues</a>.`;
+        $("communityMsg").innerHTML = `Could not load community playlists (${esc(err.message)}). Your local deck below still works without any account, or check <a href="https://github.com/${esc(GITHUB_REPO)}/issues" target="_blank" rel="noopener">GitHub Issues</a>.`;
+        if (savedItems.length) {
+          playItem(savedItems[0], true);
+        } else {
+          $("npTitle").textContent = "Attach a YouTube playlist or video to start streaming";
+        }
       });
   })();
 })();
